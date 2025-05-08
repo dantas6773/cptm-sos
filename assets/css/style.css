@@ -1,11 +1,13 @@
 * {
     margin: 0px;
     padding: 0px;
+    font-family: "Inter", sans-serif;
 }
 
 :root {
     --cor-header: #0F1F72;
     --cor-fonte: #FFFFFF;
+    --cor-botao-saldo:#4F4D56;
 }
 
 @media screen and (max-width: 420px) {
@@ -55,6 +57,72 @@
     .perfil {
         position: relative;
         top: 8px;
+    }
+
+    .saldo {
+        display: flex;
+        position: relative;
+        top: 20px;
+        left: 20px;
+        border-radius: 20px;
+        background-color: var(--cor-header);
+        width: 360px;
+        height: 110px;
+
+    }
+
+    .saldo > h3 {
+        color: var(--cor-fonte);
+        position: relative;
+        top: 10px;
+        left: 20px;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .saldo > h5 {
+        color: var(--cor-fonte);
+        position: relative;
+        top: 45px;
+        left: -60px;
+        font-weight: 400;
+    }
+
+   
+
+    .pix {
+        width: 55px;
+        height: 25px;
+        background-color: var(--cor-botao-saldo);
+        border-radius: 15px;
+        border: 1px solid var(--cor-botao-saldo);
+        color: var(--cor-fonte);
+        font-family: "Inter", sans-serif;
+        font-size: 10px;
+        letter-spacing: 0%;
+        font-weight: 600;
+        position: relative;
+        left: -120px;
+        top: 75px;
+        cursor: pointer;
+        margin-right: 3px;
+    }
+
+    .cartao {
+        width: 80px;
+        height: 25px;
+        background-color: var(--cor-botao-saldo);
+        border-radius: 15px;
+        border: 1px solid var(--cor-botao-saldo);
+        color: var(--cor-fonte);
+        font-family: "Inter", sans-serif;
+        font-size: 10px;
+        letter-spacing: 0%;
+        font-weight: 600;
+        position: relative;
+        left: -115px;
+        top: 75px;
+        cursor: pointer;
     }
 }
 
