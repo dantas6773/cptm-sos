@@ -1,0 +1,60 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+:root {
+    --cor-header: #0F1F72;
+    --cor-fonte: #FFFFFF;
+}
+
+@media screen and (max-width: 420px) {
+    .header-todo {
+        display: flex;
+        width: 100%;
+        height: 90px;
+        background-color: var(--cor-header);
+        color: var(--cor-fonte);
+        align-items: center;
+        justify-content: space-between;
+    }  
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        position: relative;
+        top: 10px;
+        left: 10px;
+        max-width: 70px;
+        height: 38px;
+    }
+
+    .logo h1 {
+        position: absolute;
+        left: 55px;
+        top: 8px;
+        font-size: 25px;
+        color: var(--cor-fonte);
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-weight: 400;
+        margin: 0;
+        white-space: nowrap;
+    }
+    
+
+    .barra {
+        position: absolute;
+        left: 240px;
+        width: 22px;
+        height: 200px;
+        background-color: var(--cor-fonte);
+        transform: rotate(-41.95deg);
+    }
+
+    .perfil {
+        position: relative;
+        top: 8px;
+    }
+}
+
