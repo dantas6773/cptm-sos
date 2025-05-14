@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Seu App</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
@@ -16,62 +14,76 @@
 </head>
 
 <body>
-  <header>
-    <div class="header-todo">
+  <div class="pagina">
+    <header>
+      <div class="header-todo">
+        <div class="logo">
+          <img src="../imagem/logo.png" alt="Logo">
+          <h1>Olá, Maria</h1>
+        </div>
+        <div class="barra"></div>
+        <div class="perfil">
+          <img src="../imagem/perfil.png" alt="Perfil">
+        </div>
+      </div>
+    </header>
 
-      <div class="logo">
-        <img src="../imagem/logo.png" alt="Logo">
-        <h1>Olá, Maria</h1>
+    <div class="conteudo">
+      <div class="saldo">
+        <h3>Seu saldo:</h3>
+        <h5>R$117,50</h5>
+        <div class="pix"><img src="../imagem/PIX.png" alt="">PIX</div>
+        <div class="cartao"><img src="../imagem/cartao.png" alt="">Cartão</div>
       </div>
 
-      <div class="barra"></div>
-
-      <div class="perfil">
-        <img src="../imagem/perfil.png" alt="Perfil">
+      <div class="qrcode">
+        <img src="../imagem/qrcode.png" alt="qrcode">
+        <h1>USAR QR CODE</h1>
       </div>
 
+      <div class="mapa">
+        <form action="">
+          <input class="input-busca" type="text" placeholder="Para onde?">
+        </form>
+        <div class="endereco">
+          <img src="../imagem/pin.png" alt="local">
+          <p>Rua Sugestão, 1234 - Lourdes</p>
+        </div>
+        <div class="azul"></div>
+      </div>
+
+      <div class="carrosel">
+        <div class="central"><img src="../imagem/central.png" alt=""></div>
+        <div class="lateral"><img src="../imagem/lateral.png" alt=""></div>
+        <div class="bolinhas"><img src="../imagem/bolinhas.png" alt=""></div>
+      </div>
     </div>
-  </header>
-  
-  <div class="saldo">
-    <h3>Seu saldo:</h3>
-    <h5>R$117,50</h5>
-      <div class="pix"><img src="../imagem/PIX.png" alt="">PIX</div>
-    <div class="cartao"><img src="../imagem/cartao.png" alt="">Cartão</div>
-  
+
+    <footer>
+      <div class="footer-todo">
+        <div class="casinha">
+          <img src="../imagem/casinha.png" alt="">
+          <p>Home</p>
+        </div>
+        <div class="local">
+          <img src="../imagem/local.png" alt="">
+          <p>Local</p>
+        </div>
+        <div class="denuncia">
+          <img src="../imagem/denuncia.png" alt="">
+          <p>Denúncia</p>
+        </div>
+        <div class="alertas">
+          <img src="../imagem/lembretes.png" alt="">
+          <p>Alertas</p>
+        </div>
+        <div class="ajustes">
+          <img src="../imagem/ajustes.png" alt="">
+          <p>Ajustes</p>
+        </div>
+      </div>
+    </footer>
   </div>
-  <div class="qrcode">
-    <img src="../imagem/qrcode.png" alt="qrcode">
-    <h1>USAR QR CODE</h1>
-  </div>
-
-  <div class="mapa">
-    <div>
-      <form action="">
-        <input class="input-busca" type="text" value="" placeholder="Para onde?">
-      </form>
-    </div>
-    
-    <div class="endereco">
-    <img src="../imagem/pin.png" alt="local">
-    <p>Rua Sugestão, 1234 - Lourdes</p>
-
-   </div>
-    <div class="azul"></div>
-  </div>
-
-  <div class="carrosel">
-    <div class="central"><img src="../imagem/central.png" alt=""></div>
-    <div class="lateral"><img src="../imagem/lateral.png" alt=""></div>
-    <div class="bolinhas"><img src="../imagem/bolinhas.png" alt=""></div>
-  </div>
-
-  <footer>
-    <div class="footer-todo">
-      
-    </div>
-  </footer>
-
 
   <script src="./assets/js/scripts.js"></script>
 </body>
