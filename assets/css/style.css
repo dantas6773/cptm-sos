@@ -214,12 +214,13 @@
 .endereco {
   position: absolute;
   bottom: 10px;
-  left: 50px;
+  left: 28px;
   color: white;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 20px;
+  font-weight: 600;
   z-index: 1;
 }
 
