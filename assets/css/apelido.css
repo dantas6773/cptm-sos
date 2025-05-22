@@ -41,7 +41,7 @@
 
     .apelido{
         position: relative;
-        left: 75px;
+        left: 50px;
         top: 400px;
         width: 310px;
         height: 134px;
@@ -49,6 +49,7 @@
         font-size: 40px;
         font-style: italic;
         font-weight: 300;
+        text-align: center;
     }
 
     input{
@@ -83,6 +84,20 @@
         font-weight: 300;
         line-height: auto;
         border: 1px solid var(--cor-botao);
+        position: absolute;
+        left: 55px;
+        top: 700px;
+    }
+
+    .azul{
+        position: absolute;
+        top: 225px;
+        left: 0;
+        width: 100%;
+        height: 80%;
+        background: linear-gradient(to top, #1C3BD8 15%, transparent);
+        border-radius: 30px;
+        z-index: -1;
     }
 
 }
