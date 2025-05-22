@@ -1,0 +1,106 @@
+*{
+    margin: 0;
+    border: 0;
+}
+
+:root{
+    --cor-usual: #1B4680;
+    --cor-fundo: white;
+    --cor-barras:#ED1C24;
+}
+
+@media screen and (max-width: 420px) {
+    body{
+        background-color: var(--cor-fundo);
+        
+
+
+    }
+    #logo{
+        width: 43px;
+        height: 38px;
+    }
+    .barras{
+        height: 5px;
+        width:125px;
+        background-color: var(--cor-barras);
+    }
+    header{
+        height: 75px;
+        background-color: var(--cor-usual);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    #saldopt{
+        margin: 2px solid red;
+        background-color: rgb(255, 255, 255);
+        width: 200px;
+        height: 200px;
+
+    }
+    #seta{
+        
+        padding: 15px;
+        width: 27px;
+        height: 27px;
+    }
+    #voltar{
+        color: black;
+        position: relative;
+        bottom: 23px;
+        right: 3px;
+        font-size: 20px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    #bttsaldo{
+        top: 12px;
+        border-radius: 20px;
+        background-color: #1B4680;
+        display: flex;
+        align-items: center;
+        width: 340px;
+        height: 73px;
+        position: relative;
+        left: 25px;
+    }
+    #seusaldo{
+        color: white;
+        font-size: 20px;
+    }
+    #dinheiro{
+        padding-left: 20px;
+        color: white;
+        font-size: 24px;
+
+
+    }
+    .imagess{
+        width: 40px;
+        height: 40px;
+        padding: 15px;
+    }
+    #pagaments{ 
+        display: flex;
+        flex-direction: column;
+
+    }
+    .mets{
+        background-color: #1B4680;
+        padding: 20px;
+    }
+    h2{
+        font-family: Sans-serif;
+        font-weight: 500;
+    }
+    .classmets{
+
+    }
+    footer{
+
+    }
+    
+
+
+
+}
