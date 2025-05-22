@@ -11,9 +11,7 @@
 
 @media screen and (max-width: 420px) {
     body{
-        background-color: var(--cor-fundo);
-        height: 917px;
-
+        background-color: var(--cor-fundo);       
 
     }
     #logo{
@@ -46,10 +44,11 @@
         height: 27px;
     }
     #voltar{
+        text-decoration: none;
         color: black;
         position: relative;
-        bottom: 23px;
-        right: 3px;
+        bottom: 21px;
+        right: 10px;
         font-size: 20px;
         font-family: Arial, Helvetica, sans-serif;
     }
@@ -67,6 +66,7 @@
     #seusaldo{
         color: white;
         font-size: 20px;
+        font-family: Arial, Helvetica, sans-serif;
     }
     #dinheiro{
         padding-left: 20px;
@@ -107,10 +107,6 @@
         font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: 400;
     }
-    .setapagamentos{
-        
-        
-    }
     .fontmets{
         position: relative;
         top: 5px;
@@ -130,9 +126,6 @@
         left: 13px;
 
     }
-    .classmets{
-
-    }
     footer{
         background-color: #1B4680;
         height: 80px;
@@ -141,10 +134,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: ;
     }
     #Ajuda{
+        font-family: Arial, Helvetica, sans-serif;
         color: white;
+        font-weight: 600;
+        font-size: 25px;
+        line-height: 100%;
+        font-style: solid;
+        text-decoration: none;
     }
     
 
