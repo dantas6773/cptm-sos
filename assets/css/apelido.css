@@ -73,7 +73,7 @@
     }
 
 
-    .botao{
+    #botao{
         background-color: var(--cor-botao);
         border-radius: 30px;
         width: 302px;
