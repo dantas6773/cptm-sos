@@ -12,7 +12,7 @@
 @media screen and (max-width: 420px) {
     body{
         background-color: var(--cor-fundo);       
-
+        height: 627px;
     }
     #logo{
         width: 43px;
@@ -130,7 +130,7 @@
         background-color: #1B4680;
         height: 80px;
         position: relative;
-        top: 120px;
+        top: 30px;
         display: flex;
         align-items: center;
         justify-content: center;

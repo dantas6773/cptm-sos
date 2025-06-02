@@ -12,6 +12,7 @@
 
 @media screen and (max-width: 420px) {
     body{
+        height: 627px;
         display: flex;
         background-image: url(../imagem/20930995-a632-4a28-b545-b01226ca9189.jfif);
         background-size: 560px;
