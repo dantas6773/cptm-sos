@@ -132,3 +132,14 @@ document.addEventListener("DOMContentLoaded", function () {
         overlay.classList.add("hidden");
     });
 });
+
+const botao_home = document.getElementsByClassName('home')[0]
+const botao_denuncia = document.getElementsByClassName('denuncia')[0]
+
+botao_home.addEventListener('click', function(){
+  window.location.href = '/assets/html/home.html'
+})
+
+botao_denuncia.addEventListener('click', function() {
+    window.location.href = '/assets/html/pré-denucia.html'
+})
