@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denúncia</title>
+    <link rel="stylesheet" href="../css/denuncia.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div id="barrasEsquerda">
+            <div id="barra1"></div>
+            <div id="barra2"></div>
+            <div id="barra3"></div>
+            <div id="barra4"></div>
+        </div>
+        <div id="nomeLogo">
+            <img src="../imagem/logoCPTMdenuncia.png" alt="logo" id="logo">
+            <h1>CPTM</h1>
+            <h2>Security</h2>
+        </div>
+        <div id="barrasDireita">
+            <div id="barra5"></div>
+            <div id="barra6"></div>
+            <div id="barra7"></div>
+            <div id="barra8"></div>
+        </div>
+    </header>
+    <main>
+        <div id="rec">
+            <div class="recDot"></div>
+            <h3>REC</h3>
+        </div>
+    </main>
+    <footer>
+        <div id="botoes">
+            <div id="sirene">
+                <img src="../imagem/sirene.png" alt="sirene" id="icone-sirene">
+                <h4 id="texto-sirene">Sirene</h4>
+            </div>
+            <div id="meEncontre">
+                <img src="../imagem/escudo.png" alt="escudo" id="escudo">
+                <h4 id="texto-meEncontre">Me encontre</h4>
+            </div>
+            <a href="tel:190" id="ligar190">
+                <img src="../imagem/telefone.png" alt="telefone">
+                <h4>Ligar 190</h4>
+            </a>
+        </div>
+        <div class="slider-container" id="slider">
+            <div class="slider-text">Arraste para desativar o alarme</div>
+            <div class="slider-button" id="slider-button"><img src="../imagem/cadeado.png" alt="" id="cadeado"></div>
+        </div>
+        <div id="cpf-container" class="hidden">
+            <a id="voltar"><img src="../imagem/setaVoltarBranca.png" alt=""> Voltar</a>
+            <p>Digite o seu CPF para desativar o alarme:</p>
+            <div id="cpf-input-container">
+                <input type="text" id="cpf-input" placeholder="Digite o seu CPF">
+                <button id="cpf-button">
+                    <img src="../imagem/setaCircular.png" alt="Confirmar">
+                </button>
+            </div>
+        </div>
+    </footer>
+    <script src="../js/denuncia.js"></script>
+</body>
+</html> 
