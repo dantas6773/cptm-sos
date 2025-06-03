@@ -4,6 +4,10 @@
 }
 
 :root{
+    --cor-header: #1B4680;
+    --cor-fonte: #FFFFFF;
+    --cor-botao-saldo: #4F4D56;
+    --cor-botao-recarga: #ED1C24;
     --cor-usual: #1B4680;
     --cor-fundo: white;
     --cor-barras:#ED1C24;
@@ -14,21 +18,53 @@
         background-color: var(--cor-fundo);       
         height: 627px;
     }
-    #logo{
-        width: 43px;
-        height: 38px;
-    }
-    .barras{
-        height: 5px;
-        width:125px;
-        background-color: var(--cor-barras);
-    }
-    header{
-        height: 75px;
-        background-color: var(--cor-usual);
+
+    .header-todo {
         display: flex;
+        width: 100%;
+        height: 110px;
+        background-color: var(--cor-header);
+        color: var(--cor-fonte);
         align-items: center;
         justify-content: space-between;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        position: relative;
+        top: 18px;
+        left: 10px;
+        max-width: 70px;
+        height: 38px;
+    }
+
+    .logo h1 {
+        position: absolute;
+        left: 55px;
+        top: 8px;
+        font-size: 25px;
+        color: var(--cor-fonte);
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-weight: 400;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .barra {
+        position: absolute;
+        left: 240px;
+        width: 22px;
+        height: 200px;
+        background-color: var(--cor-fonte);
+        transform: rotate(-41.95deg);
+    }
+
+    .perfil {
+        position: relative;
+        top: 3px;
+        right: 5px;
     }
     #saldopt{
         margin: 2px solid red;
@@ -130,7 +166,7 @@
         background-color: #1B4680;
         height: 80px;
         position: relative;
-        top: 30px;
+        top: 80px;
         display: flex;
         align-items: center;
         justify-content: center;
