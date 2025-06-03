@@ -352,3 +352,68 @@ h3{
     top: 11px;
     right: 155px;
 } 
+
+
+#barra1 {
+    animation: pulsarPequena 1.5s ease-in-out infinite alternate;
+    animation-delay: 0s;
+    transform-origin: left;
+}
+
+#barra4 {
+    animation: pulsarPequena 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.4s;
+    transform-origin: left;
+}
+
+
+#barra2 {
+    animation: pulsarGrande 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.2s;
+    transform-origin: left;
+}
+
+#barra3 {
+    animation: pulsarGrande 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.6s;
+    transform-origin: left;
+}
+
+
+#barra6 {
+    animation: pulsarPequena 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.3s;
+    transform-origin: right;
+}
+
+#barra8 {
+    animation: pulsarPequena 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.7s;
+    transform-origin: right;
+}
+
+
+#barra5 {
+    animation: pulsarGrande 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.5s;
+    transform-origin: right;
+}
+
+#barra7 {
+    animation: pulsarGrande 1.5s ease-in-out infinite alternate;
+    animation-delay: 0.1s;
+    transform-origin: right;
+}
+
+
+
+@keyframes pulsarGrande {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(1.15); }
+}
+
+
+@keyframes pulsarPequena {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(1.5); }
+}
