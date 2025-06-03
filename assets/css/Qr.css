@@ -1,0 +1,301 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: "Inter", sans-serif;
+}
+
+:root {
+    --cor-header: #0F1F72;
+    --cor-fonte: #FFFFFF;
+    --cor-botao-saldo: #4F4D56;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+.pagina {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.conteudo {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 79px; 
+}
+
+
+@media screen and (max-width: 420px) {
+    body{
+        height: 627px;
+    }
+    .header-todo {
+        display: flex;
+        width: 100%;
+        height: 75px;
+        background-color: var(--cor-header);
+        color: var(--cor-fonte);
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        position: relative;
+        top: 3px;
+        left: 10px;
+        max-width: 70px;
+        height: 38px;
+    }
+
+    .logo h1 {
+        position: absolute;
+        left: 55px;
+        top: 4px;
+        font-size: 25px;
+        color: var(--cor-fonte);
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-weight: 400;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .barra {
+        position: absolute;
+        left: 240px;
+        width: 22px;
+        height: 200px;
+        background-color: var(--cor-fonte);
+        transform: rotate(-41.95deg);
+    }
+
+    .perfil {
+        position: relative;
+        top: 3px;
+        right: 5px;
+    }
+
+    .saldo {
+        display: flex;
+        position: relative;
+        top: 15px;
+        left: 20px;
+        border-radius: 20px;
+        background: linear-gradient(to right, #0F1F72 50%, #ED1C24 50%);
+        width: 360px;
+        height: 110px;
+    }
+
+    .saldo > h3 {
+        color: var(--cor-fonte);
+        position: relative;
+        top: 10px;
+        left: 20px;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .saldo > h5 {
+        color: var(--cor-fonte);
+        position: relative;
+        top: 45px;
+        left: -60px;
+        font-weight: 400;
+    }
+
+    .pix {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        width: 55px;
+        height: 25px;
+        background-color: var(--cor-botao-saldo);
+        border-radius: 15px;
+        border: 1px solid var(--cor-botao-saldo);
+        color: var(--cor-fonte);
+        font-family: "Inter", sans-serif;
+        font-size: 10px;
+        font-weight: 600;
+        position: relative;
+        left: -120px;
+        top: 75px;
+        cursor: pointer;
+        margin-right: 3px;
+    }
+
+    .cartao {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        width: 80px;
+        height: 25px;
+        background-color: var(--cor-botao-saldo);
+        border-radius: 15px;
+        border: 1px solid var(--cor-botao-saldo);
+        color: var(--cor-fonte);
+        font-family: "Inter", sans-serif;
+        font-size: 10px;
+        font-weight: 600;
+        position: relative;
+        left: -115px;
+        top: 75px;
+        cursor: pointer;
+    }
+
+    .qrcode {
+        position: absolute;
+        left: 255px;
+        top: 100px;
+    }
+
+    .qrcode > img {
+        width: 65px;
+        height: 65px;
+        color: var(--cor-fonte);
+    }
+
+    .qrcode > h1 {
+        width: 121px;
+        height: 19px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--cor-fonte);
+        position: absolute;
+        left: -20px;
+    }
+
+    .mapa {
+        position: absolute;
+        top: 230px;
+        left: 15px;
+        right: 15px;
+        display: flex;
+        width: 373px;
+        height: 230px;
+        background-image: url(../imagem/mapa-metro.png);
+        background-size: 95%;
+        border-radius: 30px;
+        border: 1px solid var(--cor-fonte);
+        box-shadow: 0px 5px 15px rgba(100, 100, 111, 0.35);
+    }
+
+    .azul {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 45%;
+        background: linear-gradient(to top, #0F1F72 55%, transparent);
+        border-radius: 30px;
+    }
+
+    .input-busca {
+        position: absolute;
+        left: 30px;
+        top: 115px;
+        border: 1px solid black;
+        width: 310px;
+        height: 62px;
+        background-color: var(--cor-fonte);
+        background-image: url(../imagem/lupa.png);
+        background-repeat: no-repeat;
+        background-position: 10px center;
+        border-radius: 30px;
+        z-index: 1;
+    }
+
+    .input-busca::placeholder {
+        color: black;
+        position: absolute;
+        left: 55px;
+        top: 20px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .endereco {
+        position: absolute;
+        bottom: 10px;
+        left: 28px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 20px;
+        font-weight: 600;
+        z-index: 1;
+    }
+
+    .central {
+        position: absolute;
+        left: 69px;
+        top: 490px;
+        width: 275px;
+        height: 190px;
+    }
+
+    .lateral {
+        position: absolute;
+        top: 512px;
+    }
+
+    .bolinhas {
+        position: absolute;
+        left: 152px;
+        top: 696px;
+    }
+
+    .footer-todo {
+        display: flex;
+        width: 100%;
+        height: 79px;
+        background-color: var(--cor-header);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        color: var(--cor-fonte);
+        align-items: center;
+        justify-content: space-around;
+        z-index: 100;
+    }
+    .denuncia img{
+        width: 70px;
+
+    }
+    .denuncia {
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        top: -10px; 
+        border-radius: 100%;
+    }
+
+    .black {
+        position: absolute;
+        z-index: 888;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(#04050ae8 100%, transparent);
+        border-radius: 30px;
+    }
+    #qrfront{
+        position: absolute;
+        z-index: 999;
+        width: 300px;
+        left: 50px;
+        top: 200px;
+
+    }
+    
+}
