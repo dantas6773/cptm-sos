@@ -11,7 +11,8 @@
     --cor-botao-recarga: #ED1C24;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     overflow: hidden;
 }
@@ -25,14 +26,15 @@ html, body {
 .conteudo {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 79px; 
+    padding-bottom: 79px;
 }
 
 
 @media screen and (max-width: 420px) {
-    body{
+    body {
         height: 627px;
     }
+
     .header-todo {
         display: flex;
         width: 100%;
@@ -92,7 +94,7 @@ html, body {
         height: 110px;
     }
 
-    .saldo > h3 {
+    .saldo>h3 {
         color: var(--cor-fonte);
         position: relative;
         top: 10px;
@@ -101,7 +103,7 @@ html, body {
         font-weight: 600;
     }
 
-    .saldo > h5 {
+    .saldo>h5 {
         color: var(--cor-fonte);
         position: relative;
         top: 45px;
@@ -110,7 +112,7 @@ html, body {
         font-size: 18px;
     }
 
-    .saldo > img {
+    .saldo>img {
         width: 29px;
         height: 29px;
         position: relative;
@@ -122,7 +124,7 @@ html, body {
         display: flex;
     }
 
-    .recarga > h1 {
+    .recarga>h1 {
         position: relative;
         left: -170px;
         top: 80px;
@@ -147,13 +149,13 @@ html, body {
         color: var(--cor-fonte);
     }
 
-    .qrcode > img {
+    .qrcode>img {
         width: 65px;
         height: 65px;
         color: var(--cor-fonte);
     }
 
-    .qrcode > h1 {
+    .qrcode>h1 {
         width: 121px;
         height: 19px;
         font-size: 16px;
@@ -163,9 +165,17 @@ html, body {
         left: -20px;
     }
 
+    .mapa>h1 {
+        font-size: 20px;
+        font-weight: 400;
+        color: #050505;
+        position: absolute;
+        top:-30px;
+    }
+
     .mapa {
         position: absolute;
-        top: 230px;
+        top: 250px;
         left: 15px;
         right: 15px;
         display: flex;
@@ -206,7 +216,7 @@ html, body {
     .input-busca::placeholder {
         color: black;
         position: absolute;
-       left: 69px;
+        left: 69px;
         left: 55px;
         top: 20px;
         font-size: 20px;
@@ -226,39 +236,42 @@ html, body {
         z-index: 1;
     }
 
-  .carrossel-container {
-  width: 90%;
-  height: 200px;
-  overflow: hidden;
-  margin: 30px auto;
-  border-radius: 20px;
-  position: relative;
-  top: 300px;
-}
+    .carrossel-container {
+        width: 90%;
+        height: 200px;
+        overflow: hidden;
+        margin: 30px auto;
+        border-radius: 20px;
+        position: absolute;
+        top: 480px;
+        left: 20px;
 
-.carrossel-slide {
-  display: flex;
-  animation: deslizar 15s linear infinite;
-  width: calc(200% + 30px); 
-  gap: 15px;
-}
+    }
 
-.carrossel-slide img {
-  width: calc((100% - 75px) / 3); 
-  height: 200px;
-  object-fit: cover;
-  border-radius: 15px;
-  flex-shrink: 0;
-}
+    .carrossel-slide {
+        display: flex;
+        animation: deslizar 15s linear infinite;
+        width: calc(200% + 30px);
+        gap: 15px;
+    }
 
-@keyframes deslizar {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
+    .carrossel-slide img {
+        width: calc((100% - 75px) / 3);
+        height: 200px;
+        object-fit: cover;
+        border-radius: 15px;
+        flex-shrink: 0;
+    }
+
+    @keyframes deslizar {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
+    }
 
     .bolinhas {
         position: absolute;
@@ -267,49 +280,59 @@ html, body {
     }
 
     .footer-todo {
-        display: flex;
-        width: 100%;
-        height: 79px;
-        background-color: var(--cor-header);
         position: fixed;
         bottom: 0;
         left: 0;
-        color: var(--cor-fonte);
+        width: 100%;
+        height: 79px;
+        background-color: var(--cor-header);
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: space-evenly;
+        color: var(--cor-fonte);
         z-index: 100;
+        box-sizing: border-box;
+        padding: 0 20px;
     }
 
-    
-    .ajustes{
-        position: relative;
-        left: 10px;
+    .footer-left,
+    .footer-right {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        gap: 30px;
     }
 
-
-    .casinha{
-        position: relative;
-        left: 10px;
+    .footer-right {
+        justify-content: flex-end;
+        margin-left: 60px;
     }
 
- .denuncia > img {
-    position: relative;
-    left: 15px;
-   }
+    .footer-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-   .ajustes > img {
-    position: relative;
-    left: 10px;
+    .botao-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 12px;
+        text-align: center;
+    }
 
-   }
+    .botao-footer img {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 4px;
+    }
 
-    #fundou{
-        background-color: #0F1F72;
-        width: 50px;
-        height: 100px;
-        position: absolute; 
-        right: 190px;
-        top: 2px;
-        
+    .botao-footer-home {
+        position: absolute;
+
     }
 }
