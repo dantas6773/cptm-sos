@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seu App</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <title>QR Code</title>
+  <link rel="stylesheet" href="../css/Qr.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -14,78 +14,18 @@
 </head>
 
 <body>
-  <div class="pagina">
-    <header>
-      <div class="header-todo">
-        <div class="logo">
-          <img src="../imagem/logo.png" alt="Logo">
-          <h1>Olá, Maria</h1>
-        </div>
-        <div class="barra"></div>
-        <div class="perfil">
-          <img src="../imagem/perfil.png" alt="Perfil">
-        </div>
-      </div>
-    </header>
 
-    <div class="conteudo">
-      <div class="saldo">
-        <h3>Seu saldo:</h3>
-        <h5>R$117,50</h5>
-        <div class="pix"><img src="../imagem/PIX.png" alt="">PIX</div>
-        <div class="cartao"><img src="../imagem/cartao.png" alt="">Cartão</div>
-      </div>
+  <div class="blur-background"></div>
 
-      <div class="qrcode">
-        <img src="../imagem/qrcode.png" alt="qrcode">
-        <h1>USAR QR CODE</h1>
-      </div>
+  <button id="btn-voltar">← Voltar</button>
 
-      <div class="mapa">
-        <form action="">
-          <input class="input-busca" type="text" placeholder="Para onde?">
-        </form>
-        <div class="endereco">
-          <img src="../imagem/pin.png" alt="local">
-          <p>Rua Sugestão, 1234 - Lourdes</p>
-        </div>
-        <div class="azul"></div>
-      </div>
-
-      <div class="carrosel">
-        <div class="central"><img src="../imagem/central.png" alt=""></div>
-        <div class="lateral"><img src="../imagem/lateral.png" alt=""></div>
-        <div class="bolinhas"><img src="../imagem/bolinhas.png" alt=""></div>
-      </div>
-    </div>
-
-    <footer>
-      <div class="footer-todo">
-        <div class="casinha">
-          <img src="../imagem/casinha.png" alt="">
-          <p>Home</p>
-        </div>
-        <div class="local">
-          <img src="../imagem/local.png" alt="">
-          <p>Local</p>
-        </div>
-        <div class="denuncia">
-          <img src="../imagem/denuncia.png" alt="">
-          <p>Denúncia</p>
-        </div>
-        <div class="alertas">
-          <img src="../imagem/lembretes.png" alt="">
-          <p>Alertas</p>
-        </div>
-        <div class="ajustes">
-          <img src="../imagem/ajustes.png" alt="">
-          <p>Ajustes</p>
-        </div>
-      </div>
-    </footer>
+  <div class="card-qr">
+    <img id="qrfront" src="../imagem/qrcodehd_106111.png" alt="QR Code">
+    <p>Apresente o QR code<br>na catraca para comprar a passagem automaticamente</p>
+    <div class="saldo">Seu saldo: R$117,50</div>
   </div>
- <!-- aa -->
-  <script src="./assets/js/QR.js"></script>
+
+  <script src="../js/QR.js"></script>
 </body>
 
 </html>

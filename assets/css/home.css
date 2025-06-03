@@ -30,6 +30,9 @@ html, body {
 
 
 @media screen and (max-width: 420px) {
+    body{
+        height: 627px;
+    }
     .header-todo {
         display: flex;
         width: 100%;
@@ -276,6 +279,7 @@ html, body {
         justify-content: space-evenly;
         z-index: 100;
     }
+
     
     .ajustes{
         position: relative;
@@ -286,11 +290,6 @@ html, body {
     .casinha{
         position: relative;
         left: 10px;
-    }
-
-    .denuncia {
-        position: relative;
-        left: 15px;
     }
 
  .denuncia > img {
@@ -304,4 +303,13 @@ html, body {
 
    }
 
+    #fundou{
+        background-color: #0F1F72;
+        width: 50px;
+        height: 100px;
+        position: absolute; 
+        right: 190px;
+        top: 2px;
+        
+    }
 }
