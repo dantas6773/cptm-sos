@@ -121,3 +121,18 @@ function enableTransition() {
 function disableTransition() {
   map.style.transition = 'none';
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const botaoExpandir = document.getElementById("expandir");
+    const overlay = document.getElementById("overlay");
+    const btnVoltar = document.getElementById("btn-voltar");
+
+    botaoExpandir.addEventListener("click", () => {
+        overlay.classList.remove("hidden");
+    });
+
+    btnVoltar.addEventListener("click", () => {
+        overlay.classList.add("hidden");
+    });
+});
