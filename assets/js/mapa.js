@@ -53,7 +53,6 @@ container.addEventListener('mousemove', (e) => {
   updateTransform();
 });
 
-// 🎯 Zoom suave
 container.addEventListener('wheel', (e) => {
   e.preventDefault();
 
@@ -81,13 +80,11 @@ container.addEventListener('wheel', (e) => {
   updateTransform();
 });
 
-// 🔥 Reset com clique duplo
 container.addEventListener('dblclick', () => {
   enableTransition();
   resetPosition();
 });
 
-// 🧠 Funções de controle
 function updateTransform() {
   map.style.transform = `scale(${scale})`;
   map.style.left = `${currentX}px`;
@@ -113,7 +110,6 @@ function getLimits() {
   return [minX, minY, maxX, maxY];
 }
 
-// 🔥 Ativar/desativar animação suave dinamicamente
 function enableTransition() {
   map.style.transition = 'transform 0.3s ease, top 0.3s ease, left 0.3s ease';
 }
