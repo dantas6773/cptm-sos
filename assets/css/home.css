@@ -203,6 +203,7 @@ html, body {
     .input-busca::placeholder {
         color: black;
         position: absolute;
+       left: 69px;
         left: 55px;
         top: 20px;
         font-size: 20px;
@@ -222,18 +223,39 @@ html, body {
         z-index: 1;
     }
 
-    .central {
-        position: absolute;
-        left: 69px;
-        top: 490px;
-        width: 275px;
-        height: 190px;
-    }
+  .carrossel-container {
+  width: 90%;
+  height: 200px;
+  overflow: hidden;
+  margin: 30px auto;
+  border-radius: 20px;
+  position: relative;
+  top: 300px;
+}
 
-    .lateral {
-        position: absolute;
-        top: 512px;
-    }
+.carrossel-slide {
+  display: flex;
+  animation: deslizar 15s linear infinite;
+  width: calc(200% + 30px); 
+  gap: 15px;
+}
+
+.carrossel-slide img {
+  width: calc((100% - 75px) / 3); 
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px;
+  flex-shrink: 0;
+}
+
+@keyframes deslizar {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
     .bolinhas {
         position: absolute;
