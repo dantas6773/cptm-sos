@@ -151,3 +151,9 @@ ligar190.addEventListener('mouseup', () => {
     textoLigar.style.color = '';
     iconeLigar.src = '../imagem/telefone.png'; 
 });
+
+const seta_circular = document.getElementById('cpf-button')
+
+seta_circular.addEventListener('click', function(){
+    window.location.href = '/assets/html/pré-denucia.html'
+})

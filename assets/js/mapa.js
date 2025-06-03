@@ -121,3 +121,15 @@ function enableTransition() {
 function disableTransition() {
   map.style.transition = 'none';
 }
+
+const voltar_home = document.getElementsByClassName('home')[0]
+
+voltar_home.addEventListener('click', function(){
+  window.location.href = '/assets/html/home.html'
+})
+
+const denuncia = document.getElementsByClassName('denuncia')[0]
+
+denuncia.addEventListener('click', function() {
+  window.location.href = '/assets/html/pré-denucia.html'
+})
