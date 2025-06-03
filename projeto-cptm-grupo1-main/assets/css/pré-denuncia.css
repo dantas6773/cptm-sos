@@ -1,0 +1,121 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+#background-pré-denuncia{
+    width: 420px;
+    height: 933px;
+    background-color: rgba(17, 17, 17, 97);
+    font-family: 'inter';
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 55px;
+}
+#voltar-pré-denuncia{
+    display: flex;
+    justify-content:center ;
+    gap: 15px;
+    font-family: 'inter';
+    font-weight: 400;
+    font-size: 14px;
+    position: absolute;
+    top: 60px;
+    right: 300px;
+    
+}
+
+.button-3d {
+      width: 190px;
+      height: 190px;
+      background: radial-gradient(circle at top left, #ff4f56, #ED1C24, #8B0000);
+      border: none;
+      border-radius: 50%;
+      box-shadow:
+        0 0 20px rgba(237, 28, 36, 0.6),
+        inset 0 4px 8px rgba(255, 255, 255, 0.15),
+        0 8px 15px rgba(0, 0, 0, 0.5);
+      color: white;
+      font-family: 'inter';
+      font-size: 90px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 110px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      animation: pulse 1.5s infinite;
+    }
+
+.button-3d:active {
+    transform: translateY(4px);
+    box-shadow:
+    0 0 10px rgba(237, 28, 36, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+    box-shadow:
+        0 0 10px rgba(237, 28, 36, 0.4),
+        inset 0 4px 8px rgba(255, 255, 255, 0.15),
+        0 8px 15px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+    box-shadow:
+        0 0 25px rgba(237, 28, 36, 0.8),
+        inset 0 4px 8px rgba(255, 255, 255, 0.15),
+        0 8px 20px rgba(0, 0, 0, 0.6);
+    }
+    100% {
+    box-shadow:
+        0 0 10px rgba(237, 28, 36, 0.4),
+        inset 0 4px 8px rgba(255, 255, 255, 0.15),
+        0 8px 15px rgba(0, 0, 0, 0.5);
+    }
+}
+
+#bt-denuncia{
+    width: 296px;
+    height: 107px;
+    border-radius: 20px;
+    background-color: #D3141A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-family: 'inter';
+    gap: 5px;
+    border-style: none;
+}
+
+#pressione{
+    font-size: 32px;
+    text-align: center;
+    font-family: 'inter';
+    font-weight: 400;
+}
+
+#ou{
+    font-size: 32px;
+    text-align: center;
+    font-family: 'inter';
+    font-weight: 400;
+}
+
+#organizador{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 70px;
+    position: relative;
+    top: 40px;
+}
