@@ -5,9 +5,10 @@
 }
 
 :root {
-    --cor-header: #0F1F72;
+    --cor-header: #1B4680;
     --cor-fonte: #FFFFFF;
     --cor-botao-saldo: #4F4D56;
+    --cor-botao-recarga: #ED1C24;
 }
 
 html, body {
@@ -86,7 +87,7 @@ html, body {
         top: 15px;
         left: 20px;
         border-radius: 20px;
-        background: linear-gradient(to right, #0F1F72 50%, #ED1C24 50%);
+        background: linear-gradient(to right, #1B4680 50%, #ED1C24 50%);
         width: 360px;
         height: 110px;
     }
@@ -106,53 +107,44 @@ html, body {
         top: 45px;
         left: -60px;
         font-weight: 400;
+        font-size: 18px;
     }
 
-    .pix {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        width: 55px;
-        height: 25px;
-        background-color: var(--cor-botao-saldo);
-        border-radius: 15px;
-        border: 1px solid var(--cor-botao-saldo);
-        color: var(--cor-fonte);
-        font-family: "Inter", sans-serif;
-        font-size: 10px;
-        font-weight: 600;
+    .saldo > img {
+        width: 29px;
+        height: 29px;
         position: relative;
-        left: -120px;
-        top: 75px;
-        cursor: pointer;
-        margin-right: 3px;
+        left: -35px;
+        top: 40px;
     }
 
-    .cartao {
+    .recarga {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        width: 80px;
-        height: 25px;
-        background-color: var(--cor-botao-saldo);
-        border-radius: 15px;
-        border: 1px solid var(--cor-botao-saldo);
-        color: var(--cor-fonte);
-        font-family: "Inter", sans-serif;
-        font-size: 10px;
-        font-weight: 600;
+    }
+
+    .recarga > h1 {
         position: relative;
-        left: -115px;
-        top: 75px;
-        cursor: pointer;
+        left: -170px;
+        top: 80px;
+        width: 131px;
+        height: 25px;
+        background-color: var(--cor-botao-recarga);
+        color: var(--cor-fonte);
+        border-radius: 30px;
+        font-size: 16px;
+        line-height: auto;
+        letter-spacing: 0%;
+        font-weight: 300;
+        text-align: center;
+
     }
 
     .qrcode {
         position: absolute;
         left: 255px;
         top: 100px;
+        background-color: var(--cor-botao-recarga);
+        color: var(--cor-fonte);
     }
 
     .qrcode > img {
@@ -192,7 +184,7 @@ html, body {
         left: 0;
         width: 100%;
         height: 45%;
-        background: linear-gradient(to top, #0F1F72 55%, transparent);
+        background: linear-gradient(to top, #1B4680 55%, transparent);
         border-radius: 30px;
     }
 
@@ -214,6 +206,7 @@ html, body {
     .input-busca::placeholder {
         color: black;
         position: absolute;
+       left: 69px;
         left: 55px;
         top: 20px;
         font-size: 20px;
@@ -233,18 +226,39 @@ html, body {
         z-index: 1;
     }
 
-    .central {
-        position: absolute;
-        left: 69px;
-        top: 490px;
-        width: 275px;
-        height: 190px;
-    }
+  .carrossel-container {
+  width: 90%;
+  height: 200px;
+  overflow: hidden;
+  margin: 30px auto;
+  border-radius: 20px;
+  position: relative;
+  top: 300px;
+}
 
-    .lateral {
-        position: absolute;
-        top: 512px;
-    }
+.carrossel-slide {
+  display: flex;
+  animation: deslizar 15s linear infinite;
+  width: calc(200% + 30px); 
+  gap: 15px;
+}
+
+.carrossel-slide img {
+  width: calc((100% - 75px) / 3); 
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px;
+  flex-shrink: 0;
+}
+
+@keyframes deslizar {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
     .bolinhas {
         position: absolute;
@@ -262,23 +276,32 @@ html, body {
         left: 0;
         color: var(--cor-fonte);
         align-items: center;
-        justify-content: space-around;
+        justify-content: space-evenly;
         z-index: 100;
     }
-    .denuncia img{
-        width: 70px;
 
-    }
-    .denuncia {
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+    
+    .ajustes{
         position: relative;
-        top: -10px; 
-        border-radius: 100%;
-}
+        left: 10px;
+    }
+
+
+    .casinha{
+        position: relative;
+        left: 10px;
+    }
+
+ .denuncia > img {
+    position: relative;
+    left: 15px;
+   }
+
+   .ajustes > img {
+    position: relative;
+    left: 10px;
+
+   }
 
     #fundou{
         background-color: #0F1F72;
