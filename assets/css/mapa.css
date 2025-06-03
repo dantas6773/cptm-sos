@@ -1,0 +1,28 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.map-container {
+  width: 412px;
+  height: 470px;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+}
+
+.map-container:active {
+  cursor: grabbing;
+}
+
+.map {
+  width: 1313px;
+  height: 875px;
+  background-image: url('../imagem/mapa-rede-metro-cptm.svg');
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
