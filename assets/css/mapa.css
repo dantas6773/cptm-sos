@@ -4,6 +4,15 @@
     box-sizing: border-box;
 }
 
+:root{
+    --cor-azul-principal: #1B4680;
+    --cor-branco-principal: #f4f4f4;
+}
+
+body{
+    font-family: 'inter';
+}
+
 .map-container {
   width: 412px;
   height: 470px;
@@ -25,4 +34,103 @@
   top: 0;
   left: 0;
   transform-origin: 0 0;
+}
+
+#expandir{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+    background-color: var(--cor-azul-principal);
+    position: absolute;
+    z-index: 2;
+    left: 334px;
+    top: 14px;
+}
+
+.container-pesquisa{
+    width: 376px;
+    height: 198px;
+    background-color: var(--cor-azul-principal);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    position: absolute;
+    left: 18px;
+    top: 354px;
+    gap:15px
+}
+
+.sugestao1{
+    display: flex;
+    color: var(--cor-branco-principal);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+    position: relative;
+    right: 6px;
+}
+
+.sugestao2{
+    display: flex;
+    color: var(--cor-branco-principal);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    right: 20px;
+    gap: 14px;
+}
+
+h2{
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.divisoria{
+    width: 324.68px;
+    height: 0.2px;
+    background-color: var(--cor-branco-principal);
+    border-radius: 100%;
+}
+
+#onde-vamos{
+    width: 324.68px;
+    height: 62px;
+    background-color: var(--cor-branco-principal);
+    border-radius: 30px;
+    border: none;
+    font-size: 20px;
+    font-family: 'inter';
+    font-weight: 600;
+    padding-left: 62px;
+    padding-top: 5px;
+}
+
+#lupa{
+    position: absolute;
+    left: 60.3px;
+    top: 386.6px;
+    z-index: 5;
+}
+
+#onde-vamos:focus{
+    outline: none;
+    box-shadow: none;
+    border: none;
+}
+
+#onde-vamos:focus::placeholder{
+    opacity: 0;
+}
+
+::placeholder{
+    opacity: 1;
+    color: black;
+    font-weight: 600;
 }

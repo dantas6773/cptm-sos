@@ -5,11 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../css/mapa.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="expandir"><img src="../imagem/expandir.png" alt=""></div>
     <main class="map-container">
         <div class="map"></div>
     </main>
+
+    <img src="../imagem/lupa-maior.png" alt="lupa" id="lupa">
+    <div class="container-pesquisa">
+        <input type="text" name="" id="onde-vamos" placeholder="Para onde?">
+        <div class="sugestao1">
+            <img src="../imagem/perimetro.png" alt="" class="perimetro">
+            <h2>Rua Sugestão, 1234 - Lourdes</h2>
+        </div>
+        <div class="divisoria"></div>
+        <div class="sugestao2">
+            <img src="../imagem/perimetro.png" alt="" class="perimetro">
+            <h2>Rua Sugestão, 1234 - Sion</h2>
+        </div>
+    </div>
 
     <script src="../js/mapa.js"></script>
 </body>
