@@ -27,3 +27,13 @@ botao_denuncia.addEventListener('click', function() {
 botao_mapa.addEventListener('click', function(){
     window.location.href = '/assets/html/mapa.html'
 })
+
+  const olho = document.getElementById('olho');
+  const valorSaldo = document.getElementById('valor-saldo');
+
+  let saldoVisivel = true;
+
+  olho.addEventListener('click', () => {
+    saldoVisivel = !saldoVisivel;
+    valorSaldo.textContent = saldoVisivel ? 'R$117,50' : '********';
+  });
