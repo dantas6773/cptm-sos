@@ -17,3 +17,5 @@ faça_uma_denuncia.addEventListener('click', function(){
 setavolt.addEventListener('click', function() {
     window.location.href = '/assets/html/home.html'
 })
+
+//testado
