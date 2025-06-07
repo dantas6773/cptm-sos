@@ -145,4 +145,21 @@ botao_denuncia.addEventListener('click', function() {
 })
 
 
-//testado
+document.addEventListener("DOMContentLoaded", function () {
+    const pesquisaContainer = document.querySelector('.container-pesquisa');
+    const trajetoInfo = document.getElementById('trajeto-info');
+    const voltarTrajeto = document.getElementById('btn-voltar-trajeto');
+    const lupa = document.getElementById('lupa');
+
+    pesquisaContainer.addEventListener('click', function() {
+        pesquisaContainer.classList.add('hidden');
+        trajetoInfo.classList.remove('hidden');
+        lupa.classList.add('hidden');
+    });
+
+    voltarTrajeto.addEventListener('click', function() {
+        trajetoInfo.classList.add('hidden');
+        pesquisaContainer.classList.remove('hidden');
+        lupa.classList.remove('hidden');
+    });
+});
