@@ -7,3 +7,5 @@ document.getElementById('boas-vindas').textContent = `Olá, ${apelido_lim}`
 seta_voltar.addEventListener('click', function(){
     window.location.href = '/assets/html/home.html'
 })
+
+// testado
