@@ -298,4 +298,99 @@ p{
     border-radius: 20px;
 }
 
-/* tesatado */
+.container-trajeto {
+    position: absolute;
+    top: 340px;
+    left: 18px;
+    width: 376px;
+    background-color: #1B4680;
+    border-radius: 20px;
+    padding: 20px;
+    z-index: 3;
+    color: white;
+    font-family: 'Inter';
+}
+
+.botao-voltar {
+    position: absolute;
+    top: -30px;
+    left: -10px;
+    background-color: #1B4680;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    z-index: 10;
+}
+
+.trajeto-linha-completa {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.trajeto-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.estacao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.nome-estacao {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.linha-metro {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.linha-vermelha {
+    background-color: #ED1C24;
+}
+
+.linha-verde {
+    background-color: #00b300;
+}
+
+.bolinha-branca {
+    width: 14px;
+    height: 14px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.seta {
+    font-size: 20px;
+}
+
+.trajeto-infos {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.trajeto-infos hr {
+    border: 0.5px solid white;
+    margin: 8px 0;
+}
