@@ -37,3 +37,5 @@ botao_mapa.addEventListener('click', function(){
     saldoVisivel = !saldoVisivel;
     valorSaldo.textContent = saldoVisivel ? 'R$117,50' : '********';
   });
+
+  //testado
