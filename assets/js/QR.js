@@ -5,3 +5,5 @@ document.addEventListener("DOMContentLoaded", function () {
     window.location.href = "/assets/html/home.html"; 
   });
 });
+
+// testado
