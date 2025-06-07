@@ -143,3 +143,6 @@ botao_home.addEventListener('click', function(){
 botao_denuncia.addEventListener('click', function() {
     window.location.href = '/assets/html/pré-denucia.html'
 })
+
+
+//testado
