@@ -12,3 +12,4 @@ if (email.value && senha.value) {
     }
   });
 
+// testado
