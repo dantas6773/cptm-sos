@@ -1,0 +1,29 @@
+{
+  "name": "projeto-cptm-paraiso-feudal",
+  "version": "1.0.0",
+  "description": "**Integrantes:**  \r Benjamin • João Pedro • Paulo • Thales • Thomas • Waldir",
+  "main": "assets/src/server.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal.git"
+  },
+  "keywords": [],
+  "author": "Grupo Paraíso Feudal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal/issues"
+  },
+  "homepage": "https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.14.12",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

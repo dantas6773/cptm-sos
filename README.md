@@ -91,6 +91,8 @@ Nosso propósito é facilitar o cotidiano dos passageiros e fortalecer a relaç�
 
 ### 👥 Equipe — Grupo 1
 
+- Projeto CDIA 1 -
+
 | Integrante | Função Principal |
 |-------------|------------------|
 | **Benjamin** | Tela de Apelido e Home |
@@ -99,6 +101,17 @@ Nosso propósito é facilitar o cotidiano dos passageiros e fortalecer a relaç�
 | **Thales** | Telas de Login e Pagamento |
 | **Thomas** | Telas de Carregamento e QR Code |
 | **Waldir** | Apoio de interface e testes |
+
+
+ - Projeto CDIA 2 -
+| Integrante | Função Principal |
+|-------------|------------------|
+| **Benjamin** | Configuração do ambiente |
+| **João Pedro** |  |
+| **Paulo** |  |
+| **Thales** |  |
+| **Thomas** |  |
+| **Waldir** |  |
 
 ---
 
