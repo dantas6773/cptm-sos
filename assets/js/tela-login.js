@@ -12,4 +12,12 @@ if (email.value && senha.value) {
     }
   });
 
+const linkCadastro = document.getElementById("a2");
+linkCadastro.addEventListener('click', function(event) {
+   
+    event.preventDefault();
+
+    window.location.href = "/assets/html/cadastro.html"; 
+});
+
 // testado
