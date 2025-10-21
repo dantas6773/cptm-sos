@@ -1,214 +1,118 @@
-# mapa_estacoes.py
-"""
-Script único para ler 'estacoes.json' (no mesmo diretório do script), montar grafo,
-gerar mapa interativo com Folium e salvar 'mapa_estacoes.html'.
+# mapa_rota.py
+# Gera APENAS a rota entre duas estações do estacoes.json original
+# e exibe TODAS as estações do trajeto (no mapa e no console).
 
-Instale dependências:
-    pip install folium networkx
-
-Execute:
-    python mapa_estacoes.py
-"""
-
-import os
-import json
-import folium
+import os, json
 import networkx as nx
-from math import isfinite
+import folium
 
-# -------------------- CONFIG --------------------
-# Nome do arquivo JSON (deixe em mesma pasta do script)
+# ======= EDITAR AQUI =======
+START_STATION = "Engenheiro Goulart"
+END_STATION   = "Aeroporto-Guarulhos"
+# ===========================
+
 INPUT_FILENAME = "estacoes.json"
+OUTPUT_HTML = "mapa_rota.html"
 
-# Saída (será gravado na mesma pasta do script)
-OUTPUT_HTML = "mapa_estacoes.html"
+# Layout geográfico sintético (não há lat/lon no JSON original)
+MAP_CENTER = [-23.55, -46.63]  # centro (SP)
+MAP_ZOOM = 13
+SPAN_DEGREES = 0.18            # “largura” do layout
 
-# Centro do mapa (caso não haja coordenadas reais)
-MAP_CENTER = [-23.55, -46.63]   # São Paulo por padrão — altere se quiser
-MAP_SPAN_DEGREES = 0.25         # quanto "espalhar" o layout gerado
-SPRING_SEED = 42                # semente para layout reprodutível
-
-# Destaque de rota (coloque nomes exatos das estações para destacar; None = sem destaque)
-HIGHLIGHT_START = None          # ex: "Engenheiro Goulart"
-HIGHLIGHT_END = None            # ex: "Aeroporto-Guarulhos"
-# ------------------------------------------------
-
-def debug_print(msg):
-    print(msg)
-
-def color_for_index(i):
-    palette = [
-        "blue", "red", "green", "purple", "orange", "darkblue", "cadetblue",
-        "darkred", "darkgreen", "lightred", "beige", "darkpurple", "pink"
-    ]
-    return palette[i % len(palette)]
-
-def get_base_paths():
-    # pasta onde o script está salvo
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    input_path = os.path.join(base_dir, INPUT_FILENAME)
-    output_path = os.path.join(base_dir, OUTPUT_HTML)
-    return base_dir, input_path, output_path
-
-def load_json(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Arquivo não encontrado: {path}")
+def load_lines(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def build_graph_from_lines(lines):
-    """
-    lines: lista de objetos com campos como:
-      { "id": 13, "nome": "Linha 13 – Jade", "trajeto": [...], "ligacoes": [...] }
-    Retorna: grafo NetworkX e dicionário stations_meta
-    stations_meta[name] = { "name": name, "linhas": set(), "lat": opt, "lon": opt }
-    """
+def build_graph(lines):
     G = nx.Graph()
-    stations_meta = {}
-
     for linha in lines:
-        lid = linha.get("id")
-        trajeto = linha.get("trajeto", [])
-        # adicionar nós e marcação de linhas
-        for est in trajeto:
-            if est not in stations_meta:
-                stations_meta[est] = {"name": est, "linhas": set()}
-            stations_meta[est]["linhas"].add(lid)
-        # arestas entre consecutivos do trajeto
-        for a, b in zip(trajeto, trajeto[1:]):
+        traj = linha.get("trajeto", []) or []
+        for e in traj:
+            G.add_node(e)
+        for a, b in zip(traj, traj[1:]):
             if not G.has_edge(a, b):
-                G.add_edge(a, b, linhas=set())
-            G.edges[a, b]["linhas"].add(lid)
-        # processar ligacoes (marca linhas que passam na estação)
-        for lig in linha.get("ligacoes", []):
-            est_name = lig.get("estacao")
-            for other_line in lig.get("linhas", []):
-                if est_name not in stations_meta:
-                    stations_meta[est_name] = {"name": est_name, "linhas": set()}
-                stations_meta[est_name]["linhas"].add(other_line)
+                G.add_edge(a, b)
+        # garantir nós citados em ligacoes existam (sem arestas extras)
+        for lig in linha.get("ligacoes", []) or []:
+            est = lig.get("estacao")
+            if est:
+                G.add_node(est)
+    return G
 
-    # garantir que todos os nós existam no grafo
-    for name in stations_meta.keys():
-        if not G.has_node(name):
-            G.add_node(name)
+def normalize(name, names):
+    m = {n.lower(): n for n in names}
+    return m.get(name.strip().lower())
 
-    return G, stations_meta
-
-def compute_positions(G, stations_meta, map_center, span_degrees, seed):
-    # checa se existem coords reais nas metas (espera 'lat' e 'lon' se existirem)
+def layout_for_path(path_nodes):
+    # Layout apenas do subgrafo do caminho (limpo e minimalista)
+    if len(path_nodes) > 1:
+        H = nx.path_graph(path_nodes)
+    else:
+        H = nx.Graph()
+        H.add_node(path_nodes[0])
+    pos = nx.spring_layout(H, seed=42)
+    xs = [p[0] for p in pos.values()]; ys = [p[1] for p in pos.values()]
+    rx = (max(xs)-min(xs)) or 1.0; ry = (max(ys)-min(ys)) or 1.0
+    lat0, lon0 = MAP_CENTER; span = SPAN_DEGREES
     pos_latlon = {}
-    have_coords = any(
-        ("lat" in meta and "lon" in meta and isinstance(meta["lat"], (int, float))
-         and isinstance(meta["lon"], (int, float)) and isfinite(meta["lat"]) and isfinite(meta["lon"]))
-        for meta in stations_meta.values()
-    )
-    if have_coords:
-        for name, meta in stations_meta.items():
-            if "lat" in meta and "lon" in meta and isinstance(meta["lat"], (int, float)) and isinstance(meta["lon"], (int, float)):
-                pos_latlon[name] = (meta["lat"], meta["lon"])
-
-    # para demais nós (ou se não houver coords), gerar layout e projetar ao redor do centro
-    nodes_without = [n for n in G.nodes() if n not in pos_latlon]
-    if nodes_without:
-        pos_2d = nx.spring_layout(G, seed=seed)
-        xs = [c[0] for c in pos_2d.values()]
-        ys = [c[1] for c in pos_2d.values()]
-        minx, maxx = min(xs), max(xs)
-        miny, maxy = min(ys), max(ys)
-        range_x = maxx - minx if maxx != minx else 1.0
-        range_y = maxy - miny if maxy != miny else 1.0
-        lat_center, lon_center = map_center
-        span = span_degrees
-        for node, (x, y) in pos_2d.items():
-            nx_norm = (x - minx) / range_x
-            ny_norm = (y - miny) / range_y
-            lat = lat_center + (ny_norm - 0.5) * span
-            lon = lon_center + (nx_norm - 0.5) * span
-            if node not in pos_latlon:
-                pos_latlon[node] = (lat, lon)
+    for n, (x, y) in pos.items():
+        xn = (x - min(xs))/rx; yn = (y - min(ys))/ry  # 0..1
+        lat = lat0 + (yn - 0.5)*span
+        lon = lon0 + (xn - 0.5)*span
+        pos_latlon[n] = (lat, lon)
     return pos_latlon
 
-def draw_map(G, stations_meta, pos_latlon, lines_input, output_path, map_center):
-    m = folium.Map(location=map_center, zoom_start=12)
+def main():
+    base = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(base, INPUT_FILENAME)
+    lines = load_lines(json_path)
+    G = build_graph(lines)
 
-    # agrupar segmentos por linha id
-    line_to_segments = {}
-    for u, v, data in G.edges(data=True):
-        lids = data.get("linhas", set())
-        if not lids:
-            line_to_segments.setdefault(-1, []).append((u, v))
-        else:
-            for lid in lids:
-                line_to_segments.setdefault(lid, []).append((u, v))
-
-    # nome amigável id->nome
-    id_to_name = {l.get("id"): l.get("nome", str(l.get("id"))) for l in lines_input}
-
-    # desenhar FeatureGroup por linha (para LayerControl)
-    for idx, (lid, segments) in enumerate(sorted(line_to_segments.items(), key=lambda x: str(x[0]))):
-        color = color_for_index(idx)
-        fg = folium.FeatureGroup(name=f"Linha {lid}: {id_to_name.get(lid, '')}")
-        for (u, v) in segments:
-            fg.add_child(folium.PolyLine(locations=[pos_latlon[u], pos_latlon[v]],
-                                         weight=4, opacity=0.8, color=color,
-                                         tooltip=f"Linha {lid}"))
-        m.add_child(fg)
-
-    # marcadores das estações
-    for name, (lat, lon) in pos_latlon.items():
-        linhas_here = sorted(list(stations_meta.get(name, {}).get("linhas", [])))
-        popup_html = f"<b>{name}</b><br>Linhas: {', '.join(map(str, linhas_here))}"
-        folium.CircleMarker(location=[lat, lon], radius=6, tooltip=name,
-                            popup=popup_html, fill=True).add_to(m)
-
-    folium.LayerControl(collapsed=False).add_to(m)
-    m.save(output_path)
-    debug_print(f"Mapa salvo em: {output_path}")
-    return m
-
-def highlight_shortest_path_and_save(G, pos_latlon, start, end, base_map, out_path_highlighted):
+    # resolver nomes (case-insensitive exato)
+    all_names = list(G.nodes)
+    start = normalize(START_STATION, all_names)
+    end   = normalize(END_STATION,   all_names)
     if not start or not end:
-        return False
+        print("Estação inválida. START:", START_STATION, "->", start, "| END:", END_STATION, "->", end)
+        return
     if start not in G or end not in G:
-        debug_print("Start/end não encontrados no grafo. Verifique nomes exatos.")
-        return False
+        print("Estação não presente no grafo:", start, end); return
+
+    # menor caminho por número de segmentos
     try:
         path = nx.shortest_path(G, source=start, target=end)
-        coords = [pos_latlon[n] for n in path]
-        folium.PolyLine(locations=coords, weight=7, color="red", opacity=0.95).add_to(base_map)
-        for n in path:
-            folium.CircleMarker(location=pos_latlon[n], radius=8, fill=True).add_to(base_map)
-        base_map.save(out_path_highlighted)
-        debug_print("Mapa com destaque salvo em: " + out_path_highlighted)
-        debug_print("Caminho curto: " + " -> ".join(path))
-        return True
     except nx.NetworkXNoPath:
-        debug_print("Nenhum caminho entre " + start + " e " + end)
-        return False
+        print(f"Nenhuma rota entre '{start}' e '{end}'."); return
 
-def main():
-    # informar pasta atual e onde o script está
-    debug_print("Working dir (process): " + os.getcwd())
-    base_dir, input_path, output_path = get_base_paths()
-    debug_print("Script base dir: " + base_dir)
-    debug_print("Esperando JSON em: " + input_path)
+    # ---- Mostrar TODAS as estações do trajeto ----
+    print("Rota (", len(path), "estações ):")
+    for i, n in enumerate(path, start=1):
+        print(f"{i:02d}. {n}")
 
-    try:
-        lines = load_json(input_path)
-    except Exception as e:
-        debug_print("Erro ao abrir/ler o JSON: " + str(e))
-        return
+    # layout só da rota e mapa minimalista
+    pos = layout_for_path(path)
+    m = folium.Map(location=MAP_CENTER, zoom_start=MAP_ZOOM)
 
-    G, stations_meta = build_graph_from_lines(lines)
-    pos_latlon = compute_positions(G, stations_meta, MAP_CENTER, MAP_SPAN_DEGREES, SPRING_SEED)
+    # polilinha da rota (apenas ela), com popup listando todas as estações
+    lista_html = "<b>Rota</b><br>" + "<br>".join(f"{i:02d}. {n}" for i, n in enumerate(path, start=1))
+    folium.PolyLine([pos[n] for n in path], color="red", weight=7, opacity=0.95,
+                    popup=folium.Popup(lista_html, max_width=320)).add_to(m)
 
-    # desenha e salva mapa principal
-    m = draw_map(G, stations_meta, pos_latlon, lines, output_path, MAP_CENTER)
+    # marcadores numerados ao longo da rota
+    for i, n in enumerate(path, start=1):
+        lat, lon = pos[n]
+        label = f"{i:02d}. {n}"
+        # início e fim com pin; intermediários com círculo
+        if i == 1:
+            folium.Marker([lat, lon], tooltip=label, popup=f"Início<br>{label}").add_to(m)
+        elif i == len(path):
+            folium.Marker([lat, lon], tooltip=label, popup=f"Destino<br>{label}").add_to(m)
+        else:
+            folium.CircleMarker([lat, lon], radius=6, tooltip=label, popup=label, fill=True).add_to(m)
 
-    # se configurado, destaca caminho e salva em arquivo separado
-    if HIGHLIGHT_START and HIGHLIGHT_END:
-        out_highlight = os.path.join(base_dir, "mapa_estacoes_destacado.html")
-        highlight_shortest_path_and_save(G, pos_latlon, HIGHLIGHT_START, HIGHLIGHT_END, m, out_highlight)
+    out = os.path.join(base, OUTPUT_HTML)
+    m.save(out)
+    print("Mapa de rota salvo em:", out)
 
 if __name__ == "__main__":
     main()
