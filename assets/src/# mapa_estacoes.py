@@ -4,10 +4,13 @@
 
 import os, json
 import networkx as nx
+
+
+
 import folium
 
 # ======= EDITAR AQUI =======
-START_STATION = "Engenheiro Goulart"
+START_STATION = "Carrão"
 END_STATION   = "Aeroporto-Guarulhos"
 # ===========================
 

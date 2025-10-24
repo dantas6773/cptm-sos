@@ -16,6 +16,9 @@ body{
     background-color: var(--cor-branco-principal);
 }
 
+/* reserve espaço para o footer fixo */
+body{ padding-bottom: 90px; }
+
 .map-container {
   width: 412px;
   height: 470px;
@@ -204,8 +207,10 @@ footer{
     display: flex;
     align-items: center;
     justify-content: space-around;
-    position: absolute;
+    position: fixed;
+    left: 0;
     bottom: 0;
+    z-index: 20;
 }
 
 .secoes{
@@ -310,6 +315,63 @@ p{
     color: white;
     font-family: 'Inter';
 }
+
+/* Styles for the selectable stations list and print buttons */
+#lista-estacoes-container h4{ color: var(--cor-font-preto); margin:0 0 6px 0; }
+#lista-estacoes{ background: transparent; padding: 8px 10px; border-radius: 10px; max-height:120px; overflow:auto; }
+.btn-imprimir{ background-color: var(--cor-azul-principal); color: var(--cor-branco-principal); border: none; padding: 10px 12px; border-radius: 10px; cursor: pointer; font-weight:600; }
+.btn-imprimir:active{ background-color: var(--vermelho-cptm); }
+
+/* Dois objetos clicáveis (cards) */
+.list-card{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background: #ffffff;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    color: var(--cor-font-preto);
+    font-weight:600;
+}
+.list-card:active{ transform: translateY(1px); }
+
+/* Modal simples para as listas */
+.modal{ position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background-color: rgba(0,0,0,0.45); z-index: 1000; }
+.modal.hidden{ display: none !important; }
+.modal-content{ width: 340px; max-height: 70vh; overflow:auto; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.modal-content h4{ margin:0 0 8px 0; color: var(--cor-font-preto); font-family: 'inter'; }
+.modal-close{ position: absolute; right: 18px; top: 12px; background: transparent; border: none; font-size:18px; cursor:pointer; }
+
+.lista-item{ display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+.lista-item label{ font-family: 'inter'; }
+.modal-content ul{ padding-left: 18px; margin: 6px 0; }
+.modal-content li{ margin:6px 0; }
+
+/* Dropdown styles */
+.dropdown{ display:flex; flex-direction:column; gap:8px; }
+.dropdown-label{ font-size:12px; color:var(--cor-branco-principal); font-weight:700; }
+.dropdown-btn{ background:#ffffff; padding:10px 12px; border-radius:10px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+.dropdown-panel{ margin-top:6px; }
+.dropdown-panel.hidden{ display:none; }
+.dropdown-list{ list-style:none; padding:0 6px; margin:0; max-height:180px; overflow:auto; }
+.dropdown{ width:170px; }
+.dropdown-item{ display:flex; justify-content:space-between; align-items:center; padding:8px 6px; border-bottom:1px solid rgba(0,0,0,0.04); }
+
+/* Nudge dropdowns slightly upward inside the search card */
+.dropdown-row{ margin-top: -12px; }
+
+/* Gerar mapa button */
+.btn-gerar{ background: var(--cor-azul-principal); color: var(--cor-branco-principal); border: none; padding:10px 16px; border-radius: 12px; font-weight:700; cursor:pointer; }
+.btn-gerar:active{ transform: translateY(1px); }
+.dropdown-item .item-text{ color:var(--cor-font-preto); }
+.item-actions button{ background:transparent; border:none; color:var(--cor-azul-principal); margin-left:8px; cursor:pointer; }
+.edit-input{ padding:6px 8px; border-radius:8px; border:1px solid #ddd; width:70%; }
+.item-save, .item-cancel{ margin-left:6px; padding:6px 8px; border-radius:8px; border:none; cursor:pointer; }
+.dropdown-add{ display:flex; gap:8px; margin-top:8px; }
+.dropdown-add input{ flex:1; padding:8px 10px; border-radius:10px; border:1px solid #ddd; }
+.dropdown-add .btn-imprimir{ padding:8px 10px; }
 
 .botao-voltar {
     position: absolute;

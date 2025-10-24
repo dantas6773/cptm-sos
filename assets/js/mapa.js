@@ -163,3 +163,139 @@ document.addEventListener("DOMContentLoaded", function () {
         lupa.classList.remove('hidden');
     });
 });
+
+// --- Dois objetos clicáveis que abrem duas listas diferentes ---
+document.addEventListener('DOMContentLoaded', function () {
+  // Dropdowns ORIGEM / DESTINO com edição de itens
+  const toggleOrigem = document.getElementById('toggle-origem');
+  const toggleDestino = document.getElementById('toggle-destino');
+  const panelOrigem = document.getElementById('panel-origem');
+  const panelDestino = document.getElementById('panel-destino');
+  const listOrigem = document.getElementById('list-origem');
+  const listDestino = document.getElementById('list-destino');
+
+  if (!toggleOrigem || !toggleDestino) return;
+
+  // Lista fixa de estações definida no código (edite aqui para adicionar/remover estações)
+  const DEFAULT_STATIONS = [
+    'Pedro II',
+    'São Bento',
+    'Júlio Prestes'
+  ];
+
+  // Cada dropdown mantém seu próprio array de itens (iniciado a partir de DEFAULT_STATIONS)
+  const origemItems = [...DEFAULT_STATIONS];
+  const destinoItems = [...DEFAULT_STATIONS];
+
+  function renderList(container, items) {
+    container.innerHTML = '';
+    items.forEach((name, idx) => {
+      const li = document.createElement('li');
+      li.className = 'dropdown-item';
+
+      const span = document.createElement('span');
+      span.className = 'item-text';
+      span.innerText = name;
+
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'item-edit';
+      editBtn.type = 'button';
+      editBtn.innerText = 'Editar';
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'item-delete';
+      delBtn.type = 'button';
+      delBtn.innerText = 'Remover';
+
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+
+      li.appendChild(span);
+      li.appendChild(actions);
+      container.appendChild(li);
+
+      // Edit handler
+      editBtn.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = name;
+        input.className = 'edit-input';
+
+        const save = document.createElement('button');
+        save.type = 'button';
+        save.innerText = 'Salvar';
+        save.className = 'item-save';
+
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.innerText = 'Cancelar';
+        cancel.className = 'item-cancel';
+
+        // substituir conteúdo visual
+        li.innerHTML = '';
+        li.appendChild(input);
+        li.appendChild(save);
+        li.appendChild(cancel);
+
+        save.addEventListener('click', () => {
+          const newVal = input.value.trim();
+          if (!newVal) return alert('Nome inválido');
+          items[idx] = newVal;
+          renderList(container, items);
+        });
+        cancel.addEventListener('click', () => renderList(container, items));
+      });
+
+      delBtn.addEventListener('click', () => {
+        if (!confirm(`Remover estação "${name}"?`)) return;
+        items.splice(idx, 1);
+        renderList(container, items);
+      });
+    });
+  }
+
+  // Inicial render
+  renderList(listOrigem, origemItems);
+  renderList(listDestino, destinoItems);
+
+  // Toggle panels
+  function closeAll() {
+    panelOrigem.classList.add('hidden');
+    panelDestino.classList.add('hidden');
+  }
+  toggleOrigem.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = !panelOrigem.classList.contains('hidden');
+    closeAll();
+    if (!open) panelOrigem.classList.remove('hidden');
+  });
+  toggleDestino.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = !panelDestino.classList.contains('hidden');
+    closeAll();
+    if (!open) panelDestino.classList.remove('hidden');
+  });
+
+  // No add handlers: itens só podem ser alterados via código (DEFAULT_STATIONS) ou edição/remover nos lists
+
+  // Close when clicking outside
+  document.addEventListener('click', (e) => {
+    const p = e.target;
+    if (!p.closest || (!p.closest('#dropdown-origem') && !p.closest('#dropdown-destino'))) {
+      closeAll();
+    }
+  });
+
+  // GERAR MAPA button handler (simple placeholder)
+  const gerarBtn = document.getElementById('gerar-mapa-btn');
+  gerarBtn && gerarBtn.addEventListener('click', (e) => {
+    // impede que o click borbulhe para document (que fecha os dropdowns)
+    e.stopPropagation();
+    // exemplo: usar seleção atual, aqui apenas um placeholder
+    alert('Gerando mapa...');
+    // TODO: implementar comportamento real (criar rota, centralizar mapa, etc.)
+  });
+});
