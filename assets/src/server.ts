@@ -122,3 +122,45 @@ server.put("/api/usuario/apelido", (req: Request, res: Response) => {
 server.listen(5001, () => {
     console.log('Servidor rodando na porta 5001')
 })
+
+
+// ROTA LOGIN | INICIO
+
+server.post("/api/login", (req: Request, res: Response) => {
+    try {
+        console.log(`[POST /api/login] Requisição recebida:`, req.body);
+
+        const { email, senha } = req.body;
+        if (!email || !senha) {
+            console.warn(`[POST /api/login] Erro 400: Campos faltando. Email: ${email}`);
+            return res.status(400).json({ mensagem: "Email e senha são obrigatórios" });
+        }
+
+        const db = readDB();
+        const user = db.usuarios.find((u: any) => u.email === email);
+
+        if (!user) {
+            console.warn(`[POST /api/login] Erro 404: Email ${email} não encontrado.`);
+            return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        }
+
+        if (user.senha !== senha) {
+            console.warn(`[POST /api/login] Erro 401: Senha incorreta para ${email}.`);
+            return res.status(401).json({ mensagem: "Credenciais inválidas" });
+        }
+
+        // Remover a senha do objeto retornado
+        const { senha: _, ...userSafe } = user;
+        console.log(`[POST /api/login] Login bem-sucedido: ${email}`);
+
+        return res.status(200).json({
+            mensagem: "Login efetuado com sucesso",
+            usuario: userSafe
+        });
+    } catch (error) {
+        console.error('[POST /api/login] Erro:', error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+})
+
+// ROTA LOGIN | FIM
