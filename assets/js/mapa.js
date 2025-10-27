@@ -1,194 +1,208 @@
-const map = document.querySelector('.map');
-const container = document.querySelector('.map-container');
+// ============================
+// MAPA (zoom e pan)
+// ============================
+(function initPanZoomMap() {
+  const map = document.querySelector('.map');
+  const container = document.querySelector('.map-container');
+  if (!map || !container) return;
 
-let isDragging = false;
-let startX;
-let startY;
-let currentX;
-let currentY;
+  let isDragging = false;
+  let startX, startY;
+  let currentX, currentY;
+  let scale;
 
-let scale;
-const minScale = 0.5;
-const maxScale = 3;
+  const minScale = 0.5;
+  const maxScale = 3;
 
-const containerWidth = container.clientWidth;
-const containerHeight = container.clientHeight;
-const mapWidth = 1313;
-const mapHeight = 875;
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+  const mapWidth = 1313;
+  const mapHeight = 875;
 
-resetPosition();
-
-container.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  startX = e.clientX - currentX;
-  startY = e.clientY - currentY;
-  container.style.cursor = 'grabbing';
-  disableTransition();
-});
-
-container.addEventListener('mouseup', () => {
-  isDragging = false;
-  container.style.cursor = 'grab';
-});
-
-container.addEventListener('mouseleave', () => {
-  isDragging = false;
-  container.style.cursor = 'grab';
-});
-
-container.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
-
-  let x = e.clientX - startX;
-  let y = e.clientY - startY;
-
-  const [minX, minY, maxX, maxY] = getLimits();
-
-  x = Math.min(maxX, Math.max(minX, x));
-  y = Math.min(maxY, Math.max(minY, y));
-
-  currentX = x;
-  currentY = y;
-
-  updateTransform();
-});
-
-container.addEventListener('wheel', (e) => {
-  e.preventDefault();
-
-  enableTransition();
-
-  const delta = -e.deltaY * 0.001;
-  const newScale = Math.min(maxScale, Math.max(minScale, scale + delta));
-
-  const rect = container.getBoundingClientRect();
-  const offsetX = e.clientX - rect.left - currentX;
-  const offsetY = e.clientY - rect.top - currentY;
-
-  const scaleRatio = newScale / scale;
-
-  currentX -= offsetX * (scaleRatio - 1);
-  currentY -= offsetY * (scaleRatio - 1);
-
-  scale = newScale;
-
-  const [minX, minY, maxX, maxY] = getLimits();
-
-  currentX = Math.min(maxX, Math.max(minX, currentX));
-  currentY = Math.min(maxY, Math.max(minY, currentY));
-
-  updateTransform();
-});
-
-container.addEventListener('dblclick', () => {
-  enableTransition();
+  // posiciona mapa inicialmente no centro
   resetPosition();
+
+  container.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX - currentX;
+    startY = e.clientY - currentY;
+    container.style.cursor = 'grabbing';
+    disableTransition();
+  });
+
+  container.addEventListener('mouseup', stopDrag);
+  container.addEventListener('mouseleave', stopDrag);
+
+  function stopDrag() {
+    isDragging = false;
+    container.style.cursor = 'grab';
+  }
+
+  container.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+
+    let x = e.clientX - startX;
+    let y = e.clientY - startY;
+
+    const [minX, minY, maxX, maxY] = getLimits();
+    x = Math.min(maxX, Math.max(minX, x));
+    y = Math.min(maxY, Math.max(minY, y));
+
+    currentX = x;
+    currentY = y;
+
+    updateTransform();
+  });
+
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    enableTransition();
+
+    // calcula novo scale
+    const delta = -e.deltaY * 0.001;
+    const newScale = clamp(scale + delta, minScale, maxScale);
+
+    // ponto do cursor como pivot do zoom
+    const rect = container.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left - currentX;
+    const offsetY = e.clientY - rect.top - currentY;
+    const scaleRatio = newScale / scale;
+
+    currentX -= offsetX * (scaleRatio - 1);
+    currentY -= offsetY * (scaleRatio - 1);
+
+    scale = newScale;
+
+    // limita dentro da moldura
+    const [minX, minY, maxX, maxY] = getLimits();
+    currentX = clamp(currentX, minX, maxX);
+    currentY = clamp(currentY, minY, maxY);
+
+    updateTransform();
+  });
+
+  // duplo clique = reset
+  container.addEventListener('dblclick', () => {
+    enableTransition();
+    resetPosition();
+  });
+
+  function updateTransform() {
+    map.style.transform = `scale(${scale})`;
+    map.style.left = `${currentX}px`;
+    map.style.top = `${currentY}px`;
+  }
+
+  function resetPosition() {
+    scale = 1;
+    currentX = (containerWidth - mapWidth) / 2;
+    currentY = (containerHeight - mapHeight) / 2;
+    updateTransform();
+  }
+
+  function getLimits() {
+    const scaledWidth = mapWidth * scale;
+    const scaledHeight = mapHeight * scale;
+
+    const minX = containerWidth - scaledWidth;
+    const minY = containerHeight - scaledHeight;
+    const maxX = 0;
+    const maxY = 0;
+
+    return [minX, minY, maxX, maxY];
+  }
+
+  function enableTransition() {
+    map.style.transition = 'transform 0.3s ease, top 0.3s ease, left 0.3s ease';
+  }
+
+  function disableTransition() {
+    map.style.transition = 'none';
+  }
+
+  function clamp(val, min, max) {
+    return Math.min(max, Math.max(min, val));
+  }
+})();
+
+
+// ============================
+// TELA / OVERLAY DE MAPA EXPANDIDO
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+  const botaoExpandir = document.getElementById('expandir');
+  const overlay = document.getElementById('overlay');
+  const btnVoltar = document.getElementById('btn-voltar');
+
+  if (botaoExpandir && overlay && btnVoltar) {
+    botaoExpandir.addEventListener('click', () => {
+      overlay.classList.remove('hidden');
+    });
+
+    btnVoltar.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+    });
+  }
 });
 
-function updateTransform() {
-  map.style.transform = `scale(${scale})`;
-  map.style.left = `${currentX}px`;
-  map.style.top = `${currentY}px`;
-}
 
-function resetPosition() {
-  scale = 1;
-  currentX = (containerWidth - mapWidth) / 2;
-  currentY = (containerHeight - mapHeight) / 2;
-  updateTransform();
-}
+// ============================
+// FOOTER (NAVEGAÇÃO)
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+  const botaoHome = document.querySelector('.home');
+  const botaoDenuncia = document.querySelector('.denuncia');
 
-function getLimits() {
-  const scaledWidth = mapWidth * scale;
-  const scaledHeight = mapHeight * scale;
-
-  const minX = containerWidth - scaledWidth;
-  const minY = containerHeight - scaledHeight;
-  const maxX = 0;
-  const maxY = 0;
-
-  return [minX, minY, maxX, maxY];
-}
-
-function enableTransition() {
-  map.style.transition = 'transform 0.3s ease, top 0.3s ease, left 0.3s ease';
-}
-
-function disableTransition() {
-  map.style.transition = 'none';
-}
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const botaoExpandir = document.getElementById("expandir");
-    const overlay = document.getElementById("overlay");
-    const btnVoltar = document.getElementById("btn-voltar");
-
-    botaoExpandir.addEventListener("click", () => {
-        overlay.classList.remove("hidden");
+  if (botaoHome) {
+    botaoHome.addEventListener('click', () => {
+      window.location.href = '/assets/html/home.html';
     });
+  }
 
-    btnVoltar.addEventListener("click", () => {
-        overlay.classList.add("hidden");
+  if (botaoDenuncia) {
+    botaoDenuncia.addEventListener('click', () => {
+      window.location.href = '/assets/html/pré-denucia.html';
     });
+  }
 });
 
-const botao_home = document.getElementsByClassName('home')[0]
-const botao_denuncia = document.getElementsByClassName('denuncia')[0]
 
-botao_home.addEventListener('click', function(){
-  window.location.href = '/assets/html/home.html'
-})
-
-botao_denuncia.addEventListener('click', function() {
-    window.location.href = '/assets/html/pré-denucia.html'
-})
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const pesquisaContainer = document.querySelector('.container-pesquisa');
-    const trajetoInfo = document.getElementById('trajeto-info');
-    const voltarTrajeto = document.getElementById('btn-voltar-trajeto');
-    const lupa = document.getElementById('lupa');
-
-    pesquisaContainer.addEventListener('click', function() {
-        pesquisaContainer.classList.add('hidden');
-        trajetoInfo.classList.remove('hidden');
-        lupa.classList.add('hidden');
-    });
-
-    voltarTrajeto.addEventListener('click', function() {
-        trajetoInfo.classList.add('hidden');
-        pesquisaContainer.classList.remove('hidden');
-        lupa.classList.remove('hidden');
-    });
-});
-
-// --- Dois objetos clicáveis que abrem duas listas diferentes ---
-document.addEventListener('DOMContentLoaded', function () {
-  // Dropdowns ORIGEM / DESTINO com edição de itens
+// ============================
+// DROPDOWNS ORIGEM / DESTINO + GERAR MAPA
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+  // elementos principais do dropdown
   const toggleOrigem = document.getElementById('toggle-origem');
   const toggleDestino = document.getElementById('toggle-destino');
   const panelOrigem = document.getElementById('panel-origem');
   const panelDestino = document.getElementById('panel-destino');
   const listOrigem = document.getElementById('list-origem');
   const listDestino = document.getElementById('list-destino');
+  const gerarBtn = document.getElementById('gerar-mapa-btn');
 
-  if (!toggleOrigem || !toggleDestino) return;
+  if (!toggleOrigem || !toggleDestino || !panelOrigem || !panelDestino || !listOrigem || !listDestino) {
+    return;
+  }
 
-  // Lista fixa de estações definida no código (edite aqui para adicionar/remover estações)
+  // estado atual escolhido
+  let origemSelected = null;
+  let destinoSelected = null;
+
+  // lista inicial de estações (edite aqui)
   const DEFAULT_STATIONS = [
     'Pedro II',
     'São Bento',
     'Júlio Prestes'
   ];
 
-  // Cada dropdown mantém seu próprio array de itens (iniciado a partir de DEFAULT_STATIONS)
+  // cópia independente para cada dropdown
   const origemItems = [...DEFAULT_STATIONS];
   const destinoItems = [...DEFAULT_STATIONS];
 
-  function renderList(container, items) {
+  // renderiza lista de opções dentro de um dropdown
+  function renderList(container, items, tipo) {
     container.innerHTML = '';
+
     items.forEach((name, idx) => {
       const li = document.createElement('li');
       li.className = 'dropdown-item';
@@ -197,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
       span.className = 'item-text';
       span.innerText = name;
 
+      // ações (Editar / Remover)
       const actions = document.createElement('div');
       actions.className = 'item-actions';
 
@@ -217,7 +232,22 @@ document.addEventListener('DOMContentLoaded', function () {
       li.appendChild(actions);
       container.appendChild(li);
 
-      // Edit handler
+      // Selecionar estação
+      span.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+
+        if (tipo === 'origem') {
+          origemSelected = name;
+          toggleOrigem.innerText = `${name} ▾`;
+          panelOrigem.classList.add('hidden');
+        } else {
+          destinoSelected = name;
+          toggleDestino.innerText = `${name} ▾`;
+          panelDestino.classList.add('hidden');
+        }
+      });
+
+      // Editar nome da estação
       editBtn.addEventListener('click', () => {
         const input = document.createElement('input');
         input.type = 'text';
@@ -234,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cancel.innerText = 'Cancelar';
         cancel.className = 'item-cancel';
 
-        // substituir conteúdo visual
+        // substitui conteúdo visual temporariamente
         li.innerHTML = '';
         li.appendChild(input);
         li.appendChild(save);
@@ -242,60 +272,122 @@ document.addEventListener('DOMContentLoaded', function () {
 
         save.addEventListener('click', () => {
           const newVal = input.value.trim();
-          if (!newVal) return alert('Nome inválido');
+          if (!newVal) {
+            alert('Nome inválido');
+            return;
+          }
+
+          // atualiza array
           items[idx] = newVal;
-          renderList(container, items);
+
+          // se o item editado era o selecionado, atualiza também
+          if (tipo === 'origem' && origemSelected === name) {
+            origemSelected = newVal;
+            toggleOrigem.innerText = `${newVal} ▾`;
+          }
+          if (tipo === 'destino' && destinoSelected === name) {
+            destinoSelected = newVal;
+            toggleDestino.innerText = `${newVal} ▾`;
+          }
+
+          renderList(container, items, tipo);
         });
-        cancel.addEventListener('click', () => renderList(container, items));
+
+        cancel.addEventListener('click', () => {
+          renderList(container, items, tipo);
+        });
       });
 
+      // Remover estação
       delBtn.addEventListener('click', () => {
         if (!confirm(`Remover estação "${name}"?`)) return;
+
+        // se você remover a estação selecionada, limpa seleção
+        if (tipo === 'origem' && origemSelected === name) {
+          origemSelected = null;
+          toggleOrigem.innerText = 'Selecionar ▾';
+        }
+        if (tipo === 'destino' && destinoSelected === name) {
+          destinoSelected = null;
+          toggleDestino.innerText = 'Selecionar ▾';
+        }
+
         items.splice(idx, 1);
-        renderList(container, items);
+        renderList(container, items, tipo);
       });
     });
   }
 
-  // Inicial render
-  renderList(listOrigem, origemItems);
-  renderList(listDestino, destinoItems);
+  // render inicial
+  renderList(listOrigem, origemItems, 'origem');
+  renderList(listDestino, destinoItems, 'destino');
 
-  // Toggle panels
-  function closeAll() {
+  // abre/fecha dropdowns
+  function closeAllDropdowns() {
     panelOrigem.classList.add('hidden');
     panelDestino.classList.add('hidden');
   }
+
   toggleOrigem.addEventListener('click', (e) => {
     e.stopPropagation();
-    const open = !panelOrigem.classList.contains('hidden');
-    closeAll();
-    if (!open) panelOrigem.classList.remove('hidden');
+    const alreadyOpen = !panelOrigem.classList.contains('hidden');
+    closeAllDropdowns();
+    if (!alreadyOpen) panelOrigem.classList.remove('hidden');
   });
+
   toggleDestino.addEventListener('click', (e) => {
     e.stopPropagation();
-    const open = !panelDestino.classList.contains('hidden');
-    closeAll();
-    if (!open) panelDestino.classList.remove('hidden');
+    const alreadyOpen = !panelDestino.classList.contains('hidden');
+    closeAllDropdowns();
+    if (!alreadyOpen) panelDestino.classList.remove('hidden');
   });
 
-  // No add handlers: itens só podem ser alterados via código (DEFAULT_STATIONS) ou edição/remover nos lists
-
-  // Close when clicking outside
+  // clicar fora = fecha os dois
   document.addEventListener('click', (e) => {
-    const p = e.target;
-    if (!p.closest || (!p.closest('#dropdown-origem') && !p.closest('#dropdown-destino'))) {
-      closeAll();
+    const el = e.target;
+    const insideOrigem = el.closest && el.closest('#dropdown-origem');
+    const insideDestino = el.closest && el.closest('#dropdown-destino');
+    if (!insideOrigem && !insideDestino) {
+      closeAllDropdowns();
     }
   });
 
-  // GERAR MAPA button handler (simple placeholder)
-  const gerarBtn = document.getElementById('gerar-mapa-btn');
-  gerarBtn && gerarBtn.addEventListener('click', (e) => {
-    // impede que o click borbulhe para document (que fecha os dropdowns)
-    e.stopPropagation();
-    // exemplo: usar seleção atual, aqui apenas um placeholder
-    alert('Gerando mapa...');
-    // TODO: implementar comportamento real (criar rota, centralizar mapa, etc.)
-  });
+  // botão "GERAR MAPA"
+  if (gerarBtn) {
+    gerarBtn.addEventListener('click', async (e) => {
+      e.stopPropagation(); // não fecha dropdown sem querer
+
+      if (!origemSelected || !destinoSelected) {
+        alert('Escolha origem e destino primeiro.');
+        return;
+      }
+
+      // envia pro backend
+      try {
+        const resp = await fetch('http://localhost:5001/gera-mapa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            origin: origemSelected,
+            destination: destinoSelected
+          })
+        });
+
+        const data = await resp.json();
+        console.log('Resposta /gera-mapa:', data);
+
+        if (!resp.ok || data.ok === false) {
+          alert('Erro ao gerar mapa. Veja o console.');
+          return;
+        }
+
+        alert(
+          `Mapa solicitado!\nOrigem: ${origemSelected}\nDestino: ${destinoSelected}`
+        );
+      } catch (err) {
+        console.error('Erro ao chamar /gera-mapa', err);
+        alert('Erro ao gerar mapa (ver console)');
+      }
+    });
+  }
 });
