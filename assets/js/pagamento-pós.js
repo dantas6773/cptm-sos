@@ -60,6 +60,7 @@ comprarBotao.addEventListener("click", async (event)=>{
 
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // garante que exista lista de usuarios no localStorage
     if (!localStorage.getItem('usuarios')) {
         try {
             const resp = await fetch('../src/usuario.json')
@@ -77,20 +78,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const user = usuarios.find(u => Number(u.id) === currentUserId) || usuarios[0]
 
     if (user) {
-        const saldoText = 'R$' + (Number(user.saldo || 0)).toFixed(2).replace('.', ',')
-        
-        const possibleIds = ['valor-saldo', 'dinheiro', 'saldo', 'valorSaldo']
-        let updated = false
-        possibleIds.forEach(id => {
-            const el = document.getElementById(id)
-            if (el) { el.textContent = saldoText; updated = true }
-        })
-        if (!updated) {
-            const btt = document.getElementById('bttsaldo')
-            if (btt) {
-                btt.innerHTML = `<img class="imagess" src="../imagem/imgpastas.png" alt=""><p id="seusaldo">Seu saldo:</p><p id="dinheiro">${saldoText}</p>`
-            }
+        const boasEl = document.getElementById('boas-vindas') || document.querySelector('.logo h1') || document.querySelector('h1')
+        if (boasEl) {
+            const nome = String(user.nome || '')
+            const primeiroNome = nome.split(' ')[0] || nome || 'Usuário'
+            boasEl.textContent = `Olá, ${primeiroNome}`
         }
+    }
+
+    const voltarEl = document.getElementById('voltar') 
+                   || document.getElementById('divvoltar') 
+                   || document.getElementById('seta')
+
+    if (voltarEl) {
+        voltarEl.style.cursor = 'pointer'
+        voltarEl.addEventListener('click', (e) => {
+            e.preventDefault()
+            window.location.href = 'pagamento.html'
+        })
     }
 })
 
