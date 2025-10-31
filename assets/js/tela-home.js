@@ -38,4 +38,57 @@ botao_mapa.addEventListener('click', function(){
     valorSaldo.textContent = saldoVisivel ? 'R$117,50' : '********';
   });
 
-  //testado
+document.addEventListener('DOMContentLoaded', async () => {
+    
+    if (!localStorage.getItem('usuarios')) {
+        try {
+            const resp = await fetch('../src/usuario.json')
+            if (resp.ok) {
+                const data = await resp.json()
+                localStorage.setItem('usuarios', JSON.stringify(data.usuarios || []))
+            }
+        } catch (err) {
+            console.error('Erro ao carregar usuario.json:', err)
+        }
+    }
+
+    const usuariosJson = localStorage.getItem('usuarios')
+    if (usuariosJson) {
+        try {
+            const usuarios = JSON.parse(usuariosJson)
+            const currentUserId = Number(localStorage.getItem('currentUserId')) || 1
+            const user = usuarios.find(u => Number(u.id) === currentUserId) || usuarios[0]
+
+            if (user) {
+                
+                const saldoText = 'R$' + (Number(user.saldo || 0)).toFixed(2).replace('.',',')
+                const possibleSaldoIds = ['valor-saldo', 'dinheiro', 'saldo', 'valorSaldo']
+                possibleSaldoIds.forEach(id => {
+                    const el = document.getElementById(id)
+                    if (el) el.textContent = saldoText
+                })
+
+                const boasEl = document.getElementById('boas-vindas')
+                if (boasEl) {
+                    const nome = user.nome || ''
+                    const primeiroNome = nome.split(' ')[0] || nome || 'Usuário'
+                    boasEl.textContent = `Olá, ${primeiroNome}`
+                }
+            }
+        } catch (err) {
+            console.error('Erro ao processar usuarios no localStorage:', err)
+        }
+    }
+
+    
+    const confirmation = localStorage.getItem('confirmationMessage')
+    if (confirmation) {
+        
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                alert(confirmation)
+                localStorage.removeItem('confirmationMessage')
+            }, 50) 
+        })
+    }
+})
