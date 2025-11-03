@@ -1,7 +1,7 @@
 const voltar = document.getElementById('voltar')
 
 voltar.addEventListener('click', function() {
-    window.location.href = '/assets/html/pré-denucia.html'
+    window.location.href = 'pré-denucia.html'
 })
 
 const apelido = localStorage.getItem('apelido')

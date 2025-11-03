@@ -4,18 +4,18 @@ faça_uma_denuncia = document.getElementById('faça-uma-denuncia')
 setavolt = document.getElementById('setavoltar')
 
 voltar.addEventListener('click', function() {
-    window.location.href = '/assets/html/home.html'
+    window.location.href = 'home.html'
 })
 
 organizador.addEventListener('click', function(){
-    window.location.href = '/assets/html/denuncia.html'
+    window.location.href = 'denuncia.html'
 })
 
 faça_uma_denuncia.addEventListener('click', function(){
-    window.location.href = '/assets/html/formularioDenuncia.html'
+    window.location.href = 'formularioDenuncia.html'
 })
 setavolt.addEventListener('click', function() {
-    window.location.href = '/assets/html/home.html'
+    window.location.href = 'home.html'
 })
 
 //testado
