@@ -5,14 +5,14 @@ const apelido_lim = apelido.slice(0, 7); //corta o nome para 7 letras pq nao tem
 document.getElementById('boas-vindas').textContent = `Olá, ${apelido_lim}`
 
 seta_voltar.addEventListener('click', function(){
-    window.location.href = '/assets/html/home.html'
+    window.location.href = 'home.html'
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
     
     if (!localStorage.getItem('usuarios')) {
         try {
-            const resp = await fetch('../src/usuario.json')
+            const resp = await fetch('/src/usuario.json')
             if (resp.ok) {
                 const data = await resp.json()
                 localStorage.setItem('usuarios', JSON.stringify(data.usuarios || []))

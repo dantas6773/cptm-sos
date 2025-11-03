@@ -28,7 +28,7 @@ form.addEventListener("submit", async function (event) {
     if (response.status === 200) {
       localStorage.setItem('apelido', data.usuario.nome);
       localStorage.setItem('userEmail', data.usuario.email);
-      window.location.href = "./assets/html/home.html";
+      window.location.href = "/home.html";
     } else {
       alert(data.mensagem);
     }
