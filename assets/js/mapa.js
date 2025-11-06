@@ -195,9 +195,44 @@ document.addEventListener('DOMContentLoaded', () => {
     'Júlio Prestes'
   ];
 
-  // cópia independente para cada dropdown
-  const origemItems = [...DEFAULT_STATIONS];
-  const destinoItems = [...DEFAULT_STATIONS];
+  // cópia independente para cada dropdown (será preenchida pela API ou pelo fallback)
+  let origemItems = [];
+  let destinoItems = [];
+
+  // busca estações no backend; se falhar, usa DEFAULT_STATIONS
+  async function fetchStations() {
+    try {
+      const resp = await fetch('http://localhost:5001/api/estacoes');
+      if (!resp.ok) throw new Error('Resposta inválida');
+      const list = await resp.json();
+      if (!Array.isArray(list) || list.length === 0) throw new Error('Lista vazia');
+      return list;
+    } catch (err) {
+      console.warn('Não foi possível carregar estações do servidor, tentando fallback local (../src/estacoes.json)...', err);
+
+      // tentativa de fallback para o arquivo JSON local (quando a página é servida por um server estático)
+      try {
+        const localResp = await fetch('../src/estacoes.json');
+        if (localResp.ok) {
+          const localList = await localResp.json();
+          // estacoes.json tem estrutura de linhas com campo trajeto -> extrair nomes
+          if (Array.isArray(localList)) {
+            const names = [];
+            localList.forEach((linha) => {
+              if (Array.isArray(linha.trajeto)) linha.trajeto.forEach((n) => names.push(n));
+            });
+            const unique = Array.from(new Set(names)).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+            return unique;
+          }
+        }
+      } catch (err2) {
+        console.warn('Falha ao carregar ../src/estacoes.json:', err2);
+      }
+
+      // último recurso: fallback mínimo embutido
+      return DEFAULT_STATIONS;
+    }
+  }
 
   // renderiza lista de opções dentro de um dropdown
   function renderList(container, items, tipo) {
@@ -318,9 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // render inicial
-  renderList(listOrigem, origemItems, 'origem');
-  renderList(listDestino, destinoItems, 'destino');
+  // busca estações e renderiza o conteúdo inicial
+  (async () => {
+    const lista = await fetchStations();
+    origemItems = [...lista];
+    destinoItems = [...lista];
+
+    renderList(listOrigem, origemItems, 'origem');
+    renderList(listDestino, destinoItems, 'destino');
+  })();
 
   // abre/fecha dropdowns
   function closeAllDropdowns() {
