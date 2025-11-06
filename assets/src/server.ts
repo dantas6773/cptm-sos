@@ -197,10 +197,6 @@ server.get("/", (req: Request, res: Response) => {
 	res.redirect('/html/mapa.html');
 });
 
-server.listen(5001, () => {
-	console.log("Servidor rodando na porta 5001");
-	console.log(`Acesse: http://localhost:5001/html/mapa.html`);
-});
 // --- FIM DAS MODIFICAÇÕES ---
 
 

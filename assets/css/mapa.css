@@ -17,7 +17,7 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--cor-branco-principal);
-    padding-bottom: 90px; /* reserva espaço para o footer fixo */
+    padding-bottom: 90px;
     color: var(--cor-font-preto);
 }
 
@@ -57,11 +57,9 @@ body {
     left: 334px;
     top: 14px;
     z-index: 2;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 60px;
     height: 60px;
     border-radius: 100%;
@@ -90,37 +88,32 @@ body {
     top: 354px;
     width: 376px;
     height: 198px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 15px;
-
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
     color: var(--cor-branco-principal);
     text-align: center;
 }
 
-/* linha que contém os dois dropdowns (ORIGEM / DESTINO) */
 .dropdown-row {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 18px;
     width: 100%;
-    margin-top: -12px; /* reposiciona dentro do card */
+    margin-top: -12px;
 }
 
-/* botão GERAR MAPA container */
 .gerar-wrapper {
     display: flex;
     justify-content: center;
     margin-top: 8px;
 }
 
-/* botão GERAR MAPA */
 .btn-gerar {
     background: var(--cor-azul-principal);
     color: var(--cor-branco-principal);
@@ -129,6 +122,11 @@ body {
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-gerar:hover {
+    background-color: #274b8f;
 }
 
 .btn-gerar:active {
@@ -142,7 +140,8 @@ body {
     width: 170px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    position: relative;
 }
 
 .dropdown-label {
@@ -151,43 +150,107 @@ body {
     color: var(--cor-branco-principal);
 }
 
+/* Botão principal */
 .dropdown-btn {
     background: #ffffff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 2px solid var(--cor-azul-principal);
     border-radius: 10px;
-    padding: 10px 12px;
+    padding: 10px 14px;
     cursor: pointer;
     color: var(--cor-font-preto);
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
+/* Setinha animada ▾ */
+.dropdown-btn::after {
+    content: "▾";
+    font-size: 13px;
+    color: var(--cor-azul-principal);
+    transition: transform 0.25s ease;
+}
+
+.dropdown-btn[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+}
+
+/* Hover bonito */
+.dropdown-btn:hover {
+    background-color: var(--cor-azul-principal);
+    color: var(--cor-branco-principal);
+}
+
+.dropdown-btn:hover::after {
+    color: var(--cor-branco-principal);
+}
+
+/* Painel flutuante */
 .dropdown-panel {
-    margin-top: 6px;
+    position: absolute;
+    top: 65px;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    z-index: 50;
+    opacity: 0;
+    transform: translateY(-5px);
+    pointer-events: none;
+    transition: all 0.25s ease;
 }
 
-.dropdown-panel.hidden {
-    display: none;
+/* Exibe suavemente quando ativo */
+.dropdown-panel:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
+/* Lista de estações */
 .dropdown-list {
     list-style: none;
     margin: 0;
-    padding: 0 6px;
+    padding: 4px 0;
     max-height: 180px;
-    overflow: auto;
+    overflow-y: auto;
 }
 
+/* Barra de rolagem estilizada */
+.dropdown-list::-webkit-scrollbar {
+    width: 6px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+    background-color: var(--cor-azul-principal);
+    border-radius: 4px;
+}
+
+/* Cada item */
 .dropdown-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 6px;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
-}
-
-.dropdown-item .item-text {
+    padding: 8px 12px;
+    font-size: 14px;
     color: var(--cor-font-preto);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.dropdown-item:hover {
+    background-color: #e6ecf9;
+}
+
+/* Item selecionado */
+.dropdown-item.selected {
+    background-color: var(--cor-azul-principal);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Ações editar/remover */
 .item-actions button {
     background: transparent;
     border: none;
@@ -195,9 +258,15 @@ body {
     margin-left: 8px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 13px;
+    transition: color 0.2s ease;
 }
 
+.item-actions button:hover {
+    color: var(--vermelho-cptm);
+}
+
+/* Campo de edição inline */
 .edit-input {
     width: 70%;
     padding: 6px 8px;
@@ -220,25 +289,6 @@ body {
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.dropdown-add {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.dropdown-add input {
-    flex: 1;
-    padding: 8px 10px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    font-family: inherit;
-    font-size: 14px;
-}
-
-.dropdown-add .btn-imprimir {
-    padding: 8px 10px;
-}
-
 /* ===========================
    CONTEÚDO DE TRAJETO / RESULTADO
 =========================== */
@@ -247,12 +297,10 @@ body {
     top: 340px;
     left: 18px;
     width: 376px;
-
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
     padding: 20px;
     z-index: 3;
-
     font-family: 'Inter', sans-serif;
     color: var(--cor-branco-principal);
 }
@@ -265,7 +313,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* cada extremidade (origem / destino) visual no trajeto */
 .trajeto-item {
     display: flex;
     flex-direction: column;
@@ -297,13 +344,8 @@ body {
     font-size: 14px;
 }
 
-.linha-vermelha {
-    background-color: var(--vermelho-cptm);
-}
-
-.linha-verde {
-    background-color: #00b300;
-}
+.linha-vermelha { background-color: var(--vermelho-cptm); }
+.linha-verde { background-color: #00b300; }
 
 .bolinha-branca {
     width: 14px;
@@ -342,7 +384,6 @@ h3 {
     position: absolute;
     left: 26px;
     top: 586px;
-
     font-size: 20px;
     font-weight: 400;
     font-family: 'Inter', sans-serif;
@@ -384,7 +425,6 @@ p {
     position: absolute;
     left: 19px;
     top: 627px;
-
     display: flex;
     gap: 8px;
 }
@@ -393,33 +433,23 @@ p {
 .estacoes1 {
     width: 119px;
     height: 188px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
     color: var(--cor-branco-principal);
     text-align: center;
 }
 
-.estacoes1 {
-    gap: 32px;
-}
+.estacoes1 { gap: 32px; }
+.estacoes { gap: 18px; }
 
-.estacoes {
-    gap: 18px;
-}
-
-#linha-vermelha {
-    position: relative;
-    top: 15px;
-}
+#linha-vermelha { position: relative; top: 15px; }
 
 /* ===========================
-   LISTAS / CARDS E BOTÕES EXTRAS
+   LISTAS / BOTÕES EXTRAS
 =========================== */
 #lista-estacoes-container h4 {
     margin: 0 0 6px 0;
@@ -444,59 +474,47 @@ p {
     font-weight: 600;
 }
 
-.btn-imprimir:active {
-    background-color: var(--vermelho-cptm);
-}
+.btn-imprimir:active { background-color: var(--vermelho-cptm); }
 
-/* card clicável genérico */
 .list-card {
     display: flex;
     align-items: center;
     gap: 8px;
-
     background: #ffffff;
     color: var(--cor-font-preto);
     font-weight: 600;
-
     padding: 10px 12px;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     cursor: pointer;
 }
 
-.list-card:active {
-    transform: translateY(1px);
-}
+.list-card:active { transform: translateY(1px); }
 
 /* ===========================
-   OVERLAY / MODAL DE MAPA EXPANDIDO
+   OVERLAY / MAPA EXPANDIDO
 =========================== */
 #overlay {
     position: fixed;
     inset: 0;
     z-index: 999;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    background-color: rgba(17, 17, 17, 0.85);
+    background-color: rgba(17,17,17,0.85);
 }
 
 .mapa-expandido {
     position: relative;
     bottom: 51px;
-
     width: 376px;
     height: 292px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
-
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
     color: var(--cor-branco-principal);
@@ -510,95 +528,19 @@ p {
     object-fit: cover;
 }
 
-/* botão "voltar" dentro do overlay */
 #btn-voltar {
     position: absolute;
     left: 21px;
     top: 100px;
-
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 13px;
-
     background-color: transparent;
     border: none;
     color: var(--cor-branco-principal);
     cursor: pointer;
     font-family: inherit;
-}
-
-/* modal genérico reutilizável (caso você use em outra tela) */
-.modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: rgba(0,0,0,0.45);
-}
-
-.modal.hidden {
-    display: none !important;
-}
-
-.modal-content {
-    position: relative;
-
-    width: 340px;
-    max-height: 70vh;
-    overflow: auto;
-
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
-
-.modal-content h4 {
-    margin: 0 0 8px 0;
-    color: var(--cor-font-preto);
-    font-family: 'Inter', sans-serif;
-}
-
-.modal-close {
-    position: absolute;
-    right: 18px;
-    top: 12px;
-
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--cor-font-preto);
-    font-family: inherit;
-}
-
-.modal-content ul {
-    padding-left: 18px;
-    margin: 6px 0;
-}
-
-.modal-content li {
-    margin: 6px 0;
-}
-
-.lista-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
-}
-
-.lista-item label {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: var(--cor-font-preto);
 }
 
 /* ===========================
@@ -609,12 +551,9 @@ footer {
     left: 0;
     bottom: 0;
     z-index: 20;
-
     width: 100%;
     height: 79px;
-
     background-color: var(--cor-azul-principal);
-
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -627,11 +566,8 @@ footer {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     width: 56px;
     gap: 2px;
 }
 
-footer h5 {
-    color: var(--cor-branco-principal);
-}
+footer h5 { color: var(--cor-branco-principal); }
