@@ -91,7 +91,7 @@ document.addEventListener('touchend', endDrag);
 const sirene = document.getElementById('sirene');
 const iconeSirene = document.getElementById('icone-sirene');
 const textoSirene = document.getElementById('texto-sirene');
-const audioSirene = new Audio('../sons/sirene.wav');
+const audioSirene = new Audio('assets/sons/sirene.wav');
 
 let sireneAtiva = false;
 
@@ -101,12 +101,12 @@ sirene.addEventListener('click', () => {
     if (sireneAtiva) {
         sirene.style.backgroundColor = '#ED1C24';
         textoSirene.style.color = '#F4F4F4';
-        iconeSirene.src = '../imagem/sireneBranca.png';
+        iconeSirene.src = 'assets/imagem/sireneBranca.png';
         audioSirene.play();
     } else {
         sirene.style.backgroundColor = ''; 
         textoSirene.style.color = '';
-        iconeSirene.src = '../imagem/sirene.png'; 
+        iconeSirene.src = 'assets/imagem/sirene.png'; 
         audioSirene.pause();
         audioSirene.currentTime = 0;
     }
@@ -124,13 +124,13 @@ meEncontre.addEventListener('click', () => {
     if (encontreAtivo) {
         meEncontre.style.backgroundColor = '#ED1C24';
         textoMeEncontre.style.color = '#F4F4F4';
-        iconeMeEncontre.src = '../imagem/escudoBranco.png'; 
+        iconeMeEncontre.src = 'assets/imagem/escudoBranco.png'; 
 
         alert('              🚓 As autoridades locais já estão indo até você 🚓        Mantenha o botão ligado para continuar compartilhando a sua localização.');
     } else {
         meEncontre.style.backgroundColor = '';
         textoMeEncontre.style.color = '';
-        iconeMeEncontre.src = '../imagem/escudo.png';
+        iconeMeEncontre.src = 'assets/imagem/escudo.png';
         alert('Você parou de compartilhar a sua localização')
     }
 });
@@ -143,19 +143,19 @@ const textoLigar = ligar190.querySelector('h4');
 ligar190.addEventListener('mousedown', () => {
     ligar190.style.backgroundColor = '#ED1C24';
     textoLigar.style.color = '#F4F4F4';
-    iconeLigar.src = '../imagem/telefoneBranco.png'; 
+    iconeLigar.src = 'assets/imagem/telefoneBranco.png'; 
 });
 
 ligar190.addEventListener('mouseup', () => {
     ligar190.style.backgroundColor = '';
     textoLigar.style.color = '';
-    iconeLigar.src = '../imagem/telefone.png'; 
+    iconeLigar.src = 'assets/imagem/telefone.png'; 
 });
 
 const seta_circular = document.getElementById('cpf-button')
 
 seta_circular.addEventListener('click', function(){
-    window.location.href = '/assets/html/pré-denucia.html'
+    window.location.href = 'pré-denucia.html'
 })
 
 //testado

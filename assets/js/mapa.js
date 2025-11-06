@@ -183,6 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!toggleOrigem || !toggleDestino || !panelOrigem || !panelDestino || !listOrigem || !listDestino) {
     return;
   }
+botao_home.addEventListener('click', function(){
+  window.location.href = 'home.html'
+})
+
+botao_denuncia.addEventListener('click', function() {
+    window.location.href = 'pré-denucia.html'
+})
 
   // estado atual escolhido
   let origemSelected = null;
