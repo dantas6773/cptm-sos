@@ -36,5 +36,19 @@ faça_uma_denuncia.addEventListener('click', function () {
 setavolt.addEventListener('click', function () {
   window.location.href = '/assets/html/home.html';
 });
+voltar.addEventListener('click', function() {
+    window.location.href = 'home.html'
+})
+
+organizador.addEventListener('click', function(){
+    window.location.href = 'denuncia.html'
+})
+
+faça_uma_denuncia.addEventListener('click', function(){
+    window.location.href = 'formularioDenuncia.html'
+})
+setavolt.addEventListener('click', function() {
+    window.location.href = 'home.html'
+})
 
 //testado

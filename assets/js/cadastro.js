@@ -30,7 +30,7 @@ form.addEventListener("submit", async function (event) {
 
             if (response.ok) {
                 localStorage.setItem('userEmail', email);
-                window.location.href = "../html/apelido.html";
+                window.location.href = "apelido.html";
             } else {
                 alert(data.mensagem);
             }

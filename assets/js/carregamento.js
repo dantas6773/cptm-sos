@@ -1,5 +1,5 @@
 setTimeout(() => {
-  window.location.href = "/assets/html/home.html";
+  window.location.href = "home.html";
 }, 2000);
 
 //testado

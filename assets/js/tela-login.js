@@ -23,12 +23,19 @@ form.addEventListener("submit", async function (event) {
     });
 
     const data = await response.json();
-    console.log('Resposta do servidor:', data); // Para debug
+    console.log('Resposta do servidor:', data);
 
     if (response.status === 200) {
       localStorage.setItem('apelido', data.usuario.nome);
       localStorage.setItem('userEmail', data.usuario.email);
-      window.location.href = "./assets/html/home.html";
+
+      // 🔧 Detecta automaticamente o ambiente (local vs GitHub Pages)
+      const base =
+        window.location.hostname === "ibmec-bh-3-periodo.github.io"
+          ? "/projeto-cptm-paraiso-feudal/"
+          : "/";
+
+      window.location.href = base + "home.html";
     } else {
       alert(data.mensagem);
     }

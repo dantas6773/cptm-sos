@@ -55,7 +55,7 @@ botao.addEventListener('click', async function(event) {
         console.log('Resposta do servidor:', data.mensagem);
 
         localStorage.setItem('apelido', apelido);
-        window.location.href = "/assets/html/home.html";
+        window.location.href = "/carregamento.html";
         
     } catch (error) {
         // Agora o 'error.message' conterá o texto HTML que recebemos

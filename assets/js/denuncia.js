@@ -155,7 +155,7 @@ ligar190.addEventListener('mouseup', () => {
 const seta_circular = document.getElementById('cpf-button')
 
 seta_circular.addEventListener('click', function(){
-    window.location.href = '/assets/html/pré-denucia.html'
+    window.location.href = 'pré-denucia.html'
 })
 
 //testado

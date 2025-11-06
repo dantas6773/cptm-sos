@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // garante que exista lista de usuarios no localStorage
     if (!localStorage.getItem('usuarios')) {
         try {
-            const resp = await fetch('../src/usuario.json')
+            const resp = await fetch('/src/usuario.json')
             if (resp.ok) {
                 const data = await resp.json()
                 localStorage.setItem('usuarios', JSON.stringify(data.usuarios || []))

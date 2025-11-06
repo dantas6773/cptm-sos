@@ -13,19 +13,19 @@ const botao_mapa = document.getElementsByClassName('mapa')[0]
 
 
 botao_pix.addEventListener('click', function() {
-    window.location.href = '/assets/html/pagamento.html'
+    window.location.href = 'pagamento.html'
 })
 
 botao_qrcode.addEventListener('click', function() {
-    window.location.href = '/assets/html/QR.html'
+    window.location.href = 'QR.html'
 })
 
 botao_denuncia.addEventListener('click', function() {
-    window.location.href = '/assets/html/pré-denucia.html'
+    window.location.href = 'pré-denucia.html'
 })
 
 botao_mapa.addEventListener('click', function(){
-    window.location.href = '/assets/html/mapa.html'
+    window.location.href = 'mapa.html'
 })
 
   const olho = document.getElementById('olho');
