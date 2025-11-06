@@ -121,13 +121,21 @@ h2{
 main{
     width: 100%;
     height: 562px;
-    background-image: url(../imagem/imagemVídeo.jpg);
-    background-position: center;
-    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    background-color: black; /* só de base, se a câmera não abrir */
 }
 
+/* VÍDEO DA CÂMERA */
+#camera-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* preenche a tela sem distorcer */
+}
+
+/* REC continua por cima */
 #rec {
-    position: relative;
+    position: absolute;
     left: 8px;
     top: 14px;
     display: flex;
@@ -139,7 +147,7 @@ main{
     width: 62px;
     gap: 5px;
     border-radius: 20px;
-    z-index: 0;
+    z-index: 1;
 }
 
 .recDot {
