@@ -393,10 +393,34 @@ server.put("/api/alerta", (req: Request, res: Response) => {
 // Inicia o servidor HTTP caso este arquivo seja executado diretamente.
 // Usa a porta definida em PORT ou 5001 (padrão usado no frontend).
 const PORT = process.env.PORT ? Number(process.env.PORT) : 5001;
-try {
-    server.listen(PORT, () => {
-        console.log(`[server] Escutando em http://127.0.0.1:${PORT}`);
-    });
-} catch (err) {
-    console.error('[server] Erro ao iniciar o servidor:', err);
+
+function startServer() {
+    try {
+        const httpServer = server.listen(PORT, () => {
+            console.log(`[server] Escutando em http://127.0.0.1:${PORT}`);
+        });
+
+        // Monitora eventos do servidor
+        httpServer.on('error', (err) => {
+            console.error('[server] Erro no servidor:', err);
+        });
+
+        // Tenta reconectar se o servidor cair
+        httpServer.on('close', () => {
+            console.log('[server] Servidor fechado. Tentando reiniciar...');
+            setTimeout(startServer, 5000);
+        });
+
+        // Log periódico para confirmar que está rodando
+        setInterval(() => {
+            console.log('[server] Status: Ativo');
+        }, 30000);
+
+    } catch (err) {
+        console.error('[server] Erro ao iniciar o servidor:', err);
+        // Tenta reiniciar em caso de erro
+        setTimeout(startServer, 5000);
+    }
 }
+
+startServer();
