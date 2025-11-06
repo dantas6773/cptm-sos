@@ -1,8 +1,12 @@
 const slider = document.getElementById('slider');
 const button = document.getElementById('slider-button');
 const text = document.querySelector('.slider-text');
-
-
+const botoes = document.getElementById('botoes');
+const cpfContainer = document.getElementById('cpf-container');
+const voltarBtn = document.getElementById('voltar');
+const cadeado = document.getElementById('cadeado');
+const inputCpf = document.getElementById('cpf-input');
+const setaCircular = document.getElementById('cpf-button');
 
 let isDragging = false;
 let startX;
@@ -28,11 +32,6 @@ function duringDrag(x) {
     text.style.opacity = opacity;
 }
 
-const botoes = document.getElementById('botoes');
-const cpfContainer = document.getElementById('cpf-container');
-const voltarBtn = document.getElementById('voltar');
-const cadeado = document.getElementById('cadeado');
-const inputCpf = document.getElementById('cpf-input');
 
 function ativarTelaCpf() {
     button.style.transform = `translateX(${maxMove}px)`;
@@ -154,8 +153,56 @@ ligar190.addEventListener('mouseup', () => {
 
 const seta_circular = document.getElementById('cpf-button')
 
-seta_circular.addEventListener('click', function(){
-    window.location.href = 'pré-denucia.html'
-})
 
-//testado
+// ========================= TELA DO CPF =========================
+function ativarTelaCpf() {
+  currentX = maxMove;
+  if (button) {
+    button.style.transform = `translateX(${maxMove}px)`;
+    button.style.pointerEvents = 'none';
+  }
+  if (cadeado) cadeado.src = 'assets/imagem/setaCircular.png';
+  if (botoes) botoes.classList.add('hidden');
+  if (slider) slider.classList.add('hidden');
+  if (cpfContainer) cpfContainer.classList.remove('hidden');
+}
+
+function voltarTelaInicial(e) {
+  if (e) e.preventDefault();
+  currentX = 0;
+  if (button) {
+    button.style.transform = 'translateX(0px)';
+    button.style.pointerEvents = 'auto';
+  }
+  if (cadeado) cadeado.src = 'assets/imagem/cadeado.png';
+  if (botoes) botoes.classList.remove('hidden');
+  if (slider) slider.classList.remove('hidden');
+  if (cpfContainer) cpfContainer.classList.add('hidden');
+  if (text) text.style.opacity = 0.7;
+  if (inputCpf) inputCpf.value = '';
+}
+if (voltarBtn) voltarBtn.addEventListener('click', voltarTelaInicial);
+
+
+  
+  // ========================= CONFIRMAR ALERTA PELO CPF =========================
+  async function confirmarAlertaCpf(e) {
+    e.preventDefault();
+  
+    const cpfDigitado = inputCpf.value.trim();
+    const cpfLogado = localStorage.getItem("cpfLogado");
+    if (!cpfDigitado || !cpfLogado || cpfDigitado !== cpfLogado) return;
+  
+    try {
+      await fetch("http://127.0.0.1:5001/api/alerta/confirmar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cpf: cpfLogado }),
+      });
+      window.location.href = "pré-denucia.html";
+    } catch {}
+  }
+  
+  if (setaCircular) {
+    setaCircular.addEventListener("click", confirmarAlertaCpf);
+  }
