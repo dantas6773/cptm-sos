@@ -182,7 +182,16 @@ server.post("/gera-mapa", (req: Request, res: Response) => {
 // servir arquivos estáticos da pasta `assets` para facilitar testes locais
 const assetsDir = path.join(__dirname, "..");
 server.use(express.static(assetsDir));
-
+// aaaaaaa
+server.get("/usuario.json", (req: Request, res: Response) => {
+    try {
+      const db = readDB(); 
+      return res.json(db);
+    } catch (error) {
+      console.error("[GET /usuario.json] Erro ao ler usuario.json:", error);
+      return res.status(500).json({ mensagem: "Erro ao ler usuario.json" });
+    }
+  });
 // rota raiz útil para abrir direto o mapa
 server.get("/", (req: Request, res: Response) => {
 	res.redirect('/html/mapa.html');
@@ -194,9 +203,6 @@ server.listen(5001, () => {
 });
 // --- FIM DAS MODIFICAÇÕES ---
 
-server.listen(5001, () => {
-    console.log('Servidor rodando na porta 5001')
-})
 
 
 // ROTA LOGIN | INICIO
@@ -241,33 +247,47 @@ server.post("/api/login", (req: Request, res: Response) => {
 // ROTA LOGIN | FIM
 // ROTA DENUNCIA | INICIO 
 
-server.post('/api/alerta/iniciar', (req, res) => {
-    const { cpf } = req.body || {};
-    if (!cpf) return res.status(400).json({ message: 'CPF é obrigatório.' });
+
+server.put("/api/alerta", (req: Request, res: Response) => {
+    try {
+      const { id, alerta } = req.body;
   
-    const db = readDB();
-    const user = db.usuarios.find((u: any) => u.cpf === cpf);
-    if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+      // Verifica se vieram os parâmetros necessários
+      if (typeof id === "undefined" || typeof alerta === "undefined") {
+        return res.sendStatus(400);
+      }
   
-    user.alerta = true;
-    writeDB(db);
-    res.json({ ok: true });
+      const db = readDB();
+      const usuario = db.usuarios.find((u: any) => Number(u.id) === Number(id));
+  
+      if (!usuario) {
+        return res.sendStatus(404);
+      }
+  
+      usuario.alerta = alerta; // Atualiza o campo alerta
+      writeDB(db);
+      return res.sendStatus(200);
+    } catch {
+      return res.sendStatus(500);
+    }
   });
   
-  // POST /api/alerta/confirmar  { cpf: string }
-  server.post('/api/alerta/confirmar', (req, res) => {
-    const { cpf } = req.body || {};
-    if (!cpf) return res.status(400).json({ message: 'CPF é obrigatório.' });
+  // --- Confirma CPF e desativa o alerta ---
+  server.post("/api/alerta/confirmar", (req: Request, res: Response) => {
+    try {
+      const { cpf } = req.body;
+      if (!cpf) return res.sendStatus(400);
   
-    const db = readDB();
-    const user = db.usuarios.find((u: any) => u.cpf === cpf);
-    if (!user) return res.status(404).json({ message: 'CPF incorreto.' });
+      const db = readDB();
+      const usuario = db.usuarios.find((u: any) => u.cpf === cpf);
   
-    if (!user.alerta) {
-      return res.status(409).json({ message: 'Nenhuma denúncia pendente para este usuário.' });
+      if (!usuario) return res.sendStatus(404);
+  
+      usuario.alerta = false;
+      writeDB(db);
+  
+      return res.sendStatus(200);
+    } catch {
+      return res.sendStatus(500);
     }
-  
-    user.alerta = false;
-    writeDB(db);
-    res.json({ ok: true });
   });

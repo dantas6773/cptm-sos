@@ -1,3 +1,4 @@
+
 const form = document.getElementById("forme");
 const email = document.getElementById("email");
 const senha = document.getElementById("senha");
@@ -26,10 +27,16 @@ form.addEventListener("submit", async function (event) {
     console.log('Resposta do servidor:', data);
 
     if (response.status === 200) {
-      localStorage.setItem('apelido', data.usuario.nome);
-      localStorage.setItem('userEmail', data.usuario.email);
+      const usuario = data.usuario;
 
-      // 🔧 Detecta automaticamente o ambiente (local vs GitHub Pages)
+      localStorage.setItem('apelido', usuario.nome);
+      localStorage.setItem('userEmail', usuario.email);
+      localStorage.setItem('idLogado', usuario.id);   
+      localStorage.setItem('cpfLogado', usuario.cpf); 
+
+      console.log("Usuário logado:", usuario.nome, "CPF:", usuario.cpf);
+
+      
       const base =
         window.location.hostname === "ibmec-bh-3-periodo.github.io"
           ? "/projeto-cptm-paraiso-feudal/"
