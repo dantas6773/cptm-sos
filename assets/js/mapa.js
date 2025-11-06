@@ -155,13 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (botaoHome) {
     botaoHome.addEventListener('click', () => {
-      window.location.href = '/assets/html/home.html';
+      window.location.href = 'home.html';
     });
   }
 
   if (botaoDenuncia) {
     botaoDenuncia.addEventListener('click', () => {
-      window.location.href = '/assets/html/pré-denucia.html';
+      window.location.href = 'pré-denucia.html';
     });
   }
 });
@@ -183,13 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!toggleOrigem || !toggleDestino || !panelOrigem || !panelDestino || !listOrigem || !listDestino) {
     return;
   }
-botao_home.addEventListener('click', function(){
-  window.location.href = 'home.html'
-})
-
-botao_denuncia.addEventListener('click', function() {
-    window.location.href = 'pré-denucia.html'
-})
 
   // estado atual escolhido
   let origemSelected = null;
@@ -219,7 +212,7 @@ botao_denuncia.addEventListener('click', function() {
 
       // tentativa de fallback para o arquivo JSON local (quando a página é servida por um server estático)
       try {
-        const localResp = await fetch('../src/estacoes.json');
+        const localResp = await fetch('./assets/src/estacoes.json');
         if (localResp.ok) {
           const localList = await localResp.json();
           // estacoes.json tem estrutura de linhas com campo trajeto -> extrair nomes
