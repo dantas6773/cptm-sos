@@ -178,14 +178,27 @@ server.get("/api/estacoes", (req: Request, res: Response) => {
 
 /**
  * POST /gera-mapa
- * Gera mapa de rota entre duas estações.
- * 
- * Recebe: { origin: string, destination: string }
- * Executa script Python mapa_estacoes.py para gerar HTML
- * com mapa interativo mostrando a rota.
- * 
- * Retorna: { ok: true, url: string } em caso de sucesso,
- * onde url aponta para o HTML gerado.
+ * Gera visualização do mapa com rota entre duas estações
+ *
+ * Corpo da requisição:
+ * {
+ *   origin: string,      // Nome da estação de origem
+ *   destination: string  // Nome da estação de destino
+ * }
+ *
+ * Processo:
+ * 1. Recebe origem/destino do frontend
+ * 2. Executa script Python para gerar mapa (mapa_estacoes.py)
+ * 3. Salva HTML do mapa gerado
+ * 4. Retorna URL do mapa via Live Server
+ *
+ * Resposta:
+ * {
+ *   ok: true,
+ *   url: string // URL do mapa gerado (ex: http://127.0.0.1:5500/assets/src/mapa_rota.html)
+ * }
+ *
+ * Usado por: Página de seleção de estações (mapa)
  */
 server.post("/gera-mapa", async (req: Request, res: Response) => {
     // valida parâmetros
@@ -372,3 +385,14 @@ server.put("/api/alerta", (req: Request, res: Response) => {
       return res.sendStatus(500);
     }
   });
+
+// Inicia o servidor HTTP caso este arquivo seja executado diretamente.
+// Usa a porta definida em PORT ou 5001 (padrão usado no frontend).
+const PORT = process.env.PORT ? Number(process.env.PORT) : 5001;
+try {
+    server.listen(PORT, () => {
+        console.log(`[server] Escutando em http://127.0.0.1:${PORT}`);
+    });
+} catch (err) {
+    console.error('[server] Erro ao iniciar o servidor:', err);
+}
