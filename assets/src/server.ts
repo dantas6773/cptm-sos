@@ -188,3 +188,35 @@ server.post("/api/login", (req: Request, res: Response) => {
 })
 
 // ROTA LOGIN | FIM
+// ROTA DENUNCIA | INICIO 
+
+server.post('/api/alerta/iniciar', (req, res) => {
+    const { cpf } = req.body || {};
+    if (!cpf) return res.status(400).json({ message: 'CPF é obrigatório.' });
+  
+    const db = readDB();
+    const user = db.usuarios.find((u: any) => u.cpf === cpf);
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+  
+    user.alerta = true;
+    writeDB(db);
+    res.json({ ok: true });
+  });
+  
+  // POST /api/alerta/confirmar  { cpf: string }
+  server.post('/api/alerta/confirmar', (req, res) => {
+    const { cpf } = req.body || {};
+    if (!cpf) return res.status(400).json({ message: 'CPF é obrigatório.' });
+  
+    const db = readDB();
+    const user = db.usuarios.find((u: any) => u.cpf === cpf);
+    if (!user) return res.status(404).json({ message: 'CPF incorreto.' });
+  
+    if (!user.alerta) {
+      return res.status(409).json({ message: 'Nenhuma denúncia pendente para este usuário.' });
+    }
+  
+    user.alerta = false;
+    writeDB(db);
+    res.json({ ok: true });
+  });
