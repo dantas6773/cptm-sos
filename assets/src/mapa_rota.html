@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_b784ffdb0daab0d80b6142c8b35bfd08 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_b784ffdb0daab0d80b6142c8b35bfd08" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_b784ffdb0daab0d80b6142c8b35bfd08 = L.map(
+                "map_b784ffdb0daab0d80b6142c8b35bfd08",
+                {
+                    center: [-23.55, -46.63],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_79d7c715fdb761c577cef417fe18fdc4 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_79d7c715fdb761c577cef417fe18fdc4.addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+            var poly_line_efe445e8c1ff5b80bc27554d4e845084 = L.polyline(
+                [[-23.46, -46.54], [-23.515428030786214, -46.58215239880039], [-23.57055156288406, -46.63010003057437], [-23.61129373278962, -46.677910851057824], [-23.64, -46.720000000000006]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.95, "smoothFactor": 1.0, "stroke": true, "weight": 7}
+            ).addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+        var popup_b76e03d48a57715a7cb20136498d9d32 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_a408a1ea68b32c1dae2dd5e6e5611bf5 = $(`<div id="html_a408a1ea68b32c1dae2dd5e6e5611bf5" style="width: 100.0%; height: 100.0%;"><b>Rota</b><br>01. Carrão<br>02. Tatuapé<br>03. Engenheiro Goulart<br>04. Guarulhos-Cecap<br>05. Aeroporto-Guarulhos</div>`)[0];
+                popup_b76e03d48a57715a7cb20136498d9d32.setContent(html_a408a1ea68b32c1dae2dd5e6e5611bf5);
+            
+        
+
+        poly_line_efe445e8c1ff5b80bc27554d4e845084.bindPopup(popup_b76e03d48a57715a7cb20136498d9d32)
+        ;
+
+        
+    
+    
+            var marker_936af0371d15942b39ed0a3f25d9b4ba = L.marker(
+                [-23.46, -46.54],
+                {
+}
+            ).addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+        var popup_ea66c8b034b8f6bdbe9b6c14dd0cfa4e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0162b45973f529a0f48be8046aee73c1 = $(`<div id="html_0162b45973f529a0f48be8046aee73c1" style="width: 100.0%; height: 100.0%;">Início<br>01. Carrão</div>`)[0];
+                popup_ea66c8b034b8f6bdbe9b6c14dd0cfa4e.setContent(html_0162b45973f529a0f48be8046aee73c1);
+            
+        
+
+        marker_936af0371d15942b39ed0a3f25d9b4ba.bindPopup(popup_ea66c8b034b8f6bdbe9b6c14dd0cfa4e)
+        ;
+
+        
+    
+    
+            marker_936af0371d15942b39ed0a3f25d9b4ba.bindTooltip(
+                `<div>
+                     01. Carrão
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_0366312975d3f0f8585583831800e0e0 = L.circleMarker(
+                [-23.515428030786214, -46.58215239880039],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+        var popup_f53aae152565f8d7e4107b4d5157e7cc = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_51cb4add4a9932a33b3c704346362a69 = $(`<div id="html_51cb4add4a9932a33b3c704346362a69" style="width: 100.0%; height: 100.0%;">02. Tatuapé</div>`)[0];
+                popup_f53aae152565f8d7e4107b4d5157e7cc.setContent(html_51cb4add4a9932a33b3c704346362a69);
+            
+        
+
+        circle_marker_0366312975d3f0f8585583831800e0e0.bindPopup(popup_f53aae152565f8d7e4107b4d5157e7cc)
+        ;
+
+        
+    
+    
+            circle_marker_0366312975d3f0f8585583831800e0e0.bindTooltip(
+                `<div>
+                     02. Tatuapé
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_601f5d905071dadcdbd156f88d6ba854 = L.circleMarker(
+                [-23.57055156288406, -46.63010003057437],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+        var popup_bf0a510dd426fb654f1ed5c5895959d2 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6b32be79441b3c42b598be444082494f = $(`<div id="html_6b32be79441b3c42b598be444082494f" style="width: 100.0%; height: 100.0%;">03. Engenheiro Goulart</div>`)[0];
+                popup_bf0a510dd426fb654f1ed5c5895959d2.setContent(html_6b32be79441b3c42b598be444082494f);
+            
+        
+
+        circle_marker_601f5d905071dadcdbd156f88d6ba854.bindPopup(popup_bf0a510dd426fb654f1ed5c5895959d2)
+        ;
+
+        
+    
+    
+            circle_marker_601f5d905071dadcdbd156f88d6ba854.bindTooltip(
+                `<div>
+                     03. Engenheiro Goulart
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_556eb8d09e169e61eec69306d85cafc2 = L.circleMarker(
+                [-23.61129373278962, -46.677910851057824],
+                {"bubblingMouseEvents": true, "color": "#3388ff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3388ff", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6, "stroke": true, "weight": 3}
+            ).addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+        var popup_44dfa0c79aa00efcc690ec5e32e6765d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4507666eaab027a50710c21bc85fac2f = $(`<div id="html_4507666eaab027a50710c21bc85fac2f" style="width: 100.0%; height: 100.0%;">04. Guarulhos-Cecap</div>`)[0];
+                popup_44dfa0c79aa00efcc690ec5e32e6765d.setContent(html_4507666eaab027a50710c21bc85fac2f);
+            
+        
+
+        circle_marker_556eb8d09e169e61eec69306d85cafc2.bindPopup(popup_44dfa0c79aa00efcc690ec5e32e6765d)
+        ;
+
+        
+    
+    
+            circle_marker_556eb8d09e169e61eec69306d85cafc2.bindTooltip(
+                `<div>
+                     04. Guarulhos-Cecap
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_4c1e967e35f40de27c41be853d0916fc = L.marker(
+                [-23.64, -46.720000000000006],
+                {
+}
+            ).addTo(map_b784ffdb0daab0d80b6142c8b35bfd08);
+        
+    
+        var popup_253cf90e3ec4094ffcad92d0d66a3da7 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_10f285814333a8b2e5fd3e1b6130f5eb = $(`<div id="html_10f285814333a8b2e5fd3e1b6130f5eb" style="width: 100.0%; height: 100.0%;">Destino<br>05. Aeroporto-Guarulhos</div>`)[0];
+                popup_253cf90e3ec4094ffcad92d0d66a3da7.setContent(html_10f285814333a8b2e5fd3e1b6130f5eb);
+            
+        
+
+        marker_4c1e967e35f40de27c41be853d0916fc.bindPopup(popup_253cf90e3ec4094ffcad92d0d66a3da7)
+        ;
+
+        
+    
+    
+            marker_4c1e967e35f40de27c41be853d0916fc.bindTooltip(
+                `<div>
+                     05. Aeroporto-Guarulhos
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
