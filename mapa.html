@@ -139,5 +139,38 @@
 
   <!-- JS principal -->
   <script src="assets/js/mapa.js"></script>
+
+  <!-- SCRIPT ADICIONADO PARA ENVIAR OS VALORES AO PYTHON -->
+  <script>
+    document.getElementById("gerar-mapa-btn").addEventListener("click", async () => {
+      const origem = localStorage.getItem("mapa.origem");
+      const destino = localStorage.getItem("mapa.destino");
+
+      if (!origem || !destino) {
+        alert("Selecione uma origem e um destino antes de gerar o mapa!");
+        return;
+      }
+
+      try {
+        const resposta = await fetch("http://127.0.0.1:5000/gerar_mapa", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ origem, destino }),
+        });
+
+        const data = await resposta.json();
+        alert(data.mensagem || data.erro || "Mapa processado!");
+
+        // opcional: abrir automaticamente o mapa gerado
+        if (data.mensagem && !data.erro) {
+          window.open("mapa_rota.html", "_blank");
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao conectar com o servidor Python.");
+      }
+    });
+  </script>
 </body>
 </html>

@@ -7,8 +7,6 @@ const server = express();
 
 server.use(cors());
 server.use(express.json());
-server.use(express.json())
-server.use(cors())
 
 function readDB() {
     const dbPath = path.join(__dirname, 'usuario.json')
@@ -142,41 +140,128 @@ server.put("/api/usuario/saldo", (req: Request, res: Response) => {
     }
 })
 
-// rota para retornar a lista de estações (nomes únicos a partir de estacoes.json)
+/**
+ * GET /api/estacoes
+ * Retorna lista de todas as estações únicas do sistema.
+ * 
+ * Extrai nomes das estações do arquivo estacoes.json,
+ * remove duplicatas e retorna array ordenado alfabeticamente.
+ */
 server.get("/api/estacoes", (req: Request, res: Response) => {
-	try {
-		const filePath = path.join(__dirname, "estacoes.json");
-		const raw = fs.readFileSync(filePath, "utf8");
-		const linhas = JSON.parse(raw) as Array<any>;
+    try {
+        // carrega e parseia estacoes.json
+        const filePath = path.join(__dirname, "estacoes.json");
+        const raw = fs.readFileSync(filePath, "utf8");
+        const linhas = JSON.parse(raw) as Array<any>;
 
-		const nomes: string[] = [];
-		linhas.forEach((linha) => {
-			if (Array.isArray(linha.trajeto)) {
-				linha.trajeto.forEach((estacao: string) => nomes.push(estacao));
-			}
-		});
+        // extrai nomes de estações de todas as linhas
+        const nomes: string[] = [];
+        linhas.forEach((linha) => {
+            if (Array.isArray(linha.trajeto)) {
+                linha.trajeto.forEach((estacao: string) => nomes.push(estacao));
+            }
+        });
 
-		// torna únicos e ordena alfabeticamente
-		const unique = Array.from(new Set(nomes)).sort((a, b) => a.localeCompare(b, "pt-BR"));
+        // remove duplicatas e ordena alfabeticamente (pt-BR)
+        const unique = Array.from(new Set(nomes))
+            .sort((a, b) => a.localeCompare(b, "pt-BR"));
 
-		return res.json(unique);
-	} catch (err) {
-		console.error("Erro ao ler estacoes.json", err);
-		return res.status(500).json({ error: "Erro ao ler estações" });
-	}
+        return res.json(unique);
+    } catch (err) {
+        console.error("Erro ao ler estacoes.json:", err);
+        return res.status(500).json({ 
+            error: "Erro ao ler estações",
+            details: err instanceof Error ? err.message : String(err)
+        });
+    }
 });
 
-// rota simples que recebe origem/destino (usada pelo frontend)
-server.post("/gera-mapa", (req: Request, res: Response) => {
-	const { origin, destination } = req.body || {};
-	if (!origin || !destination) {
-		return res.status(400).json({ ok: false, error: "origin e destination são obrigatórios" });
-	}
+/**
+ * POST /gera-mapa
+ * Gera mapa de rota entre duas estações.
+ * 
+ * Recebe: { origin: string, destination: string }
+ * Executa script Python mapa_estacoes.py para gerar HTML
+ * com mapa interativo mostrando a rota.
+ * 
+ * Retorna: { ok: true, url: string } em caso de sucesso,
+ * onde url aponta para o HTML gerado.
+ */
+server.post("/gera-mapa", async (req: Request, res: Response) => {
+    // valida parâmetros
+    const { origin, destination } = req.body || {};
+    if (!origin || !destination) {
+        return res.status(400).json({ 
+            ok: false, 
+            error: "origin e destination são obrigatórios" 
+        });
+    }
 
-	// aqui você pode fazer processamento adicional (ex.: calcular rota)
-	console.log("Gera mapa solicitado:", origin, "->", destination);
+    console.log("Gera mapa solicitado:", origin, "->", destination);
 
-	return res.json({ ok: true, origin, destination });
+    try {
+        // prepara execução do script Python
+        const { spawn } = await import('child_process');
+        const scriptPath = path.join(__dirname, 'mapa_estacoes.py');
+        const args = [
+            '--start', origin,
+            '--end', destination
+        ];
+
+        // executa Python com coleta de saída
+        const py = spawn('python', [scriptPath, ...args], { 
+            cwd: __dirname
+        });
+
+        let stdout = '';
+        let stderr = '';
+
+        // captura saída em tempo real
+        py.stdout.on('data', (data) => {
+            const text = data.toString();
+            stdout += text;
+            console.log('[Python stdout]', text.trim());
+        });
+        py.stderr.on('data', (data) => {
+            const text = data.toString();
+            stderr += text;
+            console.error('[Python stderr]', text.trim());
+        });
+
+        // aguarda término e retorna resultado
+        py.on('close', (code) => {
+            console.log(`Python process exited with code ${code}`);
+            
+            if (code === 0) {
+                // sucesso: mapa em assets/src/mapa_rota.html
+                const url = `/src/mapa_rota.html`;
+                return res.json({ 
+                    ok: true, 
+                    origin, 
+                    destination, 
+                    url,
+                    output: stdout 
+                });
+            } else {
+                // erro: retorna detalhes para debug
+                return res.status(500).json({ 
+                    ok: false, 
+                    error: 'Erro ao gerar mapa', 
+                    code,
+                    stderr, 
+                    stdout 
+                });
+            }
+        });
+    } catch (err) {
+        // erro ao executar Python
+        console.error('Erro ao executar script python:', err);
+        return res.status(500).json({ 
+            ok: false, 
+            error: 'Erro interno ao executar script',
+            details: err instanceof Error ? err.message : String(err)
+        });
+    }
 });
 
 // servir arquivos estáticos da pasta `assets` para facilitar testes locais

@@ -184,9 +184,44 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // estado atual escolhido
-  let origemSelected = null;
-  let destinoSelected = null;
+  /**
+   * Estado das seleções do usuário
+   */
+  let origemSelected = null;    // estação de origem selecionada
+  let destinoSelected = null;   // estação de destino selecionada
+
+  // expõe seleções na window para outros scripts
+  window.selectedOrigin = null;
+  window.selectedDestination = null;
+
+  /**
+   * Salva seleções atuais em localStorage e na window
+   * para persistência e acesso por outros scripts.
+   */
+  function saveSelections() {
+    try {
+      // atualiza origem
+      if (origemSelected) {
+        window.selectedOrigin = origemSelected;
+        localStorage.setItem('mapa.origem', origemSelected);
+      } else {
+        window.selectedOrigin = null;
+        localStorage.removeItem('mapa.origem');
+      }
+
+      // atualiza destino
+      if (destinoSelected) {
+        window.selectedDestination = destinoSelected;
+        localStorage.setItem('mapa.destino', destinoSelected);
+      } else {
+        window.selectedDestination = null;
+        localStorage.removeItem('mapa.destino');
+      }
+    } catch (e) {
+      // localStorage pode falhar em ambientes restritos
+      console.warn('Erro ao salvar seleções:', e);
+    }
+  }
 
   // lista inicial de estações (edite aqui)
   const DEFAULT_STATIONS = [
@@ -280,6 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
           toggleDestino.innerText = `${name} ▾`;
           panelDestino.classList.add('hidden');
         }
+
+        // persistir e expor globalmente
+        saveSelections();
       });
 
       // Editar nome da estação
@@ -325,6 +363,9 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleDestino.innerText = `${newVal} ▾`;
           }
 
+          // salvar seleção atualizada
+          saveSelections();
+
           renderList(container, items, tipo);
         });
 
@@ -348,6 +389,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         items.splice(idx, 1);
+
+        // se o item removido era o selecionado, limpa seleção e salva
+        if (tipo === 'origem' && origemSelected === name) {
+          origemSelected = null;
+          toggleOrigem.innerText = 'Selecionar ▾';
+          saveSelections();
+        }
+        if (tipo === 'destino' && destinoSelected === name) {
+          destinoSelected = null;
+          toggleDestino.innerText = 'Selecionar ▾';
+          saveSelections();
+        }
+
         renderList(container, items, tipo);
       });
     });
@@ -358,6 +412,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const lista = await fetchStations();
     origemItems = [...lista];
     destinoItems = [...lista];
+
+    // restaurar seleção a partir do localStorage (se presente e ainda disponível na lista)
+    try {
+      const savedOrigem = localStorage.getItem('mapa.origem');
+      const savedDestino = localStorage.getItem('mapa.destino');
+      if (savedOrigem && origemItems.includes(savedOrigem)) {
+        origemSelected = savedOrigem;
+        toggleOrigem.innerText = `${savedOrigem} ▾`;
+      }
+      if (savedDestino && destinoItems.includes(savedDestino)) {
+        destinoSelected = savedDestino;
+        toggleDestino.innerText = `${savedDestino} ▾`;
+      }
+    } catch (e) {
+      // ignorar erros de localStorage
+    }
+
+    // expõe as seleções iniciais e renderiza
+    saveSelections();
 
     renderList(listOrigem, origemItems, 'origem');
     renderList(listDestino, destinoItems, 'destino');
@@ -393,18 +466,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // botão "GERAR MAPA"
+  /**
+   * Handler do botão GERAR MAPA
+   * Envia origem/destino para o backend gerar o mapa.
+   */
   if (gerarBtn) {
     gerarBtn.addEventListener('click', async (e) => {
-      e.stopPropagation(); // não fecha dropdown sem querer
+      e.stopPropagation(); // evita fechar dropdowns
 
+      // valida seleções
       if (!origemSelected || !destinoSelected) {
         alert('Escolha origem e destino primeiro.');
         return;
       }
 
-      // envia pro backend
       try {
+        // solicita geração do mapa
         const resp = await fetch('http://localhost:5001/gera-mapa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -417,17 +494,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await resp.json();
         console.log('Resposta /gera-mapa:', data);
 
+        // valida resposta
         if (!resp.ok || data.ok === false) {
+          console.error('Erro na resposta:', data);
           alert('Erro ao gerar mapa. Veja o console.');
           return;
         }
 
+        // abre o mapa_rota.html via Live Server
+        if (data.url) {
+          // converte URL relativa do Node para URL do Live Server
+          const liveServerPort = '5500'; // porta padrão do Live Server
+          const liveServerUrl = `http://127.0.0.1:${liveServerPort}`;
+          const mapUrl = new URL('/assets/src/mapa_rota.html', liveServerUrl).toString();
+          window.open(mapUrl, '_blank');
+        }
+
+        // feedback visual
         alert(
-          `Mapa solicitado!\nOrigem: ${origemSelected}\nDestino: ${destinoSelected}`
+          `Mapa gerado com sucesso!\n` +
+          `Origem: ${origemSelected}\n` +
+          `Destino: ${destinoSelected}`
         );
       } catch (err) {
-        console.error('Erro ao chamar /gera-mapa', err);
-        alert('Erro ao gerar mapa (ver console)');
+        console.error('Erro ao chamar /gera-mapa:', err);
+        alert('Erro ao gerar mapa. Veja o console.');
       }
     });
   }
