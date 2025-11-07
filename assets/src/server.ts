@@ -121,22 +121,27 @@ server.put("/api/usuario/apelido", (req: Request, res: Response) => {
 //Rota put para adicioanr saldo
 server.put("/api/usuario/saldo", (req: Request, res: Response) => {
     try {
-        const { id, amount } = req.body
-        if (typeof id === "undefined" || typeof amount === "undefined") {
-            return res.status(400).json({ mensagem: "id e amount são obrigatórios" })
+        const { email, amount } = req.body;
+
+        if (!email || typeof amount === "undefined") {
+            return res.status(400).json({ mensagem: "Email e amount são obrigatórios" });
         }
-        const db = readDB()
-        const userIndex = db.usuarios.findIndex((u: any) => Number(u.id) === Number(id))
+
+        const db = readDB();
+        const userIndex = db.usuarios.findIndex((u: any) => u.email === email);
+
         if (userIndex === -1) {
-            return res.status(404).json({ mensagem: "Usuário não encontrado" })
+            return res.status(404).json({ mensagem: "Usuário não encontrado" });
         }
-        const atual = Number(db.usuarios[userIndex].saldo || 0)
-        db.usuarios[userIndex].saldo = Number((atual + Number(amount)).toFixed(2))
-        writeDB(db)
-        return res.status(200).json({ mensagem: "Saldo atualizado com sucesso", usuario: db.usuarios[userIndex] })
+
+        const atual = Number(db.usuarios[userIndex].saldo || 0);
+        db.usuarios[userIndex].saldo = Number((atual + Number(amount)).toFixed(2));
+        writeDB(db);
+
+        return res.status(200).json({ mensagem: "Saldo atualizado com sucesso", usuario: db.usuarios[userIndex] });
     } catch (error) {
-        console.error('[PUT /api/usuario/saldo] Erro:', error)
-        return res.status(500).json({ mensagem: "Erro interno do servidor" })
+        console.error('[PUT /api/usuario/saldo] Erro:', error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
     }
 })
 

@@ -1,103 +1,100 @@
-const incrementarBilhetes = document.getElementById("incrementar-bilhetes")
-const decrementarBilhetes = document.getElementById("decrecimo-bilhetes")
-const quantidadeBilhetes = document.getElementById("quantidade-bilhetes")
-const valorBilhetes = document.getElementById("valor-bilhetes")
-const comprarBotao = document.getElementById("comprar")
+const incrementarBilhetes = document.getElementById("incrementar-bilhetes");
+const decrementarBilhetes = document.getElementById("decrecimo-bilhetes");
+const quantidadeBilhetes = document.getElementById("quantidade-bilhetes");
+const valorBilhetes = document.getElementById("valor-bilhetes");
+const comprarBotao = document.getElementById("comprar");
 
-let quantidade = Number(quantidadeBilhetes.textContent)
-let valor = Number(valorBilhetes.textContent.replace(",","."))
+let quantidade = Number(quantidadeBilhetes.textContent);
+let valor = Number(valorBilhetes.textContent.replace(",", "."));
 
-//para adicionar bilhtes
-incrementarBilhetes.addEventListener("mousedown", (event)=>{
-    event.preventDefault()
-    quantidade = quantidade + 1
-    valor = 5.20 * quantidade
-    quantidadeBilhetes.textContent = quantidade
-    valorBilhetes.textContent = valor.toFixed(2).replace(".",",")
-})
+// Atualiza a quantidade e o valor dos bilhetes
+incrementarBilhetes.addEventListener("mousedown", (event) => {
+    event.preventDefault();
+    quantidade += 1;
+    valor = 5.20 * quantidade;
+    quantidadeBilhetes.textContent = quantidade;
+    valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
+});
 
-//para retirar bilhets
-decrementarBilhetes.addEventListener("mousedown",(event)=>{
-    event.preventDefault()
-    if(quantidade > 0){
-        event.preventDefault()
-        quantidade = quantidade - 1
-        valor = 5.20 * quantidade
-        quantidadeBilhetes.textContent = quantidade
-        valorBilhetes.textContent = valor.toFixed(2).replace(".", ",")
+decrementarBilhetes.addEventListener("mousedown", (event) => {
+    event.preventDefault();
+    if (quantidade > 0) {
+        quantidade -= 1;
+        valor = 5.20 * quantidade;
+        quantidadeBilhetes.textContent = quantidade;
+        valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
     }
-})
+});
 
-// Ao clicar em COMPRAR:
-comprarBotao.addEventListener("click", async (event)=>{
-    event.preventDefault()
-    if (!valor || valor <= 0) return
+// Ao clicar em COMPRAR
+comprarBotao.addEventListener("click", async (event) => {
+    event.preventDefault();
+    if (quantidade <= 0 || valor <= 0) {
+        alert("Selecione uma quantidade válida de bilhetes.");
+        return;
+    }
 
-    const currentUserId = Number(localStorage.getItem("currentUserId")) || 1
+    const email = localStorage.getItem("userEmail"); // Corrigido para usar 'userEmail'
+    if (!email) {
+        alert("Usuário não logado.");
+        return;
+    }
 
     try {
-        const resp = await fetch("http://localhost:5001/api/usuario/saldo", {
+        const response = await fetch("http://localhost:5001/api/usuario/saldo", {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: currentUserId, amount: Number(valor) })
-        })
-        if (!resp.ok) throw new Error("Falha ao atualizar saldo no servidor")
-        const json = await resp.json()
-        if (localStorage.getItem("usuarios")) {
-            const usuarios = JSON.parse(localStorage.getItem("usuarios"))
-            const idx = usuarios.findIndex(u => Number(u.id) === currentUserId)
-            if (idx >= 0) usuarios[idx] = json.usuario
-            localStorage.setItem("usuarios", JSON.stringify(usuarios))
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email,
+                amount: valor,
+            }),
+        });
+
+        if (response.ok) {
+            alert("Compra realizada com sucesso!");
+            window.location.reload(); // Atualiza a página para refletir o novo saldo
+        } else {
+            const errorData = await response.json();
+            alert(`Erro ao realizar a compra: ${errorData.mensagem}`);
         }
-        const valorFormatado = Number(valor).toFixed(2).replace(".",",")
-        localStorage.setItem("confirmationMessage", `O saldo de ${valorFormatado} reais foi adiconado com sucesso na sua carteira.`)
-        window.location.href = "home.html"
-    } catch (err) {
-        console.error(err)
-        alert("Não foi possível atualizar o saldo no servidor. Tente novamente mais tarde.")
+    } catch (error) {
+        console.error("Erro ao realizar a compra:", error);
+        alert("Erro ao realizar a compra. Tente novamente mais tarde.");
     }
-})
+});
 
-
-document.addEventListener('DOMContentLoaded', async () => {
-    // garante que exista lista de usuarios no localStorage
-    if (!localStorage.getItem('usuarios')) {
-        try {
-            const resp = await fetch('/src/usuario.json')
-            if (resp.ok) {
-                const data = await resp.json()
-                localStorage.setItem('usuarios', JSON.stringify(data.usuarios || []))
-            }
-        } catch (err) {
-            console.error('Erro ao carregar usuario.json:', err)
-        }
-    }
-
-    const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]')
-    const currentUserId = Number(localStorage.getItem('currentUserId')) || 1
-    const user = usuarios.find(u => Number(u.id) === currentUserId) || usuarios[0]
+// Carrega os dados do usuário ao carregar a página
+document.addEventListener("DOMContentLoaded", async () => {
+    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
+    const email = localStorage.getItem("userEmail");
+    const user = usuarios.find((u) => u.email === email);
 
     if (user) {
-        const boasEl = document.getElementById('boas-vindas') || document.querySelector('.logo h1') || document.querySelector('h1')
+        const boasEl = document.getElementById("boas-vindas") || document.querySelector(".logo h1");
         if (boasEl) {
-            const nome = String(user.nome || '')
-            const primeiroNome = nome.split(' ')[0] || nome || 'Usuário'
-            boasEl.textContent = `Olá, ${primeiroNome}`
+            const primeiroNome = user.nome.split(" ")[0] || "Usuário";
+            boasEl.textContent = `Olá, ${primeiroNome}`;
         }
+
+        const saldoEl = document.getElementById("dinheiro");
+        if (saldoEl) {
+            saldoEl.textContent = `R$ ${Number(user.saldo).toFixed(2).replace(".", ",")}`;
+        }
+    } else {
+        console.warn("Usuário não encontrado no localStorage.");
     }
 
-    const voltarEl = document.getElementById('voltar') 
-                   || document.getElementById('divvoltar') 
-                   || document.getElementById('seta')
-
+    const voltarEl = document.getElementById("voltar") || document.getElementById("divvoltar");
     if (voltarEl) {
-        voltarEl.style.cursor = 'pointer'
-        voltarEl.addEventListener('click', (e) => {
-            e.preventDefault()
-            window.location.href = 'pagamento.html'
-        })
+        voltarEl.style.cursor = "pointer";
+        voltarEl.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = "pagamento.html";
+        });
     }
-})
+});
 
 
 
