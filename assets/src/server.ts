@@ -300,8 +300,8 @@ server.get("/", (req: Request, res: Response) => {
 	res.redirect('/html/mapa.html');
 });
 
-    server.listen(5001, () => {
-    console.log("Rodando na porta 5001")
+    server.listen(6001, () => {
+    console.log("Rodando na porta 001")
     })
 
 // --- FIM DAS MODIFICAÇÕES ---

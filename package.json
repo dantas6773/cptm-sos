@@ -4,8 +4,7 @@
   "description": "**Integrantes:**  \r Benjamin • João Pedro • Paulo • Thales • Thomas • Waldir",
   "main": "assets/src/server.ts",
   "scripts": {
-    "dev": "tsx watch assets/src/server.ts",
-    "start": "tsx assets/src/server.ts"
+    "dev": "tsx watch assets/src/server.ts"
   },
   "repository": {
     "type": "git",
