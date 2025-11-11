@@ -428,4 +428,35 @@ function startServer() {
     }
 }
 
+// === NOVA ROTA PARA OBTER SALDO DO USUÁRIO ===
+server.get("/api/usuario", (req: Request, res: Response) => {
+  try {
+    const { email } = req.query;
+
+    if (!email || typeof email !== "string") {
+      return res.status(400).json({ mensagem: "Email é obrigatório" });
+    }
+
+    const db = readDB();
+    const usuario = db.usuarios.find((u: any) => u.email === email);
+
+    if (!usuario) {
+      return res.status(404).json({ mensagem: "Usuário não encontrado" });
+    }
+
+    return res.status(200).json({
+      mensagem: "Usuário encontrado",
+      usuario: {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        saldo: usuario.saldo,
+      },
+    });
+  } catch (error) {
+    console.error("[GET /api/usuario] Erro:", error);
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
+  }
+});
+
 startServer();
