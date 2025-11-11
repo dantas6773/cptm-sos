@@ -7,6 +7,7 @@ const quantidadeBilhetes = document.getElementById("quantidade-bilhetes");
 const valorBilhetes = document.getElementById("valor-bilhetes");
 const comprarBotao = document.getElementById("botao-comprar");
 const saldoEl = document.getElementById("dinheiro");
+const voltarEl = document.getElementById("divvoltar");
 
 let quantidade = 0;
 let valor = 0;
@@ -102,4 +103,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Evento de compra
   comprarBotao.addEventListener("click", comprar);
+
+  //Botão voltar
+  if (voltarEl) {
+    voltarEl.style.cursor = "pointer";
+    voltarEl.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.location.href = "pagamento.html";
+    });
+  }
+
 });
