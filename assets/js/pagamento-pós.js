@@ -1,100 +1,116 @@
+// === pagamento-pós.js (versão integrada ao seu backend server.ts) ===
+
+// Elementos principais da página
 const incrementarBilhetes = document.getElementById("incrementar-bilhetes");
 const decrementarBilhetes = document.getElementById("decrecimo-bilhetes");
 const quantidadeBilhetes = document.getElementById("quantidade-bilhetes");
 const valorBilhetes = document.getElementById("valor-bilhetes");
-const comprarBotao = document.getElementById("comprar");
+const comprarBotao = document.getElementById("botao-comprar");
+const saldoEl = document.getElementById("dinheiro");
+const voltarEl = document.getElementById("divvoltar");
 
-let quantidade = Number(quantidadeBilhetes.textContent);
-let valor = Number(valorBilhetes.textContent.replace(",", "."));
+let quantidade = 0;
+let valor = 0;
+const PRECO_BILHETE = 5.20;
 
-// Atualiza a quantidade e o valor dos bilhetes
-incrementarBilhetes.addEventListener("mousedown", (event) => {
-    event.preventDefault();
-    quantidade += 1;
-    valor = 5.20 * quantidade;
+// === Função para formatar valores em reais ===
+function formatBRL(num) {
+  return "R$ " + Number(num).toFixed(2).replace(".", ",");
+}
+
+// === Incrementar e decrementar bilhetes ===
+incrementarBilhetes.addEventListener("click", () => {
+  quantidade++;
+  valor = quantidade * PRECO_BILHETE;
+  quantidadeBilhetes.textContent = quantidade;
+  valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
+});
+
+decrementarBilhetes.addEventListener("click", () => {
+  if (quantidade > 0) {
+    quantidade--;
+    valor = quantidade * PRECO_BILHETE;
     quantidadeBilhetes.textContent = quantidade;
     valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
+  }
 });
 
-decrementarBilhetes.addEventListener("mousedown", (event) => {
-    event.preventDefault();
-    if (quantidade > 0) {
-        quantidade -= 1;
-        valor = 5.20 * quantidade;
-        quantidadeBilhetes.textContent = quantidade;
-        valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
-    }
-});
+// === Carregar saldo real do usuário ===
+async function carregarSaldo(email) {
+  try {
+    const response = await fetch(`http://localhost:5001/api/usuario?email=${encodeURIComponent(email)}`);
+    if (!response.ok) throw new Error("Erro ao buscar saldo no servidor");
 
-// Ao clicar em COMPRAR
-comprarBotao.addEventListener("click", async (event) => {
-    event.preventDefault();
-    if (quantidade <= 0 || valor <= 0) {
-        alert("Selecione uma quantidade válida de bilhetes.");
-        return;
-    }
+    const data = await response.json();
+    const saldo = data.usuario.saldo ?? 0;
 
-    const email = localStorage.getItem("userEmail"); // Corrigido para usar 'userEmail'
-    if (!email) {
-        alert("Usuário não logado.");
-        return;
-    }
+    saldoEl.textContent = formatBRL(saldo);
+    return saldo;
+  } catch (error) {
+    console.error("Erro ao carregar saldo:", error);
+    saldoEl.textContent = formatBRL(0);
+    return 0;
+  }
+}
 
-    try {
-        const response = await fetch("http://localhost:5001/api/usuario/saldo", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                amount: valor,
-            }),
-        });
+// === Função de compra de bilhetes ===
+async function comprar() {
+  const email = localStorage.getItem("userEmail");
 
-        if (response.ok) {
-            alert("Compra realizada com sucesso!");
-            window.location.reload(); // Atualiza a página para refletir o novo saldo
-        } else {
-            const errorData = await response.json();
-            alert(`Erro ao realizar a compra: ${errorData.mensagem}`);
-        }
-    } catch (error) {
-        console.error("Erro ao realizar a compra:", error);
-        alert("Erro ao realizar a compra. Tente novamente mais tarde.");
-    }
-});
+  if (!email) {
+    alert("Usuário não logado.");
+    return;
+  }
 
-// Carrega os dados do usuário ao carregar a página
+  if (quantidade <= 0) {
+    alert("Selecione uma quantidade de bilhetes.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5001/api/usuario/saldo", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, amount: valor }),
+    });
+
+    if (!response.ok) throw new Error("Erro ao atualizar saldo.");
+
+    const data = await response.json();
+    const novoSaldo = data.usuario.saldo ?? 0;
+
+    saldoEl.textContent = formatBRL(novoSaldo);
+
+    alert("Compra realizada com sucesso!");
+  } catch (error) {
+    console.error("Erro na compra:", error);
+    alert("Erro ao realizar a compra. Tente novamente.");
+  }
+}
+
+// === Inicialização da página ===
 document.addEventListener("DOMContentLoaded", async () => {
-    const usuarios = JSON.parse(localStorage.getItem("usuarios") || "[]");
-    const email = localStorage.getItem("userEmail");
-    const user = usuarios.find((u) => u.email === email);
+  const email = localStorage.getItem("userEmail");
 
-    if (user) {
-        const boasEl = document.getElementById("boas-vindas") || document.querySelector(".logo h1");
-        if (boasEl) {
-            const primeiroNome = user.nome.split(" ")[0] || "Usuário";
-            boasEl.textContent = `Olá, ${primeiroNome}`;
-        }
+  if (!email) {
+    console.warn("Nenhum usuário logado no localStorage.");
+    saldoEl.textContent = formatBRL(0);
+    return;
+  }
 
-        const saldoEl = document.getElementById("dinheiro");
-        if (saldoEl) {
-            saldoEl.textContent = `R$ ${Number(user.saldo).toFixed(2).replace(".", ",")}`;
-        }
-    } else {
-        console.warn("Usuário não encontrado no localStorage.");
-    }
+  // Carrega saldo real do banco de dados
+  await carregarSaldo(email);
 
-    const voltarEl = document.getElementById("voltar") || document.getElementById("divvoltar");
-    if (voltarEl) {
-        voltarEl.style.cursor = "pointer";
-        voltarEl.addEventListener("click", (e) => {
-            e.preventDefault();
-            window.location.href = "pagamento.html";
-        });
-    }
+  // Evento de compra
+  comprarBotao.addEventListener("click", comprar);
+
+  //Botão voltar
+  if (voltarEl) {
+    voltarEl.style.cursor = "pointer";
+    voltarEl.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.location.href = "pagamento.html";
+    });
+  }
+
 });
-
-
-

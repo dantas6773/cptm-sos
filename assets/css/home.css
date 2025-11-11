@@ -122,6 +122,7 @@ body {
 
     .recarga {
         display: flex;
+        position: absolute;
     }
 
     .recarga>h1 {
@@ -138,6 +139,7 @@ body {
         letter-spacing: 0%;
         font-weight: 300;
         text-align: center;
+        left:22px;
 
     }
 
