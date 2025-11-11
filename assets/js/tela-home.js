@@ -111,4 +111,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // chama assim que a tela é carregada
   await carregarSaldoBackend()
+
+  // 🔽🔽🔽 NOVA ADIÇÃO: buscar nome real do usuário logado no banco de dados
+  async function carregarNomeBackend() {
+    const email = localStorage.getItem('userEmail')
+    if (!email) {
+      console.warn('Nenhum email encontrado no localStorage (userEmail).')
+      return
+    }
+
+    try {
+      const resp = await fetch(`http://localhost:5001/api/usuario?email=${encodeURIComponent(email)}`)
+      if (!resp.ok) throw new Error('Erro ao buscar nome do servidor')
+
+      const data = await resp.json()
+      const nomeCompleto = data.usuario?.nome || 'Usuário'
+      const primeiroNome = nomeCompleto.split(' ')[0] || nomeCompleto
+
+      const boasEl = document.getElementById('boas-vindas')
+      if (boasEl) boasEl.textContent = `Olá, ${primeiroNome}`
+    } catch (error) {
+      console.error('Erro ao carregar nome do backend:', error)
+    }
+  }
+
+  // chama após carregar saldo
+  await carregarNomeBackend()
 })
