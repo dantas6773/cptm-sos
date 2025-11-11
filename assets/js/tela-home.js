@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       })
   }
 
-  // 🔽🔽🔽 ADIÇÃO: buscar saldo real no banco de dados via backend
+  
   async function carregarSaldoBackend() {
     const email = localStorage.getItem('userEmail')
     if (!email) {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const saldoEl = document.getElementById('valor-saldo')
       if (saldoEl) {
         saldoEl.textContent = saldoFormatado
-        saldoEl.dataset.valorReal = saldoFormatado // usado pelo botão olho
+        saldoEl.dataset.valorReal = saldoFormatado 
       }
     } catch (error) {
       console.error('Erro ao carregar saldo do backend:', error)
@@ -112,7 +112,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // chama assim que a tela é carregada
   await carregarSaldoBackend()
 
-  // 🔽🔽🔽 NOVA ADIÇÃO: buscar nome real do usuário logado no banco de dados
   async function carregarNomeBackend() {
     const email = localStorage.getItem('userEmail')
     if (!email) {
