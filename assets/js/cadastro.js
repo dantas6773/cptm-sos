@@ -28,10 +28,14 @@ form.addEventListener("submit", async function (event) {
 
             const data = await response.json();
 
-            if (response.ok) {
-                localStorage.setItem('userEmail', email);
-                window.location.href = "apelido.html";
-            } else {
+           if (response.ok) {
+               
+                localStorage.setItem('cpfLogado', cpf); 
+                
+                localStorage.setItem('userEmail', email); 
+
+                window.location.href = "apelido.html";
+            } else {
                 alert(data.mensagem);
             }
         } catch (error) {
