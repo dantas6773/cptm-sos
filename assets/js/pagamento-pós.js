@@ -57,20 +57,22 @@ async function comprar() {
   }
 
   try {
-    const response = await authFetch("/api/usuario/saldo", {
-      method: "PUT",
+    // O servidor calcula o total e debita; aqui só se informa a quantidade.
+    const response = await authFetch("/api/usuario/compra", {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: valor }),
+      body: JSON.stringify({ quantidade }),
     });
 
-    if (!response.ok) throw new Error("Erro ao atualizar saldo.");
-
     const data = await response.json();
-    const novoSaldo = data.usuario.saldo ?? 0;
 
-    saldoEl.textContent = formatBRL(novoSaldo);
+    if (!response.ok) {
+      alert(data.mensagem || "Erro ao realizar a compra.");
+      return;
+    }
 
-    alert("Compra realizada com sucesso!");
+    saldoEl.textContent = formatBRL(data.usuario.saldo ?? 0);
+    alert(`Compra realizada! ${formatBRL(data.total)} adicionados ao seu saldo (${data.quantidade} bilhete(s)).`);
   } catch (error) {
     console.error("Erro na compra:", error);
     alert("Erro ao realizar a compra. Tente novamente.");

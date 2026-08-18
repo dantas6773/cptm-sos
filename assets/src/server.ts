@@ -10,6 +10,8 @@ import rateLimit from "express-rate-limit";
 const SALT_ROUNDS = 10;
 const JWT_EXPIRES_IN = "2h";
 const RECARGA_MAXIMA = 500;
+const PRECO_BILHETE = 5.20;
+const MAX_BILHETES = 20;
 // Sem fallback embutido: um valor fixo no código-fonte de um repositório público
 // não é segredo nenhum — qualquer um forjaria um token válido para qualquer usuário.
 function lerJwtSecret(): string {
@@ -43,6 +45,24 @@ const limiteCadastro = rateLimit({
     message: { mensagem: "Muitas contas criadas a partir deste endereço. Tente mais tarde." },
 });
 
+// Teto por operação sozinho não impede saldo infinito: bastava repetir a chamada.
+const limiteSaldo = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { mensagem: "Muitas operações de saldo seguidas. Aguarde um instante." },
+});
+
+// /gera-mapa sobe um processo Python por chamada — sem limite, é flood de CPU fácil.
+const limiteMapa = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { ok: false, error: "Muitas gerações de mapa seguidas. Aguarde um instante." },
+});
+
 interface AuthPayload {
     id: number;
     email: string;
@@ -53,7 +73,7 @@ interface AuthRequest extends Request {
 }
 
 function gerarToken(usuario: AuthPayload) {
-    return jwt.sign(usuario, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    return jwt.sign(usuario, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN, algorithm: "HS256" });
 }
 
 // Middleware: exige um Bearer token válido e expõe o usuário autenticado em req.user.
@@ -67,7 +87,7 @@ function autenticar(req: AuthRequest, res: Response, next: NextFunction) {
     }
 
     try {
-        req.user = jwt.verify(token, JWT_SECRET) as AuthPayload;
+        req.user = jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"] }) as AuthPayload;
         next();
     } catch {
         return res.status(403).json({ mensagem: "Token inválido ou expirado" });
@@ -214,7 +234,7 @@ server.put("/api/usuario/apelido", autenticar, (req: AuthRequest, res: Response)
 })
 
 //Rota put para adicioanr saldo
-server.put("/api/usuario/saldo", autenticar, (req: AuthRequest, res: Response) => {
+server.put("/api/usuario/saldo", autenticar, limiteSaldo, (req: AuthRequest, res: Response) => {
     try {
         const email = req.user!.email
         const { amount } = req.body;
@@ -225,7 +245,11 @@ server.put("/api/usuario/saldo", autenticar, (req: AuthRequest, res: Response) =
 
         // Recarga é simulada (não há gateway de pagamento), mas ainda assim o valor
         // não pode vir livre do cliente: sem teto, qualquer um se daria saldo infinito.
-        const valor = Number(amount);
+        if (typeof amount !== "number") {
+            return res.status(400).json({ mensagem: "amount deve ser um número" });
+        }
+
+        const valor = amount;
 
         if (!Number.isFinite(valor) || valor <= 0) {
             return res.status(400).json({ mensagem: "amount deve ser um número positivo" });
@@ -253,6 +277,46 @@ server.put("/api/usuario/saldo", autenticar, (req: AuthRequest, res: Response) =
         return res.status(500).json({ mensagem: "Erro interno do servidor" });
     }
 })
+
+// Comprar bilhete CREDITA a carteira: o usuário paga por fora (Pix/cartão/boleto) e o
+// valor vira saldo no app. O desconto acontece depois, na catraca, ao passar o QR code.
+// O preço fica aqui, e não no cliente: senão bastaria mandar o valor que quisesse.
+server.post("/api/usuario/compra", autenticar, limiteSaldo, (req: AuthRequest, res: Response) => {
+    try {
+        const email = req.user!.email;
+        const { quantidade } = req.body;
+
+        if (!Number.isInteger(quantidade) || quantidade <= 0 || quantidade > MAX_BILHETES) {
+            return res.status(400).json({
+                mensagem: `quantidade deve ser um inteiro entre 1 e ${MAX_BILHETES}`
+            });
+        }
+
+        const db = readDB();
+        const userIndex = db.usuarios.findIndex((u: any) => u.email === email);
+
+        if (userIndex === -1) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        }
+
+        const total = Number((quantidade * PRECO_BILHETE).toFixed(2));
+        const atual = Number(db.usuarios[userIndex].saldo || 0);
+
+        db.usuarios[userIndex].saldo = Number((atual + total).toFixed(2));
+        writeDB(db);
+
+        const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
+        return res.status(200).json({
+            mensagem: "Compra realizada com sucesso",
+            quantidade,
+            total,
+            usuario: usuarioSafe
+        });
+    } catch (error) {
+        console.error('[POST /api/usuario/compra] Erro:', error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+});
 
 /**
  * GET /api/estacoes
@@ -314,7 +378,7 @@ server.get("/api/estacoes", (req: Request, res: Response) => {
  *
  * Usado por: Página de seleção de estações (mapa)
  */
-server.post("/gera-mapa", async (req: Request, res: Response) => {
+server.post("/gera-mapa", limiteMapa, async (req: Request, res: Response) => {
     // valida parâmetros
     const { origin, destination } = req.body || {};
     if (!origin || !destination) {
@@ -383,12 +447,10 @@ server.post("/gera-mapa", async (req: Request, res: Response) => {
                 });
             } else {
                 // erro: retorna detalhes para debug
-                return res.status(500).json({ 
-                    ok: false, 
-                    error: 'Erro ao gerar mapa', 
-                    code,
-                    stderr, 
-                    stdout 
+                console.error('[gera-mapa] Python falhou:', { code, stderr: stderr.slice(0, 500) });
+                return res.status(500).json({
+                    ok: false,
+                    error: 'Erro ao gerar mapa'
                 });
             }
         });
@@ -410,7 +472,16 @@ server.post("/gera-mapa", async (req: Request, res: Response) => {
 // serve-se apenas assets/ e as páginas .html, e nada mais fica alcançável.
 const ROOT_DIR = path.join(__dirname, "..", "..");
 
-server.use("/assets", express.static(path.join(ROOT_DIR, "assets"), { dotfiles: "deny" }));
+// Só as subpastas de fato públicas. `assets/src/` fica de fora de propósito: guarda
+// o código do backend e o script Python, que não têm por que ser baixáveis.
+for (const pasta of ["css", "js", "imagem", "sons"]) {
+	server.use(`/assets/${pasta}`, express.static(path.join(ROOT_DIR, "assets", pasta), { dotfiles: "deny" }));
+}
+
+// exceção: o mapa gerado pelo script Python precisa ser aberto pelo navegador
+server.get("/assets/src/mapa_rota.html", (_req: Request, res: Response) => {
+	return res.sendFile(path.join(ROOT_DIR, "assets", "src", "mapa_rota.html"));
+});
 
 const PAGINAS = new Set(
 	fs.readdirSync(ROOT_DIR).filter((arquivo) => arquivo.endsWith(".html"))
