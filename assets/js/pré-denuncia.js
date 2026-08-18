@@ -10,21 +10,11 @@ voltar.addEventListener('click', function () {
 
 // ========================= FUNÇÃO DE ATIVAR ALERTA =========================
 async function ativarAlerta() {
-  const idLogado = localStorage.getItem("idLogado"); // deve ser salvo no login com esse mesmo nome
-
-  console.log("🔎 ID logado encontrado:", idLogado);
-
-  if (!idLogado) {
-    console.log("❌ Nenhum usuário logado. Não foi possível ativar o alerta.");
-    return;
-  }
-
   try {
-    const response = await fetch("http://127.0.0.1:5001/api/alerta", {
+    const response = await authFetch("/api/alerta", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        id: idLogado,
         alerta: true, // altera o valor do campo alerta no JSON
       }),
     });

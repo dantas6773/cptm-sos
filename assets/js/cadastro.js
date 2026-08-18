@@ -29,6 +29,8 @@ form.addEventListener("submit", async function (event) {
             const data = await response.json();
 
            if (response.ok) {
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('idLogado', data.usuario.id);
                
                 localStorage.setItem('cpfLogado', cpf); 
                 

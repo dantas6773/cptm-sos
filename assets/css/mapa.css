@@ -14,10 +14,13 @@
     --vermelho-cptm: #ED1C24;
 }
 
+html, body {
+    height: 100%;
+    background-color: #DADDE3;
+}
+
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--cor-branco-principal);
-    padding-bottom: 90px;
     color: var(--cor-font-preto);
 }
 
@@ -25,15 +28,30 @@ body {
     display: none !important;
 }
 
+.pagina {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    background-color: var(--cor-branco-principal);
+    position: relative;
+    padding-bottom: 90px;
+}
+
 /* ===========================
    MAPA (ÁREA PRINCIPAL)
 =========================== */
 .map-container {
-    width: 412px;
-    height: 470px;
+    width: 100%;
+    height: 45vh;
+    min-height: 320px;
+    max-height: 470px;
     overflow: hidden;
     position: relative;
     cursor: grab;
+    flex-shrink: 0;
 }
 
 .map-container:active {
@@ -54,14 +72,14 @@ body {
 /* botão de expandir mapa */
 #expandir {
     position: absolute;
-    left: 334px;
-    top: 14px;
+    right: 16px;
+    top: 16px;
     z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60px;
-    height: 60px;
+    width: 52px;
+    height: 52px;
     border-radius: 100%;
     background-color: var(--cor-azul-principal);
     border: none;
@@ -72,27 +90,25 @@ body {
     background-color: var(--vermelho-cptm);
 }
 
-/* divisória visual após o mapa */
-#divisoria-mapa {
-    width: 100%;
-    height: 10px;
-    background-color: var(--cor-azul-principal);
+.conteudo-mapa {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 18px;
 }
 
 /* ===========================
    CARTÃO DE PESQUISA / ROTAS
 =========================== */
 .container-pesquisa {
-    position: absolute;
-    left: 18px;
-    top: 354px;
-    width: 376px;
-    height: 198px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 15px;
+    padding: 20px;
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
     color: var(--cor-branco-principal);
@@ -105,20 +121,20 @@ body {
     align-items: flex-start;
     gap: 18px;
     width: 100%;
-    margin-top: -12px;
 }
 
 .gerar-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 8px;
+    width: 100%;
 }
 
 .btn-gerar {
-    background: var(--cor-azul-principal);
-    color: var(--cor-branco-principal);
+    width: 100%;
+    background: var(--cor-branco-principal);
+    color: var(--cor-azul-principal);
     border: none;
-    padding: 10px 16px;
+    padding: 12px 16px;
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -126,7 +142,7 @@ body {
 }
 
 .btn-gerar:hover {
-    background-color: #274b8f;
+    background-color: #e6ecf9;
 }
 
 .btn-gerar:active {
@@ -137,7 +153,8 @@ body {
    DROPDOWNS (ORIGEM / DESTINO)
 =========================== */
 .dropdown {
-    width: 170px;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -164,6 +181,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Setinha animada ▾ */
@@ -172,6 +192,8 @@ body {
     font-size: 13px;
     color: var(--cor-azul-principal);
     transition: transform 0.25s ease;
+    flex-shrink: 0;
+    margin-left: 4px;
 }
 
 .dropdown-btn[aria-expanded="true"]::after {
@@ -293,14 +315,10 @@ body {
    CONTEÚDO DE TRAJETO / RESULTADO
 =========================== */
 .container-trajeto {
-    position: absolute;
-    top: 340px;
-    left: 18px;
-    width: 376px;
+    width: 100%;
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
     padding: 20px;
-    z-index: 3;
     font-family: 'Inter', sans-serif;
     color: var(--cor-branco-principal);
 }
@@ -380,16 +398,6 @@ h2 {
     color: var(--cor-branco-principal);
 }
 
-h3 {
-    position: absolute;
-    left: 26px;
-    top: 586px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Inter', sans-serif;
-    color: var(--cor-font-preto);
-}
-
 h4 {
     font-size: 25px;
     font-weight: 400;
@@ -399,7 +407,7 @@ h4 {
 }
 
 h5 {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 400;
     color: var(--cor-branco-principal);
     font-family: 'Inter', sans-serif;
@@ -417,36 +425,6 @@ p {
     font-family: 'Inter', sans-serif;
     color: var(--cor-branco-principal);
 }
-
-/* ===========================
-   BLOCOS EXTRAS (estações rápidas)
-=========================== */
-#container-estacoes {
-    position: absolute;
-    left: 19px;
-    top: 627px;
-    display: flex;
-    gap: 8px;
-}
-
-.estacoes,
-.estacoes1 {
-    width: 119px;
-    height: 188px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--cor-azul-principal);
-    border-radius: 20px;
-    color: var(--cor-branco-principal);
-    text-align: center;
-}
-
-.estacoes1 { gap: 32px; }
-.estacoes { gap: 18px; }
-
-#linha-vermelha { position: relative; top: 15px; }
 
 /* ===========================
    LISTAS / BOTÕES EXTRAS
@@ -496,42 +474,45 @@ p {
 =========================== */
 #overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 480px;
+    margin: 0 auto;
     z-index: 999;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgba(17,17,17,0.85);
+    background-color: rgba(17,17,17,0.9);
+    padding: 20px;
 }
 
 .mapa-expandido {
     position: relative;
-    bottom: 51px;
-    width: 376px;
-    height: 292px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 14px;
     background-color: var(--cor-azul-principal);
     border-radius: 20px;
+    padding: 24px 16px;
     color: var(--cor-branco-principal);
     font-weight: 400;
 }
 
 .mapa-expandido img {
-    width: 355px;
-    height: 237px;
+    width: 100%;
     border-radius: 20px;
     object-fit: cover;
 }
 
 #btn-voltar {
-    position: absolute;
-    left: 21px;
-    top: 100px;
+    align-self: flex-start;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -549,14 +530,17 @@ p {
 footer {
     position: fixed;
     left: 0;
+    right: 0;
     bottom: 0;
+    max-width: 480px;
+    margin: 0 auto;
     z-index: 20;
     width: 100%;
-    height: 79px;
     background-color: var(--cor-azul-principal);
     display: flex;
     align-items: center;
     justify-content: space-around;
+    padding: clamp(10px, 1.8vh, 18px) 12px;
 }
 
 .secoes,
@@ -566,8 +550,14 @@ footer {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 56px;
-    gap: 2px;
+    gap: 4px;
 }
 
-footer h5 { color: var(--cor-branco-principal); }
+.secoes img,
+.home img,
+.denuncia img {
+    width: 28px;
+    height: 28px;
+}
+
+/* testado */

@@ -36,9 +36,9 @@ decrementarBilhetes.addEventListener("click", () => {
 });
 
 // === Carregar saldo real do usuário ===
-async function carregarSaldo(email) {
+async function carregarSaldo() {
   try {
-    const response = await fetch(`http://localhost:5001/api/usuario?email=${encodeURIComponent(email)}`);
+    const response = await authFetch("/api/usuario");
     if (!response.ok) throw new Error("Erro ao buscar saldo no servidor");
 
     const data = await response.json();
@@ -55,23 +55,16 @@ async function carregarSaldo(email) {
 
 // === Função de compra de bilhetes ===
 async function comprar() {
-  const email = localStorage.getItem("userEmail");
-
-  if (!email) {
-    alert("Usuário não logado.");
-    return;
-  }
-
   if (quantidade <= 0) {
     alert("Selecione uma quantidade de bilhetes.");
     return;
   }
 
   try {
-    const response = await fetch("http://localhost:5001/api/usuario/saldo", {
+    const response = await authFetch("/api/usuario/saldo", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, amount: valor }),
+      body: JSON.stringify({ amount: valor }),
     });
 
     if (!response.ok) throw new Error("Erro ao atualizar saldo.");
@@ -90,16 +83,8 @@ async function comprar() {
 
 // === Inicialização da página ===
 document.addEventListener("DOMContentLoaded", async () => {
-  const email = localStorage.getItem("userEmail");
-
-  if (!email) {
-    console.warn("Nenhum usuário logado no localStorage.");
-    saldoEl.textContent = formatBRL(0);
-    return;
-  }
-
   // Carrega saldo real do banco de dados
-  await carregarSaldo(email);
+  await carregarSaldo();
 
   // Evento de compra
   comprarBotao.addEventListener("click", comprar);

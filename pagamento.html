@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/css/pagamento.css">
 </head>
 <body>
+  <div class="pagina">
     <header>
       <div class="header-todo">
         <div class="logo">
@@ -18,41 +19,47 @@
         </div>
       </div>
     </header>
-    <div id="saldopt">
-        <div id="divvoltar">
-            <img id="seta" src="assets/imagem/imgseta.png" alt="">
-            <a id="voltar">Voltar</a>
-        </div>
-        <article id="bttsaldo">
-            <img class="imagess" src="assets/imagem/imgpastas.png" alt="">
+
+    <div class="conteudo">
+      <div id="divvoltar">
+          <img id="seta" src="assets/imagem/imgseta.png" alt="">
+          <a id="voltar">Voltar</a>
+      </div>
+
+      <article id="bttsaldo">
+          <img class="imagess" src="assets/imagem/imgpastas.png" alt="">
+          <div class="saldo-texto">
             <p id="seusaldo">Seu saldo:</p>
             <p id="dinheiro">Carregando...</p>
-        </article>
+          </div>
+      </article>
+
+      <div id="pagaments">
+          <h2>Métodos de pagamento</h2>
+          <button class="mets">
+              <img class="imagess" src="assets/imagem/imgpix.png" alt="">
+              <p class="fontmets">Pix</p>
+              <img class="setapagamentos" src="assets/imagem/imgtreco.png" alt="">
+          </button>
+          <button class="mets">
+              <img class="imagess" src="assets/imagem/imgcartao.png" alt="">
+              <p class="fontmets">Cartão de Crédito</p>
+              <img class="setapagamentos" src="assets/imagem/imgtreco.png" alt="">
+          </button>
+          <button class="mets">
+              <img class="imagess" src="assets/imagem/imgboleto.png" alt="">
+              <p class="fontmets">Boleto Bancário</p>
+              <img class="setapagamentos" src="assets/imagem/imgtreco.png" alt="">
+          </button>
+      </div>
     </div>
-    <div id="pagaments">
-        <h2>Métodos de pagamento</h2>
-        <button class="mets">
-            <img  class="imagess" src="assets/imagem/imgpix.png" alt="">
-            <p  class="fontmets">Pix</p>
-            <img id="pixo" class="setapagamentos" src="assets/imagem/imgtreco.png" alt="">
-        </button>
-        <button class="mets">
-            <img class="imagess" src="assets/imagem/imgcartao.png" alt="">
-            <p class="fontmets">Cartão de Crédito</p>
-            <img  id="cartones" class="setapagamentos" src="assets/imagem/imgtreco.png" alt="">
-        </button>
-        <button class="mets">
-            <img class="imagess" src="assets/imagem/imgboleto.png" alt="">
-            <p  class="fontmets">Boleto Bancário</p>
-            <img id="boletoso" class="setapagamentos" src="assets/imagem/imgtreco.png" alt="">
-        </button>
-    </div>
+
     <footer>
         <a id="Ajuda" href="">Central de Ajuda</a>
     </footer>
-    
+  </div>
 
-
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/pagamento.js"></script>
 </body>
 </html>

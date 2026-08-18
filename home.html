@@ -21,7 +21,6 @@
           <img src="assets/imagem/logo.png" alt="Logo">
           <h1 id="boas-vindas">Carregando...</h1>
         </div>
-        <div class="barra"></div>
         <div class="perfil">
           <img src="assets/imagem/perfil.png" alt="Perfil">
         </div>
@@ -29,68 +28,89 @@
     </header>
 
     <div class="conteudo">
-      <div class="saldo">
-        <h3>Seu saldo:</h3>
-        <h5 id="valor-saldo">Carregando...</h5>
-        <img src="assets/imagem/olhosaldo.png" alt="" id="olho">
-        <div class="recarga"><h1>Recarga</h1></div>
-      </div>
-
-      <div class="qrcode" id="botao-qrcode"> 
-        <img src="assets/imagem/qrcode.png" alt="qrcode">
-        <h1>USAR QR CODE</h1>
-      </div>
-
-      <div class="mapa">
-        <h1>Mapa das Estações:</h1>
-        <form action="">
-          <input class="input-busca" type="text" placeholder="Para onde?">
-        </form>
-        <div class="endereco">
-          <img src="assets/imagem/pin.png" alt="local">
-          <p>Rua Sugestão, 1234 - Lourdes</p>
+      <div class="cartao-saldo">
+        <div class="saldo">
+          <h3>Seu saldo</h3>
+          <div class="saldo-valor-linha">
+            <h5 id="valor-saldo">Carregando...</h5>
+            <img src="assets/imagem/olhosaldo.png" alt="" id="olho">
+          </div>
+          <div class="recarga"><h1>Recarga</h1></div>
         </div>
-        <div class="azul"></div>
+
+        <div class="qrcode" id="botao-qrcode">
+          <img src="assets/imagem/qrcode.png" alt="qrcode">
+          <h1>Usar QR Code</h1>
+        </div>
       </div>
 
-    <div class="carrossel-container">
-  <div class="carrossel-slide">
-    <img src="assets/imagem/propagandaredbull.png.jpg" alt="Slide 1">
-    <img src="assets/imagem/propagandaibmec.png" alt="Slide 2">
-    <img src="assets/imagem/propanga doril" alt="Slide 3">
-    
-    <img src="assets/imagem/propagandaredbull.png.jpg" alt="Slide 1">
-    <img src="assets/imagem/propagandaibmec.png" alt="Slide 2">
-    <img src="assets/imagem/propanga doril" alt="Slide 3">
-  </div>
-</div>
+      <div class="secao-mapa">
+        <h1>Mapa das Estações</h1>
+        <div class="mapa">
+          <form action="">
+            <input class="input-busca" type="text" placeholder="Para onde?">
+          </form>
+          <div class="endereco">
+            <img src="assets/imagem/pin.png" alt="local">
+            <p>Rua Sugestão, 1234 - Lourdes</p>
+          </div>
+          <div class="azul"></div>
+        </div>
+      </div>
+
+      <div class="secao-avisos">
+        <h1>Avisos</h1>
+        <div class="avisos-lista">
+          <div class="aviso-card">
+            <svg class="aviso-icone aviso-icone-navy" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 6v6c0 5 3.4 8.5 8 9.5 4.6-1 8-4.5 8-9.5V6l-8-3Z" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 12l1.8 1.8L15 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h4>Novo sistema de segurança</h4>
+            <p>Botão de emergência agora envia sua localização em tempo real</p>
+          </div>
+          <div class="aviso-card">
+            <svg class="aviso-icone aviso-icone-navy" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 13a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 13v7a2 2 0 1 1-4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 3v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <h4>Leve guarda-chuva hoje</h4>
+            <p>Previsão de chuva forte no período da tarde</p>
+          </div>
+          <div class="aviso-card">
+            <svg class="aviso-icone aviso-icone-atencao" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 4 21 20H3L12 4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="0.9" fill="currentColor"/></svg>
+            <h4>Linha Rubi com operação parcial</h4>
+            <p>Intervalos maiores entre Osasco e Barra Funda</p>
+          </div>
+          <div class="aviso-card">
+            <svg class="aviso-icone aviso-icone-navy" width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h4>Horário estendido aos sábados</h4>
+            <p>Trens circulando até 1h da madrugada</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
 <footer class="footer-todo">
   <div class="footer-left">
     <div class="botao-footer alertas">
-      <img src="assets/imagem/sino-novo.png" alt="">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M6 10a6 6 0 1 1 12 0c0 3.2 1 5 2 6H4c1-1 2-2.8 2-6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <span>Avisos</span>
     </div>
     <div class="botao-footer local">
-      <img src="assets/imagem/localnovo.png" alt="">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.4" stroke="currentColor" stroke-width="1.8"/></svg>
       <span>Localização</span>
     </div>
   </div>
 
   <div class="footer-center">
     <div class="botao-footer home">
-      <img src="assets/imagem/casinhanova.png" alt="Home" />
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 11 12 4l8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V20h12V9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Home</span>
     </div>
   </div>
 
   <div class="footer-right">
     <div class="botao-footer denuncia">
-      <img src="assets/imagem/denuncia-novo.png" alt="Denúncia" />
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 6v6c0 5 3.4 8.5 8 9.5 4.6-1 8-4.5 8-9.5V6l-8-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8.5v4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="15.5" r="0.9" fill="currentColor"/></svg>
       <span>Denúncia</span>
     </div>
     <div class="botao-footer ajustes">
-      <img src="assets/imagem/ajustesnovo.png" alt="Ajustes" />
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5v2.4M12 18.1v2.4M20.5 12h-2.4M5.9 12H3.5M17.7 6.3l-1.7 1.7M8 16l-1.7 1.7M17.7 17.7 16 16M8 8 6.3 6.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       <span>Ajustes</span>
     </div>
   </div>
@@ -98,6 +118,7 @@
 
 
 
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/tela-home.js"></script>
 </body>
 

@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="pagina">
     <header>
       <div class="header-todo">
         <div class="logo">
@@ -22,7 +23,7 @@
       </div>
     </header>
 
-    <div id="saldopt">
+    <div class="conteudo">
         <div id="divvoltar">
             <img id="seta" src="assets/imagem/imgseta.png" alt="Voltar">
             <a id="voltar" href="#">Voltar</a>
@@ -30,38 +31,38 @@
 
         <article id="bttsaldo">
             <img class="imagess" src="assets/imagem/imgpastas.png" alt="Ícone saldo">
-            <p id="seusaldo">Seu saldo:</p>
-            <p id="dinheiro">Carregando...</p>
+            <div class="saldo-texto">
+              <p id="seusaldo">Seu saldo:</p>
+              <p id="dinheiro">Carregando...</p>
+            </div>
         </article>
-    </div>
 
-    <div id="pagaments">
-        <h2>Deseja comprar<br>quantos bilhetes?</h2>
-    </div>
-
-    <div id="selecaoDeBilhetes">
-        <div id="quantidade-bilhetes-box">
-            <h1 id="decrecimo-bilhetes">-</h1>
-            <h2 id="quantidade-bilhetes">0</h2>
-            <h3 id="incrementar-bilhetes">+</h3>
+        <div id="pagaments">
+            <h2>Deseja comprar<br>quantos bilhetes?</h2>
         </div>
 
-        <div id="valor-bilhetes-box">
-            <h1>R$</h1>
-            <h2 id="valor-bilhetes">0,00</h2>
-        </div>
-    </div>
+        <div id="selecaoDeBilhetes">
+            <div id="quantidade-bilhetes-box">
+                <button id="decrecimo-bilhetes" type="button">-</button>
+                <span id="quantidade-bilhetes">0</span>
+                <button id="incrementar-bilhetes" type="button">+</button>
+            </div>
 
-    
-    <div id="botao-comprar">
-        <h1>COMPRAR</h1>
+            <div id="valor-bilhetes-box">
+                <span class="cifrao">R$</span>
+                <span id="valor-bilhetes">0,00</span>
+            </div>
+        </div>
+
+        <button id="botao-comprar" type="button">COMPRAR</button>
     </div>
 
     <footer>
         <a id="Ajuda" href="#">Central de Ajuda</a>
     </footer>
+  </div>
 
-    
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/pagamento-pós.js"></script>
 </body>
 </html>

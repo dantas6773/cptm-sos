@@ -24,153 +24,121 @@
 </head>
 
 <body>
-  <!-- botão de expandir mapa -->
-  <button id="expandir" aria-label="Expandir mapa">
-    <img src="assets/imagem/expandir.png" alt="Expandir" />
-  </button>
+  <div class="pagina">
+    <!-- área principal do mapa interativo -->
+    <main class="map-container">
+      <div class="map"></div>
 
-  <!-- área principal do mapa interativo -->
-  <main class="map-container">
-    <div class="map"></div>
-  </main>
+      <!-- botão de expandir mapa -->
+      <button id="expandir" aria-label="Expandir mapa">
+        <img src="assets/imagem/expandir.png" alt="Expandir" />
+      </button>
+    </main>
 
-  <!-- bloco de busca / seleção de rota -->
-  <section class="container-pesquisa">
-    <div class="dropdown-row">
-      <!-- ORIGEM -->
-      <div class="dropdown" id="dropdown-origem">
-        <label class="dropdown-label" for="toggle-origem">ORIGEM</label>
-        <div
-          class="dropdown-btn"
-          id="toggle-origem"
-          role="button"
-          tabindex="0"
-          aria-haspopup="listbox"
-          aria-expanded="false"
-        >
-          Selecionar ▾
+    <div class="conteudo-mapa">
+      <!-- bloco de busca / seleção de rota -->
+      <section class="container-pesquisa">
+        <div class="dropdown-row">
+          <!-- ORIGEM -->
+          <div class="dropdown" id="dropdown-origem">
+            <label class="dropdown-label" for="toggle-origem">ORIGEM</label>
+            <div
+              class="dropdown-btn"
+              id="toggle-origem"
+              role="button"
+              tabindex="0"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+            >
+              Selecionar ▾
+            </div>
+
+            <div class="dropdown-panel hidden" id="panel-origem">
+              <ul class="dropdown-list" id="list-origem"></ul>
+            </div>
+          </div>
+
+          <!-- DESTINO -->
+          <div class="dropdown" id="dropdown-destino">
+            <label class="dropdown-label" for="toggle-destino">DESTINO</label>
+            <div
+              class="dropdown-btn"
+              id="toggle-destino"
+              role="button"
+              tabindex="0"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+            >
+              Selecionar ▾
+            </div>
+
+            <div class="dropdown-panel hidden" id="panel-destino">
+              <ul class="dropdown-list" id="list-destino"></ul>
+            </div>
+          </div>
         </div>
 
-        <div class="dropdown-panel hidden" id="panel-origem">
-          <ul class="dropdown-list" id="list-origem"></ul>
+        <!-- botão GERAR MAPA -->
+        <div class="gerar-wrapper">
+          <button id="gerar-mapa-btn" class="btn-gerar">GERAR MAPA</button>
         </div>
+      </section>
+
+      <!-- container onde você vai injetar as infos de trajeto -->
+      <section
+        class="container-trajeto hidden"
+        id="trajeto-info"
+        aria-live="polite"
+      ></section>
+    </div>
+
+    <!-- rodapé fixo -->
+    <footer>
+      <div class="secoes">
+        <img src="assets/imagem/sino-novo.png" alt="Alertas" />
+        <h5>Alertas</h5>
       </div>
 
-      <!-- DESTINO -->
-      <div class="dropdown" id="dropdown-destino">
-        <label class="dropdown-label" for="toggle-destino">DESTINO</label>
-        <div
-          class="dropdown-btn"
-          id="toggle-destino"
-          role="button"
-          tabindex="0"
-          aria-haspopup="listbox"
-          aria-expanded="false"
-        >
-          Selecionar ▾
-        </div>
-
-        <div class="dropdown-panel hidden" id="panel-destino">
-          <ul class="dropdown-list" id="list-destino"></ul>
-        </div>
+      <div class="secoes">
+        <img src="assets/imagem/local-branco.png" alt="Local" />
+        <h5>Local</h5>
       </div>
-    </div>
 
-    <!-- botão GERAR MAPA -->
-    <div class="gerar-wrapper">
-      <button id="gerar-mapa-btn" class="btn-gerar">GERAR MAPA</button>
-    </div>
-  </section>
+      <div class="home">
+        <img src="assets/imagem/home-nova.png" alt="Home" />
+        <h5>Home</h5>
+      </div>
 
-  <!-- container onde você vai injetar as infos de trajeto -->
-  <section
-    class="container-trajeto hidden"
-    id="trajeto-info"
-    aria-live="polite"
-  ></section>
+      <div class="denuncia">
+        <img src="assets/imagem/denuncia-novo.png" alt="Denúncia" />
+        <h5>Denúncia</h5>
+      </div>
 
-  <!-- divisória visual abaixo do mapa -->
-  <div id="divisoria-mapa"></div>
+      <div class="secoes">
+        <img src="assets/imagem/ajustes-novo.png" alt="Ajustes" />
+        <h5>Ajustes</h5>
+      </div>
+    </footer>
 
-  <!-- rodapé fixo -->
-  <footer>
-    <div class="secoes">
-      <img src="assets/imagem/sino-novo.png" alt="Alertas" />
-      <h5>Alertas</h5>
-    </div>
+    <!-- overlay com o mapa expandido -->
+    <div id="overlay" class="hidden" role="dialog" aria-modal="true">
+      <button id="btn-voltar" class="btn-voltar-overlay">
+        <img src="assets/imagem/seta-voltar-mapa.png" alt="Voltar" />
+        <p>Voltar</p>
+      </button>
 
-    <div class="secoes">
-      <img src="assets/imagem/local-branco.png" alt="Local" />
-      <h5>Local</h5>
-    </div>
-
-    <div class="home">
-      <img src="assets/imagem/home-nova.png" alt="Home" />
-      <h5>Home</h5>
-    </div>
-
-    <div class="denuncia">
-      <img src="assets/imagem/denuncia-novo.png" alt="Denúncia" />
-      <h5>Denúncia</h5>
-    </div>
-
-    <div class="secoes">
-      <img src="assets/imagem/ajustes-novo.png" alt="Ajustes" />
-      <h5>Ajustes</h5>
-    </div>
-  </footer>
-
-  <!-- overlay com o mapa expandido -->
-  <div id="overlay" class="hidden" role="dialog" aria-modal="true">
-    <button id="btn-voltar" class="btn-voltar-overlay">
-      <img src="assets/imagem/seta-voltar-mapa.png" alt="Voltar" />
-      <p>Voltar</p>
-    </button>
-
-    <div class="mapa-expandido">
-      <h6>Mapa das Estações</h6>
-      <img
-        src="assets/imagem/mapa-rede-metro-cptm.svg"
-        alt="Mapa das Estações"
-        id="mapa"
-      />
+      <div class="mapa-expandido">
+        <h6>Mapa das Estações</h6>
+        <img
+          src="assets/imagem/mapa-rede-metro-cptm.svg"
+          alt="Mapa das Estações"
+          id="mapa"
+        />
+      </div>
     </div>
   </div>
 
   <!-- JS principal -->
   <script src="assets/js/mapa.js"></script>
-
-  <!-- SCRIPT ADICIONADO PARA ENVIAR OS VALORES AO PYTHON -->
-  <script>
-    document.getElementById("gerar-mapa-btn").addEventListener("click", async () => {
-      const origem = localStorage.getItem("mapa.origem");
-      const destino = localStorage.getItem("mapa.destino");
-
-      if (!origem || !destino) {
-        alert("Selecione uma origem e um destino antes de gerar o mapa!");
-        return;
-      }
-
-      try {
-        const resposta = await fetch("http://127.0.0.1:5000/gerar_mapa", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ origem, destino }),
-        });
-
-        const data = await resposta.json();
-        alert(data.mensagem || data.erro || "Mapa processado!");
-
-        // opcional: abrir automaticamente o mapa gerado
-        if (data.mensagem && !data.erro) {
-          window.open("mapa_rota.html", "_blank");
-        }
-
-      } catch (err) {
-        console.error(err);
-        alert("Carregando...");
-      }
-    });
-  </script>
 </body>
 </html>

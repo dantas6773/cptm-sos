@@ -29,10 +29,11 @@ form.addEventListener("submit", async function (event) {
     if (response.status === 200) {
       const usuario = data.usuario;
 
+      localStorage.setItem('authToken', data.token);
       localStorage.setItem('apelido', usuario.nome);
       localStorage.setItem('userEmail', usuario.email);
-      localStorage.setItem('idLogado', usuario.id);   
-      localStorage.setItem('cpfLogado', usuario.cpf); 
+      localStorage.setItem('idLogado', usuario.id);
+      localStorage.setItem('cpfLogado', usuario.cpf);
 
       console.log("Usuário logado:", usuario.nome, "CPF:", usuario.cpf);
 

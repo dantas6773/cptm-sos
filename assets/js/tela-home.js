@@ -1,7 +1,3 @@
-const apelido = localStorage.getItem('apelido')
-const apelido_lim = apelido.slice(0, 7); // corta o nome para 7 letras pq não há espaço no header
-document.getElementById('boas-vindas').textContent = `Olá, ${apelido_lim}`
-
 const botao_pix = document.getElementsByClassName('recarga')[0]
 const botao_qrcode = document.getElementById('botao-qrcode')
 const botao_denuncia = document.getElementsByClassName('botao-footer denuncia')[0]
@@ -30,49 +26,10 @@ let saldoVisivel = true;
 
 olho.addEventListener('click', () => {
   saldoVisivel = !saldoVisivel;
-  valorSaldo.textContent = saldoVisivel ? valorSaldo.dataset.valorReal || 'R$0,00' : '********';
+  valorSaldo.textContent = saldoVisivel ? valorSaldo.dataset.valorReal || 'R$ 0,00' : '********';
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
-  if (!localStorage.getItem('usuarios')) {
-      try {
-          const resp = await fetch('../src/usuario.json')
-          if (resp.ok) {
-              const data = await resp.json()
-              localStorage.setItem('usuarios', JSON.stringify(data.usuarios || []))
-          }
-      } catch (err) {
-          console.error('Erro ao carregar usuario.json:', err)
-      }
-  }
-
-  const usuariosJson = localStorage.getItem('usuarios')
-  if (usuariosJson) {
-      try {
-          const usuarios = JSON.parse(usuariosJson)
-          const currentUserId = Number(localStorage.getItem('currentUserId')) || 1
-          const user = usuarios.find(u => Number(u.id) === currentUserId) || usuarios[0]
-
-          if (user) {
-              const saldoText = 'R$' + (Number(user.saldo || 0)).toFixed(2).replace('.',',')
-              const possibleSaldoIds = ['valor-saldo', 'dinheiro', 'saldo', 'valorSaldo']
-              possibleSaldoIds.forEach(id => {
-                  const el = document.getElementById(id)
-                  if (el) el.textContent = saldoText
-              })
-
-              const boasEl = document.getElementById('boas-vindas')
-              if (boasEl) {
-                  const nome = user.nome || ''
-                  const primeiroNome = nome.split(' ')[0] || nome || 'Usuário'
-                  boasEl.textContent = `Olá, ${primeiroNome}`
-              }
-          }
-      } catch (err) {
-          console.error('Erro ao processar usuarios no localStorage:', err)
-      }
-  }
-
   const confirmation = localStorage.getItem('confirmationMessage')
   if (confirmation) {
       requestAnimationFrame(() => {
@@ -83,57 +40,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       })
   }
 
-  
-  async function carregarSaldoBackend() {
-    const email = localStorage.getItem('userEmail')
-    if (!email) {
-      console.warn('Nenhum email encontrado no localStorage (userEmail).')
-      return
-    }
-
+  // busca nome + saldo reais do usuário logado em uma única chamada autenticada
+  async function carregarUsuarioBackend() {
     try {
-      const resp = await fetch(`http://localhost:5001/api/usuario?email=${encodeURIComponent(email)}`)
-      if (!resp.ok) throw new Error('Erro ao buscar saldo do servidor')
+      const resp = await authFetch('/api/usuario')
+      if (!resp.ok) throw new Error('Erro ao buscar usuário no servidor')
 
       const data = await resp.json()
-      const saldo = data.usuario?.saldo ?? 0
-      const saldoFormatado = 'R$' + saldo.toFixed(2).replace('.', ',')
 
+      const saldo = data.usuario?.saldo ?? 0
+      const saldoFormatado = 'R$ ' + Number(saldo).toFixed(2).replace('.', ',')
       const saldoEl = document.getElementById('valor-saldo')
       if (saldoEl) {
         saldoEl.textContent = saldoFormatado
-        saldoEl.dataset.valorReal = saldoFormatado 
+        saldoEl.dataset.valorReal = saldoFormatado
       }
-    } catch (error) {
-      console.error('Erro ao carregar saldo do backend:', error)
-    }
-  }
 
-  // chama assim que a tela é carregada
-  await carregarSaldoBackend()
-
-  async function carregarNomeBackend() {
-    const email = localStorage.getItem('userEmail')
-    if (!email) {
-      console.warn('Nenhum email encontrado no localStorage (userEmail).')
-      return
-    }
-
-    try {
-      const resp = await fetch(`http://localhost:5001/api/usuario?email=${encodeURIComponent(email)}`)
-      if (!resp.ok) throw new Error('Erro ao buscar nome do servidor')
-
-      const data = await resp.json()
       const nomeCompleto = data.usuario?.nome || 'Usuário'
       const primeiroNome = nomeCompleto.split(' ')[0] || nomeCompleto
-
       const boasEl = document.getElementById('boas-vindas')
       if (boasEl) boasEl.textContent = `Olá, ${primeiroNome}`
     } catch (error) {
-      console.error('Erro ao carregar nome do backend:', error)
+      console.error('Erro ao carregar usuário do backend:', error)
     }
   }
 
-  // chama após carregar saldo
-  await carregarNomeBackend()
+  await carregarUsuarioBackend()
 })

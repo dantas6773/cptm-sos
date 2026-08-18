@@ -1,25 +1,67 @@
-import express, { Request, Response } from "express";
+import "dotenv/config";
+import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
 import cors from "cors";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const SALT_ROUNDS = 10;
+const JWT_EXPIRES_IN = "2h";
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-inseguro-defina-JWT_SECRET-no-.env";
+
+if (!process.env.JWT_SECRET) {
+    console.warn("[server] JWT_SECRET não definido — usando um valor fixo de desenvolvimento. NÃO use isso em produção.");
+}
+
+interface AuthPayload {
+    id: number;
+    email: string;
+}
+
+interface AuthRequest extends Request {
+    user?: AuthPayload;
+}
+
+function gerarToken(usuario: AuthPayload) {
+    return jwt.sign(usuario, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+}
+
+// Middleware: exige um Bearer token válido e expõe o usuário autenticado em req.user.
+// Nenhuma rota protegida deve mais confiar em email/id/cpf vindos do corpo da requisição.
+function autenticar(req: AuthRequest, res: Response, next: NextFunction) {
+    const header = req.headers.authorization;
+    const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
+
+    if (!token) {
+        return res.status(401).json({ mensagem: "Token de autenticação ausente" });
+    }
+
+    try {
+        req.user = jwt.verify(token, JWT_SECRET) as AuthPayload;
+        next();
+    } catch {
+        return res.status(403).json({ mensagem: "Token inválido ou expirado" });
+    }
+}
 
 const server = express();
 
 server.use(cors());
 server.use(express.json());
 
+// usuario.json fica fora de `assets/` de propósito: essa pasta é servida
+// como estática (express.static abaixo), então qualquer arquivo dentro dela
+// é baixável por qualquer um. O "banco" não pode estar num diretório público.
+const DB_PATH = path.join(__dirname, "..", "..", "data", "usuario.json");
+
 function readDB() {
-    const dbPath = path.join(__dirname, 'usuario.json')
-    // Adicionado log para verificar se o caminho do DB está correto
-    // console.log(`[DB] Lendo banco de dados em: ${dbPath}`); 
-    const data = fs.readFileSync(dbPath, 'utf-8')
+    const data = fs.readFileSync(DB_PATH, 'utf-8')
     return JSON.parse(data)
 }
 
 function writeDB(data: any) {
-    const dbPath = path.join(__dirname, 'usuario.json')
-    // console.log(`[DB] Escrevendo no banco de dados em: ${dbPath}`);
-    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2))
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2))
 }
 
 server.post("/api/cadastro", (req: Request, res: Response) => {
@@ -44,12 +86,14 @@ server.post("/api/cadastro", (req: Request, res: Response) => {
             })
         }
 
+        const senhaHash = bcrypt.hashSync(senha, SALT_ROUNDS)
+
         const newUser = {
             id: db.usuarios.length + 1,
             nome: "Temporário",
             cpf,
             email,
-            senha,
+            senha: senhaHash,
             saldo: 0,
             alerta: false
         }
@@ -57,9 +101,13 @@ server.post("/api/cadastro", (req: Request, res: Response) => {
         db.usuarios.push(newUser)
         writeDB(db)
 
+        const { senha: _novaSenha, ...usuarioSafe } = newUser
+        const token = gerarToken({ id: newUser.id, email: newUser.email })
+
         res.status(201).json({
             mensagem: "Cadastro realizado com sucesso",
-            usuario: newUser
+            usuario: usuarioSafe,
+            token
         })
 
     } catch (error) {
@@ -71,18 +119,19 @@ server.post("/api/cadastro", (req: Request, res: Response) => {
 })
 
 // --- MODIFICAÇÕES (LOGS) NESTE ENDPOINT ---
-server.put("/api/usuario/apelido", (req: Request, res: Response) => {
+server.put("/api/usuario/apelido", autenticar, (req: AuthRequest, res: Response) => {
     try {
         // 1. Log do que o servidor recebeu
         console.log(`[PUT /api/usuario/apelido] Requisição recebida:`, req.body);
 
-        const { email, apelido } = req.body
+        const email = req.user!.email
+        const { apelido } = req.body
 
-        if (!email || !apelido) {
+        if (!apelido) {
             // 2. Log de erro de validação (400)
-            console.warn(`[PUT /api/usuario/apelido] Erro 400: Campos faltando. Email: ${email}, Apelido: ${apelido}`);
+            console.warn(`[PUT /api/usuario/apelido] Erro 400: Campo faltando. Apelido: ${apelido}`);
             return res.status(400).json({
-                mensagem: "Email e apelido são obrigatórios"
+                mensagem: "Apelido é obrigatório"
             })
         }
 
@@ -119,12 +168,13 @@ server.put("/api/usuario/apelido", (req: Request, res: Response) => {
 })
 
 //Rota put para adicioanr saldo
-server.put("/api/usuario/saldo", (req: Request, res: Response) => {
+server.put("/api/usuario/saldo", autenticar, (req: AuthRequest, res: Response) => {
     try {
-        const { email, amount } = req.body;
+        const email = req.user!.email
+        const { amount } = req.body;
 
-        if (!email || typeof amount === "undefined") {
-            return res.status(400).json({ mensagem: "Email e amount são obrigatórios" });
+        if (typeof amount === "undefined") {
+            return res.status(400).json({ mensagem: "amount é obrigatório" });
         }
 
         const db = readDB();
@@ -138,7 +188,8 @@ server.put("/api/usuario/saldo", (req: Request, res: Response) => {
         db.usuarios[userIndex].saldo = Number((atual + Number(amount)).toFixed(2));
         writeDB(db);
 
-        return res.status(200).json({ mensagem: "Saldo atualizado com sucesso", usuario: db.usuarios[userIndex] });
+        const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
+        return res.status(200).json({ mensagem: "Saldo atualizado com sucesso", usuario: usuarioSafe });
     } catch (error) {
         console.error('[PUT /api/usuario/saldo] Erro:', error);
         return res.status(500).json({ mensagem: "Erro interno do servidor" });
@@ -285,24 +336,11 @@ server.post("/gera-mapa", async (req: Request, res: Response) => {
 // servir arquivos estáticos da pasta `assets` para facilitar testes locais
 const assetsDir = path.join(__dirname, "..");
 server.use(express.static(assetsDir));
-// aaaaaaa
-server.get("/usuario.json", (req: Request, res: Response) => {
-    try {
-      const db = readDB(); 
-      return res.json(db);
-    } catch (error) {
-      console.error("[GET /usuario.json] Erro ao ler usuario.json:", error);
-      return res.status(500).json({ mensagem: "Erro ao ler usuario.json" });
-    }
-  });
+
 // rota raiz útil para abrir direto o mapa
 server.get("/", (req: Request, res: Response) => {
 	res.redirect('/html/mapa.html');
 });
-
-    server.listen(6001, () => {
-    console.log("Rodando na porta 001")
-    })
 
 // --- FIM DAS MODIFICAÇÕES ---
 
@@ -328,18 +366,20 @@ server.post("/api/login", (req: Request, res: Response) => {
             return res.status(404).json({ mensagem: "Usuário não encontrado" });
         }
 
-        if (user.senha !== senha) {
+        if (!bcrypt.compareSync(senha, user.senha)) {
             console.warn(`[POST /api/login] Erro 401: Senha incorreta para ${email}.`);
             return res.status(401).json({ mensagem: "Credenciais inválidas" });
         }
 
         // Remover a senha do objeto retornado
         const { senha: _, ...userSafe } = user;
+        const token = gerarToken({ id: user.id, email: user.email });
         console.log(`[POST /api/login] Login bem-sucedido: ${email}`);
 
         return res.status(200).json({
             mensagem: "Login efetuado com sucesso",
-            usuario: userSafe
+            usuario: userSafe,
+            token
         });
     } catch (error) {
         console.error('[POST /api/login] Erro:', error);
@@ -351,22 +391,23 @@ server.post("/api/login", (req: Request, res: Response) => {
 // ROTA DENUNCIA | INICIO 
 
 
-server.put("/api/alerta", (req: Request, res: Response) => {
+server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
     try {
-      const { id, alerta } = req.body;
-  
-      // Verifica se vieram os parâmetros necessários
-      if (typeof id === "undefined" || typeof alerta === "undefined") {
+      const id = req.user!.id;
+      const { alerta } = req.body;
+
+      // Verifica se veio o parâmetro necessário
+      if (typeof alerta === "undefined") {
         return res.sendStatus(400);
       }
-  
+
       const db = readDB();
       const usuario = db.usuarios.find((u: any) => Number(u.id) === Number(id));
-  
+
       if (!usuario) {
         return res.sendStatus(404);
       }
-  
+
       usuario.alerta = alerta; // Atualiza o campo alerta
       writeDB(db);
       return res.sendStatus(200);
@@ -374,21 +415,24 @@ server.put("/api/alerta", (req: Request, res: Response) => {
       return res.sendStatus(500);
     }
   });
-  
+
   // --- Confirma CPF e desativa o alerta ---
-  server.post("/api/alerta/confirmar", (req: Request, res: Response) => {
+  // Exige o token de quem está logado E que o CPF digitado bata com o CPF
+  // cadastrado para ESSE usuário — não basta saber o CPF de outra pessoa.
+  server.post("/api/alerta/confirmar", autenticar, (req: AuthRequest, res: Response) => {
     try {
       const { cpf } = req.body;
       if (!cpf) return res.sendStatus(400);
-  
+
       const db = readDB();
-      const usuario = db.usuarios.find((u: any) => u.cpf === cpf);
-  
+      const usuario = db.usuarios.find((u: any) => Number(u.id) === Number(req.user!.id));
+
       if (!usuario) return res.sendStatus(404);
-  
+      if (usuario.cpf !== cpf) return res.sendStatus(403);
+
       usuario.alerta = false;
       writeDB(db);
-  
+
       return res.sendStatus(200);
     } catch {
       return res.sendStatus(500);
@@ -429,13 +473,9 @@ function startServer() {
 }
 
 // === NOVA ROTA PARA OBTER SALDO DO USUÁRIO ===
-server.get("/api/usuario", (req: Request, res: Response) => {
+server.get("/api/usuario", autenticar, (req: AuthRequest, res: Response) => {
   try {
-    const { email } = req.query;
-
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ mensagem: "Email é obrigatório" });
-    }
+    const email = req.user!.email;
 
     const db = readDB();
     const usuario = db.usuarios.find((u: any) => u.email === email);

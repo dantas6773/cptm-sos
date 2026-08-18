@@ -1,159 +1,129 @@
-*{
+* {
     margin: 0;
-    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
 }
-@media screen and (max-width: 420px) {
-    body{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-image: url(../imagem/imagemtrem.jpeg);
-        background-size: 560px;
-        padding-top: 12px;
-        position: relative;
-        height: 627px;
-    }
-    #logo{
-        width: 50px;
-        height: 44px;
-        position: relative;
-        right: 160px;
-        top: 40px;
 
-    }
-    #cptm{
-        width: 72px;
-        height: 29px;
-        font-style: italic;
-        font-family: Arial, Helvetica, sans-serif;
-        position: relative;
-        bottom: 42px;
-        right: 90px;
-        top: -3px;
-        padding-top: 10px;
-        font-size: 22px;
-        color: #ffffff;
-    }
-    #bvd{
-        z-index: 9999;
-        position: relative;
-        top: 370px;
-        font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-        font-size: 38px;
-        color: #ffffff;
-    }
-    #forme{
-        position: relative;
-        top: 20px;
-        padding-top: 380px; 
-        z-index: 9999;
-    
-    }
-    .input-group1, .input-group-cpf { 
-        padding-bottom: 10px;
-    }
-
-    input::placeholder {
-        position: relative;
-        left: 10px;
-        font-family:Verdana, Geneva, Tahoma, sans-serif;
-        font-size: 18px;
-    }
-    #email, #cpf {
-        width: 315px;
-        height: 55px;
-        border-radius: 20px;
-        background-color: white; 
-        z-index: 9999;
-    }
-    
-    #senha{
-        font-family: Arial, Helvetica, sans-serif;
-        width: 315px;
-        height: 55px;
-        border-radius: 20px;
-        background-color: white;
-        z-index: 9999;
-    }
-    .aa{
-        color: #ffffff;
-        font-size: 25px;
-        padding: 10px;
-        z-index: 9999;
-    }
-    #a0{
-        position: relative;
-        color: white;
-        font-size: 17px;
-        top: 33px; 
-        right: 18px;
-        z-index: 9999;
-    }
-    #a2{
-        position: relative;
-        color: white;
-        font-size: 17px;
-        top: 14px; 
-        left: 95px;
-        z-index: 9999;
-
-    }
-    #a1{
-        color: white;
-        font-size: 12px;
-        right: 120px;
-        z-index: 9999;
-    }
-    #a3{
-        color: white;
-        font-size: 12px;
-        top: 30px;
-
-        right: 120px;
-        z-index: 9999;
-    }
-    #a4{
-        position: relative;
-        font-size: 12px;
-        position: relative;
-        color: white;
-        z-index: 9999;
-        
-
-    }
-    .azul {
-        position: absolute;
-        top: 420px;
-        left: 0;
-        width: 100%;
-        height: 80%;
-        background: linear-gradient(to top, #1B4680 30%, transparent);
-        border-radius: 30px;
-    }
-    .baixo{
-        position: relative;
-        top: 150px; 
-        display: flex;
-        gap: 10px;
-
-    }
-    h5{
-        font-size: 25px;
-        position: relative;
-        bottom: 13px;
-        color: white;
-        z-index: 9999;
-    }
-    button{
-        
-        border-radius: 30px;
-        font-family: Arial, Helvetica, sans-serif;
-        color: white;
-        font-size: 20px;
-        background-color: red;
-        position: relative;
-        top: 10px;
-        width: 315px;
-        height: 55px;
-    }
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    background-color: #0B1020;
 }
+
+.tela-auth {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    overflow: hidden;
+    background-image: url(../imagem/imagemtrem.jpeg);
+    background-size: cover;
+    background-position: center 25%;
+    display: flex;
+    flex-direction: column;
+}
+
+.azul {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 68%;
+    background: linear-gradient(to top, #1B4680 55%, transparent);
+    pointer-events: none;
+}
+
+.topo-marca {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: clamp(16px, 4vh, 28px) clamp(20px, 6vw, 32px) 0 clamp(20px, 6vw, 32px);
+}
+
+#logo {
+    width: 42px;
+    height: auto;
+}
+
+#cptm {
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.conteudo-auth {
+    position: relative;
+    z-index: 2;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(18px, 5vh, 30px) clamp(20px, 6vw, 32px) clamp(20px, 4vh, 32px) clamp(20px, 6vw, 32px);
+}
+
+#bvd {
+    font-size: clamp(26px, 7vw, 34px);
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+#forme {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+input {
+    width: 100%;
+    height: 55px;
+    border-radius: 16px;
+    border: none;
+    background-color: #FFFFFF;
+    padding: 0 18px;
+    font-size: 16px;
+    font-family: "Inter", sans-serif;
+}
+
+input::placeholder {
+    color: #6B6E76;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    height: 55px;
+    border-radius: 16px;
+    border: none;
+    background-color: #ED1C24;
+    color: #FFFFFF;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: "Inter", sans-serif;
+}
+
+.baixo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.baixo a {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    text-decoration: underline;
+}
+
+.baixo h5 {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+/* testado */

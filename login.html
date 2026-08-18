@@ -10,47 +10,56 @@
   </head>
 
   <body>
-    <img id="logo" src="assets/imagem/logo.png" alt="Logo CPTM" />
-    <h2 id="cptm">CPTM</h2>
-    <h3 id="bvd">Seja Bem-vindo!</h3>
+    <div class="tela-auth">
+      <div class="azul"></div>
 
-    <form id="forme">
-      <div class="input-group1">
-        <input
-          type="text"
-          id="email"
-          name="email"
-          placeholder="Email"
-        />
+      <div class="topo-marca">
+        <img id="logo" src="assets/imagem/logo.png" alt="Logo CPTM" />
+        <h2 id="cptm">CPTM</h2>
       </div>
 
-      <div class="input-group2">
-        <input
-          type="password"
-          placeholder="Senha"
-          id="senha"
-          name="senha"
-          required
-        />
+      <div class="conteudo-auth">
+        <h3 id="bvd">Seja Bem-vindo!</h3>
+
+        <form id="forme">
+          <div class="input-group1">
+            <input
+              type="text"
+              id="email"
+              name="email"
+              placeholder="Email"
+            />
+          </div>
+
+          <div class="input-group2">
+            <input
+              type="password"
+              placeholder="Senha"
+              id="senha"
+              name="senha"
+              required
+            />
+          </div>
+
+          <div>
+            <button type="submit" id="botao">Entrar</button>
+          </div>
+        </form>
+
+        <div class="cadastro-link">
+          <a id="a0">Não tem uma conta?</a>
+          <a id="a2" href="cadastro.html">Cadastre-se</a>
+        </div>
+
+        <div class="baixo">
+          <a id="a3" href="#">Termos de uso</a>
+          <h5>.</h5>
+          <a id="a4" href="#">Política de privacidade</a>
+          <h5>.</h5>
+          <a id="a1" href="#">Alguma dúvida?</a>
+        </div>
       </div>
-
-      <div>
-        <button type="submit" id="botao">Entrar</button>
-      </div>
-    </form>
-
-    <a id="a0">Não tem uma conta?</a>
-    <a id="a2" href="cadastro.html">Cadastre-se</a>
-
-    <div class="baixo">
-      <a id="a3" href="#">Termos de uso</a>
-      <h5>.</h5>
-      <a id="a4" href="#">Política de privacidade</a>
-      <h5>.</h5>
-      <a id="a1" href="#">Alguma dúvida?</a>
     </div>
-
-    <div class="azul"></div>
 
     <!-- Caminho relativo para o JS -->
     <script src="assets/js/tela-login.js"></script>

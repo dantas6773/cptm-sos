@@ -5,31 +5,21 @@ botao.addEventListener('click', async function(event) {
     event.preventDefault();
 
     const apelido = nome.value;
-    const email = localStorage.getItem('userEmail');
 
     if (!apelido) {
         alert('Preencha seu nome (apelido) antes de avançar');
         return;
     }
 
-    if (!email) {
-        alert('Erro: Usuário não identificado. Por favor, faça login novamente.');
-        console.error('Erro de lógica: "userEmail" não encontrado no localStorage.');
-        return;
-    }
-
     try {
-        console.log('Enviando para o servidor:', { email, apelido });
+        console.log('Enviando para o servidor:', { apelido });
 
-        const response = await fetch('http://localhost:5001/api/usuario/apelido', {
+        const response = await authFetch('/api/usuario/apelido', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                email: email,
-                apelido: apelido
-            })
+            body: JSON.stringify({ apelido })
         });
 
         // --- MANIPULAÇÃO DE ERRO CORRIGIDA ---
