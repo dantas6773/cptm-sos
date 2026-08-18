@@ -54,6 +54,20 @@ server.use(express.json());
 // como estática (express.static abaixo), então qualquer arquivo dentro dela
 // é baixável por qualquer um. O "banco" não pode estar num diretório público.
 const DB_PATH = path.join(__dirname, "..", "..", "data", "usuario.json");
+// usuario.json é o banco local (gitignorado) — nasce a partir do seed versionado
+// na primeira execução, pra ninguém acabar commitando dado de cadastro real.
+const DB_SEED_PATH = path.join(__dirname, "..", "..", "data", "usuario.seed.json");
+
+if (!fs.existsSync(DB_PATH)) {
+    try {
+        fs.copyFileSync(DB_SEED_PATH, DB_PATH);
+        console.log(`[server] Banco local criado a partir de ${path.basename(DB_SEED_PATH)}`);
+    } catch (err) {
+        console.error(`[server] Não foi possível criar ${DB_PATH} a partir do seed.`);
+        console.error("[server] Confira se data/usuario.seed.json existe e se data/ permite escrita.");
+        process.exit(1);
+    }
+}
 
 function readDB() {
     const data = fs.readFileSync(DB_PATH, 'utf-8')
@@ -350,7 +364,8 @@ server.get("/", (req: Request, res: Response) => {
 
 server.post("/api/login", (req: Request, res: Response) => {
     try {
-        console.log(`[POST /api/login] Requisição recebida:`, req.body);
+        // Nunca logar req.body aqui: ele carrega a senha em texto puro.
+        console.log(`[POST /api/login] Tentativa de login: ${req.body?.email}`);
 
         const { email, senha } = req.body;
         if (!email || !senha) {

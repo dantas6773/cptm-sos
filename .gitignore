@@ -1,4 +1,12 @@
 node_modules
-package-lock.json
 .env
 .DS_Store
+
+# banco local: nasce de data/usuario.seed.json na primeira execução
+data/usuario.json
+
+# estado efêmero de sessão do Claude Code (os agentes em .claude/agents/ são versionados)
+.claude/scheduled_tasks.lock
+
+# documento interno de coordenação; não deve ir para o repositório público
+LIMPEZA-HISTORICO.md
