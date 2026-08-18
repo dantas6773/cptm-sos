@@ -1,5 +1,7 @@
 // Testa o middleware `autenticar` usando GET /api/usuario como rota protegida
 // representativa (mesmo middleware de todas as outras rotas privadas).
+// Token ausente ou inválido é 401 (não autenticado). O 403 fica reservado para
+// recusa por regra de negócio com identidade conhecida — ver alerta.test.ts.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import jwt from "jsonwebtoken";
@@ -20,14 +22,14 @@ test("rota protegida sem token devolve 401", async () => {
     assert.equal(res.status, 401);
 });
 
-test("rota protegida com token malformado devolve 403", async () => {
+test("rota protegida com token malformado devolve 401", async () => {
     const res = await apiFetch(app.baseUrl, "/api/usuario", {
         headers: { Authorization: "Bearer token-invalido-nao-e-jwt" },
     });
-    assert.equal(res.status, 403);
+    assert.equal(res.status, 401);
 });
 
-test("rota protegida com token assinado com segredo errado devolve 403", async () => {
+test("rota protegida com token assinado com segredo errado devolve 401", async () => {
     const tokenForjado = jwt.sign({ id: 1, email: "ana@teste.com" }, "segredo-errado", {
         expiresIn: "2h",
         algorithm: "HS256",
@@ -35,10 +37,10 @@ test("rota protegida com token assinado com segredo errado devolve 403", async (
     const res = await apiFetch(app.baseUrl, "/api/usuario", {
         headers: { Authorization: `Bearer ${tokenForjado}` },
     });
-    assert.equal(res.status, 403);
+    assert.equal(res.status, 401);
 });
 
-test("rota protegida com token expirado devolve 403", async () => {
+test("rota protegida com token expirado devolve 401", async () => {
     const tokenExpirado = jwt.sign({ id: 1, email: "ana@teste.com" }, process.env.JWT_SECRET!, {
         expiresIn: "-10s",
         algorithm: "HS256",
@@ -46,7 +48,7 @@ test("rota protegida com token expirado devolve 403", async () => {
     const res = await apiFetch(app.baseUrl, "/api/usuario", {
         headers: { Authorization: `Bearer ${tokenExpirado}` },
     });
-    assert.equal(res.status, 403);
+    assert.equal(res.status, 401);
 });
 
 test("rota protegida com token válido devolve 200", async () => {

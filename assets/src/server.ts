@@ -72,6 +72,24 @@ const limiteMapa = rateLimit({
     message: { ok: false, error: "Muitas gerações de mapa seguidas. Aguarde um instante." },
 });
 
+// Rotas de escrita que faltavam limite: /api/denuncias incha um arquivo JSON, e
+// /api/alerta/localizacao é alimentada por watchPosition, que dispara sozinho.
+const limiteDenuncia = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { mensagem: "Muitas denúncias enviadas seguidas. Aguarde um pouco." },
+});
+
+const limiteLocalizacao = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { mensagem: "Muitas atualizações de localização." },
+});
+
 interface AuthPayload {
     id: number;
     email: string;
@@ -99,7 +117,11 @@ function autenticar(req: AuthRequest, res: Response, next: NextFunction) {
         req.user = jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"] }) as AuthPayload;
         next();
     } catch {
-        return res.status(403).json({ mensagem: "Token inválido ou expirado" });
+        // 401 e não 403: "não sei quem você é". O 403 fica reservado para
+        // "sei quem você é, mas esta ação não é permitida" — como o CPF que não
+        // confere em /api/alerta/confirmar. Sem essa separação o cliente não
+        // consegue distinguir sessão expirada de recusa por regra de negócio.
+        return res.status(401).json({ mensagem: "Token inválido ou expirado" });
     }
 }
 
@@ -154,6 +176,29 @@ if (!fs.existsSync(DB_PATH)) {
     }
 }
 
+// O que pode sair do servidor sobre um usuário. Antes cada rota fazia
+// `const { senha, ...usuarioSafe } = usuario`, devolvendo tudo o que não fosse
+// senha — então, quando o alerta passou a gravar `localizacao`, a posição GPS
+// começou a vazar em respostas de saldo, compra e login. Lista explícita evita
+// que o próximo campo sensível se espalhe sozinho.
+function usuarioPublico(usuario: any) {
+    return {
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        saldo: usuario.saldo,
+        alerta: usuario.alerta,
+    };
+}
+
+// Desligar o alerta e apagar a localização são a MESMA regra. Estavam separados:
+// só /api/alerta/confirmar limpava, então desligar por PUT /api/alerta deixava a
+// última posição gravada para sempre.
+function desligarAlerta(usuario: any) {
+    usuario.alerta = false;
+    delete usuario.localizacao;
+}
+
 function readDB() {
     const data = fs.readFileSync(DB_PATH, 'utf-8')
     return JSON.parse(data)
@@ -203,12 +248,11 @@ server.post("/api/cadastro", limiteCadastro, (req: Request, res: Response) => {
         db.usuarios.push(newUser)
         writeDB(db)
 
-        const { senha: _novaSenha, ...usuarioSafe } = newUser
         const token = gerarToken({ id: newUser.id, email: newUser.email })
 
         res.status(201).json({
             mensagem: "Cadastro realizado com sucesso",
-            usuario: usuarioSafe,
+            usuario: usuarioPublico(newUser),
             token
         })
 
@@ -292,8 +336,7 @@ server.put("/api/usuario/saldo", autenticar, limiteSaldo, (req: AuthRequest, res
         db.usuarios[userIndex].saldo = Number((atual + valor).toFixed(2));
         writeDB(db);
 
-        const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
-        return res.status(200).json({ mensagem: "Saldo atualizado com sucesso", usuario: usuarioSafe });
+        return res.status(200).json({ mensagem: "Saldo atualizado com sucesso", usuario: usuarioPublico(db.usuarios[userIndex]) });
     } catch (error) {
         console.error('[PUT /api/usuario/saldo] Erro:', error);
         return res.status(500).json({ mensagem: "Erro interno do servidor" });
@@ -327,12 +370,11 @@ server.post("/api/usuario/compra", autenticar, limiteSaldo, (req: AuthRequest, r
         db.usuarios[userIndex].saldo = Number((atual + total).toFixed(2));
         writeDB(db);
 
-        const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
         return res.status(200).json({
             mensagem: "Compra realizada com sucesso",
             quantidade,
             total,
-            usuario: usuarioSafe
+            usuario: usuarioPublico(db.usuarios[userIndex])
         });
     } catch (error) {
         console.error('[POST /api/usuario/compra] Erro:', error);
@@ -349,6 +391,7 @@ const DENUNCIAS_PATH = process.env.DENUNCIAS_PATH
 
 const CATEGORIAS = ["assedio", "roubo", "outros"] as const;
 const MAX_DESCRICAO = 1000;
+const MAX_LOCAL = 200;
 
 function readDenuncias() {
     if (!fs.existsSync(DENUNCIAS_PATH)) {
@@ -361,7 +404,7 @@ function writeDenuncias(data: any) {
     fs.writeFileSync(DENUNCIAS_PATH, JSON.stringify(data, null, 2));
 }
 
-server.post("/api/denuncias", autenticar, (req: AuthRequest, res: Response) => {
+server.post("/api/denuncias", autenticar, limiteDenuncia, (req: AuthRequest, res: Response) => {
     try {
         const { categoria, descricao, local, anonima } = req.body;
 
@@ -393,7 +436,7 @@ server.post("/api/denuncias", autenticar, (req: AuthRequest, res: Response) => {
             protocolo: `CPTM-${String(proximoId).padStart(6, "0")}`,
             categoria,
             descricao: descricao.trim(),
-            local: typeof local === "string" && local.trim() ? local.trim() : null,
+            local: typeof local === "string" && local.trim() ? local.trim().slice(0, MAX_LOCAL) : null,
             // Anônima não guarda o autor. É o ponto todo da opção.
             usuarioId: anonima === true ? null : req.user!.id,
             anonima: anonima === true,
@@ -457,11 +500,10 @@ server.post("/api/usuario/passagem", autenticar, limiteSaldo, (req: AuthRequest,
         db.usuarios[userIndex].saldo = Number((atual - PRECO_BILHETE).toFixed(2));
         writeDB(db);
 
-        const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
         return res.status(200).json({
             mensagem: "Passagem liberada",
             preco: PRECO_BILHETE,
-            usuario: usuarioSafe
+            usuario: usuarioPublico(db.usuarios[userIndex])
         });
     } catch (error) {
         console.error('[POST /api/usuario/passagem] Erro:', error);
@@ -695,13 +737,12 @@ server.post("/api/login", limiteLogin, (req: Request, res: Response) => {
         }
 
         // Remover a senha do objeto retornado
-        const { senha: _, ...userSafe } = user;
         const token = gerarToken({ id: user.id, email: user.email });
         console.log(`[POST /api/login] Login bem-sucedido: ${email}`);
 
         return res.status(200).json({
             mensagem: "Login efetuado com sucesso",
-            usuario: userSafe,
+            usuario: usuarioPublico(user),
             token
         });
     } catch (error) {
@@ -731,7 +772,13 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
         return res.sendStatus(404);
       }
 
-      usuario.alerta = alerta; // Atualiza o campo alerta
+      // Normaliza para boolean: a string "false" é truthy em JS, e um cliente que
+      // mandasse {"alerta":"false"} acreditaria ter desligado sem ter desligado.
+      if (alerta === true) {
+        usuario.alerta = true;
+      } else {
+        desligarAlerta(usuario);
+      }
       writeDB(db);
       return res.sendStatus(200);
     } catch {
@@ -743,7 +790,7 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
   // Recebe a posição enviada pelo botão "Me encontre" e guarda a última conhecida
   // junto do usuário. Só faz sentido com o alerta ligado, e é apagada ao desligar:
   // localização é dado sensível, não deve sobreviver ao fim da emergência.
-  server.post("/api/alerta/localizacao", autenticar, (req: AuthRequest, res: Response) => {
+  server.post("/api/alerta/localizacao", autenticar, limiteLocalizacao, (req: AuthRequest, res: Response) => {
     try {
       const { lat, lng, precisao } = req.body;
 
@@ -795,9 +842,7 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
       if (!usuario) return res.sendStatus(404);
       if (usuario.cpf !== cpf) return res.sendStatus(403);
 
-      usuario.alerta = false;
-      // A localização só existe enquanto dura a emergência.
-      delete usuario.localizacao;
+      desligarAlerta(usuario);
       writeDB(db);
 
       return res.sendStatus(200);
@@ -865,7 +910,8 @@ server.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
         return;
     }
 
-    return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    const status = (err as any).status || (err as any).statusCode || 500;
+    return res.status(status).json({ mensagem: status === 500 ? "Erro interno do servidor" : err.message });
 });
 
 if (process.env.NODE_ENV !== "test") {

@@ -80,6 +80,37 @@ test("desligar o alerta apaga a localização", async () => {
         "localização não pode sobreviver ao fim da emergência");
 });
 
+// Havia uma lacuna aqui: só o caminho com CPF apagava a localização, então
+// desligar o alerta por PUT /api/alerta deixava a última posição gravada para sempre.
+test("desligar o alerta por PUT /api/alerta também apaga a localização", async () => {
+    await ligarAlerta();
+    await enviar(LUZ);
+    assert.ok(app.readDb().usuarios[0].localizacao, "pré-condição: localização gravada");
+
+    const res = await apiFetch(app.baseUrl, "/api/alerta", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ alerta: false }),
+    });
+
+    assert.equal(res.status, 200);
+    assert.equal(app.readDb().usuarios[0].alerta, false);
+    assert.equal(app.readDb().usuarios[0].localizacao, undefined);
+});
+
+// "false" como string é truthy em JS: sem normalizar, o alerta continuaria ligado.
+test("alerta enviado como string 'false' não mantém o alerta ligado", async () => {
+    await ligarAlerta();
+
+    await apiFetch(app.baseUrl, "/api/alerta", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ alerta: "false" }),
+    });
+
+    assert.equal(app.readDb().usuarios[0].alerta, false);
+});
+
 test("rejeita coordenadas fora do intervalo válido", async () => {
     await ligarAlerta();
 

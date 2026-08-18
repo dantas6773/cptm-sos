@@ -115,7 +115,7 @@ let watchId = null;
 // não existia: o botão só trocava de cor e exibia um alerta, sem compartilhar nada.
 async function enviarLocalizacao(posicao) {
   try {
-    await authFetch('/api/alerta/localizacao', {
+    const resposta = await authFetch('/api/alerta/localizacao', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -124,6 +124,19 @@ async function enviarLocalizacao(posicao) {
         precisao: posicao.coords.accuracy,
       }),
     });
+
+    // 409 = o alerta foi desligado em outro lugar (outra aba, outro aparelho).
+    // Sem tratar isso, o botão continuaria vermelho e a pessoa acreditaria estar
+    // sendo localizada enquanto o servidor descarta cada envio.
+    if (resposta.status === 409) {
+      desligarMeEncontre();
+      alert('O alerta foi desligado, então a sua localização não está mais sendo compartilhada.');
+      return;
+    }
+
+    if (!resposta.ok) {
+      console.error('Servidor recusou a localização:', resposta.status);
+    }
   } catch (err) {
     console.error('Falha ao enviar localização:', err);
   }
@@ -170,12 +183,16 @@ if (meEncontre) {
       (posicao) => enviarLocalizacao(posicao),
       (erro) => {
         console.error('Erro de geolocalização:', erro);
-        alert(
-          erro.code === erro.PERMISSION_DENIED
-            ? 'Permissão de localização negada. Autorize o acesso para que possam te encontrar.'
-            : 'Não foi possível obter a sua localização.'
-        );
-        desligarMeEncontre();
+
+        // Só a negativa de permissão é definitiva. Timeout e posição indisponível
+        // são passageiros — acontecem o tempo todo em túnel e estação coberta, que
+        // é metade de uma viagem de trem. Desligar o watch aí obrigaria a pessoa a
+        // reativar o botão no meio de uma emergência; o watchPosition se recupera
+        // sozinho quando o sinal volta.
+        if (erro.code === erro.PERMISSION_DENIED) {
+          alert('Permissão de localização negada. Autorize o acesso para que possam te encontrar.');
+          desligarMeEncontre();
+        }
       },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
@@ -200,12 +217,6 @@ if (ligar190) {
     ligar190.style.backgroundColor = '';
     if (textoLigar) textoLigar.style.color = '';
     if (iconeLigar) iconeLigar.src = 'assets/imagem/telefone.png';
-  });
-
-  // Antes o botão só trocava de cor. Agora disca de verdade: no celular o
-  // sistema abre o teclado com o 190; no desktop simplesmente nada acontece.
-  ligar190.addEventListener('click', () => {
-    window.location.href = 'tel:190';
   });
 }
 
@@ -248,12 +259,8 @@ async function confirmarAlertaCpf(e) {
   if (!inputCpf) return;
 
   const cpfDigitado = inputCpf.value.trim();
-  const cpfLogado = localStorage.getItem("cpfLogado");
 
-  if (!cpfDigitado || !cpfLogado || cpfDigitado !== cpfLogado) {
-    console.log("CPF incorreto ou usuário não logado.");
-    return;
-  }
+  if (!cpfDigitado) return;
 
   try {
     const resp = await authFetch("/api/alerta/confirmar", {
@@ -264,8 +271,14 @@ async function confirmarAlertaCpf(e) {
 
     // Sem esta checagem o app sairia da tela dizendo que desativou o alarme
     // mesmo quando o servidor recusou — perigoso justamente num fluxo de emergência.
+    if (resp.status === 403) {
+      alert("CPF não confere com o do seu cadastro.");
+      return;
+    }
+
     if (!resp.ok) {
       console.error("Falha ao confirmar alerta:", resp.status);
+      alert("Não foi possível desativar o alarme. Tente novamente.");
       return;
     }
 

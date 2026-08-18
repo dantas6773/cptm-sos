@@ -19,7 +19,6 @@ function salvarSessao({ token, usuario }) {
   if (usuario) {
     localStorage.setItem("userEmail", usuario.email);
     localStorage.setItem("idLogado", usuario.id);
-    localStorage.setItem("cpfLogado", usuario.cpf || "");
     if (usuario.nome) localStorage.setItem("apelido", usuario.nome);
   }
 }
@@ -49,7 +48,9 @@ async function authFetch(path, options = {}) {
 
   const resp = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
-  if (resp.status === 401 || resp.status === 403) {
+  // Só 401 significa "não autenticado". Um 403 é recusa por regra de negócio
+  // (ex.: CPF que não confere) e deve chegar a quem chamou, não derrubar a sessão.
+  if (resp.status === 401) {
     limparSessao();
     window.location.href = "/login.html";
     throw new Error("Sessão expirada, redirecionando para login.");
