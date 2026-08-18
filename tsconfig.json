@@ -8,10 +8,11 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    
-    "resolveJsonModule": true
-    
-  }
-  
+    "resolveJsonModule": true,
 
+    // O projeto roda com tsx e nunca emite JS: o tsc serve só para checagem de
+    // tipos. Por isso a suíte pode importar caminhos com extensão .ts.
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  }
 }

@@ -4,7 +4,8 @@
   "description": "**Integrantes:**  \r Benjamin • João Pedro • Paulo • Thales • Thomas • Waldir",
   "main": "assets/src/server.ts",
   "scripts": {
-    "dev": "tsx watch assets/src/server.ts"
+    "dev": "tsx watch assets/src/server.ts",
+    "test": "NODE_ENV=test JWT_SECRET=segredo-de-teste-para-suite-automatizada tsx --test tests/*.test.ts"
   },
   "repository": {
     "type": "git",

@@ -116,7 +116,12 @@ server.use(express.json({ limit: "100kb" }));
 // usuario.json fica fora de `assets/` de propósito: essa pasta é servida
 // como estática (express.static abaixo), então qualquer arquivo dentro dela
 // é baixável por qualquer um. O "banco" não pode estar num diretório público.
-const DB_PATH = path.join(__dirname, "..", "..", "data", "usuario.json");
+// DB_PATH é configurável via env var só para a suíte de testes usar um arquivo
+// isolado (nunca o banco real do desenvolvedor); em produção/dev ninguém define
+// essa variável, então o caminho padrão abaixo continua valendo.
+const DB_PATH = process.env.DB_PATH
+    ? path.resolve(process.env.DB_PATH)
+    : path.join(__dirname, "..", "..", "data", "usuario.json");
 // usuario.json é o banco local (gitignorado) — nasce a partir do seed versionado
 // na primeira execução, pra ninguém acabar commitando dado de cadastro real.
 const DB_SEED_PATH = path.join(__dirname, "..", "..", "data", "usuario.seed.json");
@@ -683,4 +688,15 @@ server.get("/api/usuario", autenticar, (req: AuthRequest, res: Response) => {
   }
 });
 
-startServer();
+// Só sobe o listener de verdade fora dos testes: a suíte importa `server`
+// (o app do Express) diretamente e sobe sua própria instância em porta
+// efêmera, então chamar startServer() aqui subiria um segundo servidor
+// competindo pela porta fixa (5001) a cada arquivo de teste.
+if (process.env.NODE_ENV !== "test") {
+    startServer();
+}
+
+// Export nomeado além do default: sob `module: Node16` este arquivo é CommonJS,
+// e aí o `default` de um import dinâmico fica ambíguo para o TypeScript.
+export { server };
+export default server;
