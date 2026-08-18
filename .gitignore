@@ -10,3 +10,9 @@ data/usuario.json
 
 # documento interno de coordenação; não deve ir para o repositório público
 LIMPEZA-HISTORICO.md
+
+# ambiente virtual do Python usado pelo gerador de mapa
+.venv/
+
+# mapa gerado pelo script Python a cada rota; artefato, nao fonte
+assets/src/mapa_rota.html

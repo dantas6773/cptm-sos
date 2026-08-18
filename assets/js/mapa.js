@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // o mapa é servido pelo mesmo servidor do app: nada de porta fixa do Live Server
         if (data.url) {
-          window.open('/assets/src/mapa_rota.html', '_blank');
+          window.open(data.url, '_blank');
         }
 
         // feedback visual

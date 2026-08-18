@@ -17,9 +17,18 @@ const MAX_BILHETES = 20;
 function lerJwtSecret(): string {
     const secret = process.env.JWT_SECRET;
 
+    const COMO_GERAR = "[server] Ex.: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"";
+
     if (!secret) {
         console.error("[server] JWT_SECRET não definido. Copie .env.example para .env e defina um valor aleatório longo.");
-        console.error("[server] Ex.: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"");
+        console.error(COMO_GERAR);
+        process.exit(1);
+    }
+
+    // Um segredo curto derrota o propósito: é adivinhável por força bruta.
+    if (secret.length < 32) {
+        console.error(`[server] JWT_SECRET tem ${secret.length} caracteres; use ao menos 32.`);
+        console.error(COMO_GERAR);
         process.exit(1);
     }
 
@@ -95,6 +104,14 @@ function autenticar(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 const server = express();
+
+// Atrás de um proxy reverso (Render, Railway, Nginx...) todas as requisições chegam
+// com o IP do proxy, e o rate limit passaria a tratar todos os usuários como um só —
+// bastaria uma pessoa errando a senha para travar o login de todo mundo. Precisa ser
+// ligado apenas quando existe proxy de fato, senão o IP vira falsificável por header.
+if (process.env.TRUST_PROXY) {
+    server.set("trust proxy", Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY);
+}
 
 // O app agora é servido por este mesmo servidor (same-origin), então CORS só
 // precisa cobrir o desenvolvimento — e não qualquer origem da internet.
@@ -480,14 +497,20 @@ server.post("/gera-mapa", limiteMapa, async (req: Request, res: Response) => {
             console.log(`Python process exited with code ${code}`);
             
             if (code === 0) {
-                // sucesso: mapa em assets/src/mapa_rota.html
-                const url = `/src/mapa_rota.html`;
-                return res.json({ 
-                    ok: true, 
-                    origin, 
-                    destination, 
-                    url,
-                    output: stdout 
+                // Caminho pelo qual o mapa é realmente servido. Antes daqui saía
+                // "/src/mapa_rota.html", que não existe — o front só funcionava
+                // porque ignorava este campo e montava a URL por conta própria.
+                const url = `/assets/src/mapa_rota.html`;
+
+                // stdout do script traz o caminho absoluto do arquivo no servidor;
+                // fica no log, não na resposta.
+                console.log('[gera-mapa]', stdout.trim());
+
+                return res.json({
+                    ok: true,
+                    origin,
+                    destination,
+                    url
                 });
             } else {
                 // erro: retorna detalhes para debug
@@ -522,9 +545,16 @@ for (const pasta of ["css", "js", "imagem", "sons"]) {
 	server.use(`/assets/${pasta}`, express.static(path.join(ROOT_DIR, "assets", pasta), { dotfiles: "deny" }));
 }
 
-// exceção: o mapa gerado pelo script Python precisa ser aberto pelo navegador
+// exceção: o mapa gerado pelo script Python precisa ser aberto pelo navegador.
+// É um artefato — não vem no clone, só existe depois da primeira geração.
 server.get("/assets/src/mapa_rota.html", (_req: Request, res: Response) => {
-	return res.sendFile(path.join(ROOT_DIR, "assets", "src", "mapa_rota.html"));
+	const mapa = path.join(ROOT_DIR, "assets", "src", "mapa_rota.html");
+
+	if (!fs.existsSync(mapa)) {
+		return res.status(404).send("Nenhum mapa gerado ainda. Escolha origem e destino na tela de mapa.");
+	}
+
+	return res.sendFile(mapa);
 });
 
 const PAGINAS = new Set(
@@ -692,6 +722,18 @@ server.get("/api/usuario", autenticar, (req: AuthRequest, res: Response) => {
 // (o app do Express) diretamente e sobe sua própria instância em porta
 // efêmera, então chamar startServer() aqui subiria um segundo servidor
 // competindo pela porta fixa (5001) a cada arquivo de teste.
+// Último middleware: sem ele, qualquer erro não tratado cai no handler padrão do
+// Express, que responde HTML com stack trace e o caminho absoluto do projeto.
+server.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("[server] Erro não tratado:", err);
+
+    if (res.headersSent) {
+        return;
+    }
+
+    return res.status(500).json({ mensagem: "Erro interno do servidor" });
+});
+
 if (process.env.NODE_ENV !== "test") {
     startServer();
 }
