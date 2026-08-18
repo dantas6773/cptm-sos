@@ -22,3 +22,8 @@ assets/src/mapa_rota.html
 
 # denuncias registradas localmente (dado de usuario, como o banco)
 data/denuncias.json
+
+# banco temporario da suite e2e
+.e2e-tmp/
+test-results/
+playwright-report/

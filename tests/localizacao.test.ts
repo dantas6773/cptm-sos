@@ -140,3 +140,37 @@ test("localização sem token é rejeitada", async () => {
 
     assert.equal(res.status, 401);
 });
+
+// Quem liga o alerta e nunca desliga deixaria a posição gravada indefinidamente.
+test("localização com mais de 6h é descartada na leitura", async () => {
+    await ligarAlerta();
+    await enviar(LUZ);
+
+    // envelhece o registro direto no banco
+    const db = app.readDb();
+    db.usuarios[0].localizacao!.em = new Date(Date.now() - 7 * 3_600_000).toISOString();
+    app.writeDb(db);
+
+    // qualquer leitura seguinte deve limpar
+    await apiFetch(app.baseUrl, "/api/usuario", {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.equal(app.readDb().usuarios[0].localizacao, undefined,
+        "posição vencida não pode sobreviver no arquivo");
+});
+
+test("localização recente NÃO é descartada", async () => {
+    await ligarAlerta();
+    await enviar(LUZ);
+
+    const db = app.readDb();
+    db.usuarios[0].localizacao!.em = new Date(Date.now() - 1 * 3_600_000).toISOString();
+    app.writeDb(db);
+
+    await apiFetch(app.baseUrl, "/api/usuario", {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    assert.ok(app.readDb().usuarios[0].localizacao, "1h de idade ainda é válida");
+});

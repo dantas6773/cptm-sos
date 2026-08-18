@@ -77,9 +77,11 @@ if (button) {
 const sirene = document.getElementById('sirene');
 const iconeSirene = document.getElementById('icone-sirene');
 const textoSirene = document.getElementById('texto-sirene');
-// Trecho curto em mp3 tocado em loop, no lugar do .wav de 55s e 10 MB: numa
-// emergência o som precisa sair na hora, não depois de baixar 10 MB no 4G.
-const audioSirene = new Audio('assets/sons/sirene.mp3');
+// Trecho de ~1s em loop, no lugar do arquivo de 55s e 10 MB: numa emergência o
+// som precisa sair na hora, não depois de baixar 10 MB no 4G. Continua em WAV de
+// propósito — o mp3 acrescenta padding de encoder no início e no fim, e isso
+// produz um clique audível a cada volta do loop.
+const audioSirene = new Audio('assets/sons/sirene-loop.wav');
 audioSirene.loop = true;
 
 let sireneAtiva = false;

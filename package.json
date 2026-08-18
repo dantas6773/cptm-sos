@@ -5,7 +5,9 @@
   "main": "assets/src/server.ts",
   "scripts": {
     "dev": "tsx watch assets/src/server.ts",
-    "test": "NODE_ENV=test JWT_SECRET=segredo-de-teste-para-suite-automatizada tsx --test tests/*.test.ts"
+    "test": "NODE_ENV=test JWT_SECRET=segredo-de-teste-para-suite-automatizada tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test",
+    "test:all": "npm test && npm run test:e2e"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,7 @@
   },
   "homepage": "https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal#readme",
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",

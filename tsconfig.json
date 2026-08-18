@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "Node16",
-    "lib": ["ES2022"],
+    // DOM entra por causa da suíte e2e: o código dentro de page.evaluate/addInitScript
+    // roda no navegador e usa document/localStorage. O backend não depende disso.
+    "lib": ["ES2022", "DOM"],
     "moduleResolution": "Node16",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

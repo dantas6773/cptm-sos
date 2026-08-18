@@ -38,9 +38,11 @@ function lerJwtSecret(): string {
 const JWT_SECRET = lerJwtSecret();
 
 // Sem isso, /api/login aceita tentativas ilimitadas — força bruta trivial.
+// O teto é configurável porque a suíte e2e faz muitos logins seguidos e seria
+// bloqueada por ele; em produção vale o padrão.
 const limiteLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 10,
+    limit: Number(process.env.RATE_LIMIT_LOGIN) || 10,
     standardHeaders: true,
     legacyHeaders: false,
     message: { mensagem: "Muitas tentativas de login. Tente novamente em alguns minutos." },
@@ -199,9 +201,28 @@ function desligarAlerta(usuario: any) {
     delete usuario.localizacao;
 }
 
+function localizacaoExpirada(localizacao: any) {
+    if (!localizacao?.em) return false;
+    const idadeHoras = (Date.now() - new Date(localizacao.em).getTime()) / 3_600_000;
+    return idadeHoras > LOCALIZACAO_TTL_HORAS;
+}
+
 function readDB() {
     const data = fs.readFileSync(DB_PATH, 'utf-8')
-    return JSON.parse(data)
+    const db = JSON.parse(data)
+
+    // Descarta posições vencidas na leitura, para que nunca sejam usadas nem
+    // devolvidas — e grava de volta, para não ficarem no arquivo em repouso.
+    let expirou = false;
+    for (const usuario of db.usuarios) {
+        if (localizacaoExpirada(usuario.localizacao)) {
+            delete usuario.localizacao;
+            expirou = true;
+        }
+    }
+    if (expirou) writeDB(db);
+
+    return db
 }
 
 function writeDB(data: any) {
@@ -392,6 +413,9 @@ const DENUNCIAS_PATH = process.env.DENUNCIAS_PATH
 const CATEGORIAS = ["assedio", "roubo", "outros"] as const;
 const MAX_DESCRICAO = 1000;
 const MAX_LOCAL = 200;
+// Localização de emergência não deve envelhecer no banco. É apagada ao desligar o
+// alerta, mas quem nunca desliga deixaria a posição gravada para sempre.
+const LOCALIZACAO_TTL_HORAS = 6;
 
 function readDenuncias() {
     if (!fs.existsSync(DENUNCIAS_PATH)) {
