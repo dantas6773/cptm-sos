@@ -16,3 +16,6 @@ LIMPEZA-HISTORICO.md
 
 # mapa gerado pelo script Python a cada rota; artefato, nao fonte
 assets/src/mapa_rota.html
+
+# denuncias registradas localmente (dado de usuario, como o banco)
+data/denuncias.json

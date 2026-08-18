@@ -340,6 +340,96 @@ server.post("/api/usuario/compra", autenticar, limiteSaldo, (req: AuthRequest, r
     }
 });
 
+// --- Denúncias ---
+// Ficam em arquivo próprio, e não dentro do usuário: uma denúncia anônima não pode
+// estar aninhada no registro de quem a fez, senão de anônima não tem nada.
+const DENUNCIAS_PATH = process.env.DENUNCIAS_PATH
+    ? path.resolve(process.env.DENUNCIAS_PATH)
+    : path.join(__dirname, "..", "..", "data", "denuncias.json");
+
+const CATEGORIAS = ["assedio", "roubo", "outros"] as const;
+const MAX_DESCRICAO = 1000;
+
+function readDenuncias() {
+    if (!fs.existsSync(DENUNCIAS_PATH)) {
+        return { denuncias: [] as any[] };
+    }
+    return JSON.parse(fs.readFileSync(DENUNCIAS_PATH, "utf-8"));
+}
+
+function writeDenuncias(data: any) {
+    fs.writeFileSync(DENUNCIAS_PATH, JSON.stringify(data, null, 2));
+}
+
+server.post("/api/denuncias", autenticar, (req: AuthRequest, res: Response) => {
+    try {
+        const { categoria, descricao, local, anonima } = req.body;
+
+        if (!CATEGORIAS.includes(categoria)) {
+            return res.status(400).json({
+                mensagem: `categoria deve ser uma de: ${CATEGORIAS.join(", ")}`
+            });
+        }
+
+        if (typeof descricao !== "string" || descricao.trim().length < 10) {
+            return res.status(400).json({
+                mensagem: "Descreva o ocorrido com pelo menos 10 caracteres"
+            });
+        }
+
+        if (descricao.length > MAX_DESCRICAO) {
+            return res.status(400).json({
+                mensagem: `A descrição pode ter no máximo ${MAX_DESCRICAO} caracteres`
+            });
+        }
+
+        const db = readDenuncias();
+        const proximoId = db.denuncias.reduce(
+            (maior: number, d: any) => Math.max(maior, Number(d.id) || 0), 0
+        ) + 1;
+
+        const denuncia = {
+            id: proximoId,
+            protocolo: `CPTM-${String(proximoId).padStart(6, "0")}`,
+            categoria,
+            descricao: descricao.trim(),
+            local: typeof local === "string" && local.trim() ? local.trim() : null,
+            // Anônima não guarda o autor. É o ponto todo da opção.
+            usuarioId: anonima === true ? null : req.user!.id,
+            anonima: anonima === true,
+            em: new Date().toISOString(),
+        };
+
+        db.denuncias.push(denuncia);
+        writeDenuncias(db);
+
+        return res.status(201).json({
+            mensagem: "Denúncia registrada",
+            protocolo: denuncia.protocolo,
+            em: denuncia.em,
+        });
+    } catch (error) {
+        console.error("[POST /api/denuncias] Erro:", error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+});
+
+// Lista apenas as denúncias identificadas do próprio usuário. As anônimas não
+// aparecem nem para quem as enviou — não há como provar autoria sem quebrar o anonimato.
+server.get("/api/denuncias", autenticar, (req: AuthRequest, res: Response) => {
+    try {
+        const db = readDenuncias();
+        const minhas = db.denuncias
+            .filter((d: any) => d.usuarioId === req.user!.id)
+            .map(({ usuarioId: _u, ...resto }: any) => resto);
+
+        return res.status(200).json({ denuncias: minhas });
+    } catch (error) {
+        console.error("[GET /api/denuncias] Erro:", error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+});
+
 // Passagem na catraca: aqui sim o saldo é DEBITADO, no valor de uma passagem.
 // É a contraparte de /api/usuario/compra, que credita a carteira.
 server.post("/api/usuario/passagem", autenticar, limiteSaldo, (req: AuthRequest, res: Response) => {
@@ -649,6 +739,48 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
     }
   });
 
+  // --- Localização durante o alerta ---
+  // Recebe a posição enviada pelo botão "Me encontre" e guarda a última conhecida
+  // junto do usuário. Só faz sentido com o alerta ligado, e é apagada ao desligar:
+  // localização é dado sensível, não deve sobreviver ao fim da emergência.
+  server.post("/api/alerta/localizacao", autenticar, (req: AuthRequest, res: Response) => {
+    try {
+      const { lat, lng, precisao } = req.body;
+
+      if (typeof lat !== "number" || typeof lng !== "number") {
+        return res.status(400).json({ mensagem: "lat e lng são obrigatórios e numéricos" });
+      }
+
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return res.status(400).json({ mensagem: "Coordenadas fora do intervalo válido" });
+      }
+
+      const db = readDB();
+      const usuario = db.usuarios.find((u: any) => Number(u.id) === Number(req.user!.id));
+
+      if (!usuario) {
+        return res.status(404).json({ mensagem: "Usuário não encontrado" });
+      }
+
+      if (!usuario.alerta) {
+        return res.status(409).json({ mensagem: "Nenhum alerta ativo para este usuário" });
+      }
+
+      usuario.localizacao = {
+        lat,
+        lng,
+        precisao: typeof precisao === "number" ? Math.round(precisao) : null,
+        em: new Date().toISOString(),
+      };
+      writeDB(db);
+
+      return res.status(200).json({ mensagem: "Localização registrada" });
+    } catch (error) {
+      console.error("[POST /api/alerta/localizacao] Erro:", error);
+      return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+  });
+
   // --- Confirma CPF e desativa o alerta ---
   // Exige o token de quem está logado E que o CPF digitado bata com o CPF
   // cadastrado para ESSE usuário — não basta saber o CPF de outra pessoa.
@@ -664,6 +796,8 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
       if (usuario.cpf !== cpf) return res.sendStatus(403);
 
       usuario.alerta = false;
+      // A localização só existe enquanto dura a emergência.
+      delete usuario.localizacao;
       writeDB(db);
 
       return res.sendStatus(200);

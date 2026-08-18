@@ -124,6 +124,151 @@ h3 {
     justify-content: space-between;
     border-radius: 20px;
     cursor: pointer;
+    /* viraram <button> para serem alcançáveis por teclado: reset do estilo nativo */
+    border: none;
+    font: inherit;
+    text-align: left;
+}
+
+.categoria:focus-visible,
+#form-denuncia button:focus-visible,
+#confirmacao button:focus-visible {
+    outline: 3px solid var(--vermelho-cptm);
+    outline-offset: 2px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#form-denuncia {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* o h4 global é branco (usado dentro dos cards azuis); aqui o fundo é claro */
+#categoria-escolhida {
+    color: var(--azul-principal);
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+#form-denuncia label {
+    font-size: 15px;
+    color: var(--preto-font);
+    margin-top: 8px;
+}
+
+#form-denuncia textarea,
+#form-denuncia input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #9AA3B0;
+    border-radius: 12px;
+    font-size: 15px;
+    background-color: #FFFFFF;
+    resize: vertical;
+}
+
+#form-denuncia textarea:focus,
+#form-denuncia input[type="text"]:focus {
+    outline: 2px solid var(--azul-principal);
+    border-color: var(--azul-principal);
+}
+
+#contador {
+    align-self: flex-end;
+    font-size: 12px;
+    color: #5A6472;
+}
+
+.linha-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.linha-checkbox input {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.erro {
+    color: #B3151B;
+    font-size: 14px;
+    min-height: 1.2em;
+}
+
+.acoes {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.acoes button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#cancelar {
+    background-color: #C9CFD8;
+    color: var(--preto-font);
+}
+
+#enviar {
+    background-color: var(--vermelho-cptm);
+    color: var(--branco-sujo);
+}
+
+#enviar:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+#confirmacao {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+#confirmacao h3 {
+    color: var(--azul-principal);
+    font-size: 22px;
+}
+
+.protocolo {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--azul-principal);
+    background-color: #FFFFFF;
+    padding: 12px 20px;
+    border-radius: 12px;
+}
+
+#nova-denuncia {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 14px;
+    background-color: var(--azul-principal);
+    color: var(--branco-sujo);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .seta {

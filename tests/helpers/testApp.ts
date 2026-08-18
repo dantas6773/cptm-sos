@@ -1,7 +1,7 @@
 // Helper compartilhado pela suíte: sobe uma instância real do app Express
 // (não um mock) em porta efêmera, apontando para um banco JSON isolado em
 // diretório temporário. Nunca toca em data/usuario.json do desenvolvedor.
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { AddressInfo } from "node:net";
@@ -25,6 +25,8 @@ export interface UsuarioFixture {
     senha: string;
     saldo: number;
     alerta: boolean;
+    // gravada só enquanto o alerta está ativo, pelo botão "Me encontre"
+    localizacao?: { lat: number; lng: number; precisao: number | null; em: string };
 }
 
 export function usuarioFixture(overrides: Partial<UsuarioFixture> = {}): UsuarioFixture {
@@ -45,6 +47,7 @@ export interface TestApp {
     dbPath: string;
     readDb: () => { usuarios: UsuarioFixture[] };
     writeDb: (data: { usuarios: UsuarioFixture[] }) => void;
+    readDenuncias: () => { denuncias: any[] };
     close: () => Promise<void>;
 }
 
@@ -59,7 +62,10 @@ export async function startTestApp(usuarios: UsuarioFixture[]): Promise<TestApp>
     const dbPath = path.join(dir, "usuario.json");
     writeFileSync(dbPath, JSON.stringify({ usuarios }, null, 2));
 
+    const denunciasPath = path.join(dir, "denuncias.json");
+
     process.env.DB_PATH = dbPath;
+    process.env.DENUNCIAS_PATH = denunciasPath;
 
     // Import dinâmico: cada arquivo de teste roda em processo próprio (node:test
     // isola por arquivo), então cada um importa server.ts do zero com o
@@ -80,6 +86,10 @@ export async function startTestApp(usuarios: UsuarioFixture[]): Promise<TestApp>
         baseUrl,
         dbPath,
         readDb: () => JSON.parse(readFileSync(dbPath, "utf-8")),
+        readDenuncias: () =>
+            existsSync(denunciasPath)
+                ? JSON.parse(readFileSync(denunciasPath, "utf-8"))
+                : { denuncias: [] },
         writeDb: (data) => writeFileSync(dbPath, JSON.stringify(data, null, 2)),
         close: async () => {
             await new Promise<void>((resolve, reject) => {

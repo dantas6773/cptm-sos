@@ -28,18 +28,50 @@
                 <h3>Selecione o que você<br>deseja denunciar:</h3>
             </div>
             <div id="pai-categorias">
-                <div class="categoria">
+                <button type="button" class="categoria" data-categoria="assedio">
                     <h4>Assédio/Violência</h4>
                     <img src="assets/imagem/setaAvançar.png" alt="" class="seta">
-                </div>
-                <div class="categoria">
+                </button>
+                <button type="button" class="categoria" data-categoria="roubo">
                     <h4>Roubos/Furtos</h4>
                     <img src="assets/imagem/setaAvançar.png" alt="" class="seta">
-                </div>
-                <div class="categoria">
+                </button>
+                <button type="button" class="categoria" data-categoria="outros">
                     <h4>Outras Ocorrências</h4>
                     <img src="assets/imagem/setaAvançar.png" alt="" class="seta">
+                </button>
+            </div>
+
+            <form id="form-denuncia" class="hidden" novalidate>
+                <h4 id="categoria-escolhida"></h4>
+
+                <label for="descricao">O que aconteceu?</label>
+                <textarea id="descricao" name="descricao" rows="5"
+                    placeholder="Descreva o ocorrido com o máximo de detalhes que conseguir."
+                    maxlength="1000" required></textarea>
+                <small id="contador">0/1000</small>
+
+                <label for="local">Onde? (estação ou linha)</label>
+                <input type="text" id="local" name="local" placeholder="Ex.: Estação Luz, Linha 7-Rubi">
+
+                <label class="linha-checkbox" for="anonima">
+                    <input type="checkbox" id="anonima" name="anonima">
+                    <span>Enviar como anônima (não guardamos quem enviou)</span>
+                </label>
+
+                <p id="erro-denuncia" class="erro" role="alert"></p>
+
+                <div class="acoes">
+                    <button type="button" id="cancelar">Voltar</button>
+                    <button type="submit" id="enviar">Enviar denúncia</button>
                 </div>
+            </form>
+
+            <div id="confirmacao" class="hidden" role="status">
+                <h3>Denúncia registrada</h3>
+                <p>Guarde o número de protocolo para acompanhar a ocorrência:</p>
+                <p id="protocolo" class="protocolo"></p>
+                <button type="button" id="nova-denuncia">Fazer outra denúncia</button>
             </div>
         </div>
     </main>
@@ -47,6 +79,7 @@
         <h5><u>Central de Ajuda</u></h5>
     </footer>
   </div>
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/formularioDenuncia.js"></script>
 </body>
 </html>

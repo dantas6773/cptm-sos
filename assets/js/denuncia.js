@@ -77,7 +77,10 @@ if (button) {
 const sirene = document.getElementById('sirene');
 const iconeSirene = document.getElementById('icone-sirene');
 const textoSirene = document.getElementById('texto-sirene');
-const audioSirene = new Audio('assets/sons/sirene.wav');
+// Trecho curto em mp3 tocado em loop, no lugar do .wav de 55s e 10 MB: numa
+// emergência o som precisa sair na hora, não depois de baixar 10 MB no 4G.
+const audioSirene = new Audio('assets/sons/sirene.mp3');
+audioSirene.loop = true;
 
 let sireneAtiva = false;
 
@@ -89,7 +92,7 @@ if (sirene) {
       sirene.style.backgroundColor = '#ED1C24';
       if (textoSirene) textoSirene.style.color = '#F4F4F4';
       if (iconeSirene) iconeSirene.src = 'assets/imagem/sireneBranca.png';
-      audioSirene.play();
+      audioSirene.play().catch((err) => console.error('Não foi possível tocar a sirene:', err));
     } else {
       sirene.style.backgroundColor = '';
       if (textoSirene) textoSirene.style.color = '';
@@ -106,23 +109,78 @@ const iconeMeEncontre = meEncontre ? meEncontre.querySelector('img#escudo') : nu
 const textoMeEncontre = meEncontre ? meEncontre.querySelector('h4#texto-meEncontre') : null;
 
 let encontreAtivo = false;
+let watchId = null;
+
+// Envia a posição ao servidor enquanto o botão estiver ligado. Antes esta função
+// não existia: o botão só trocava de cor e exibia um alerta, sem compartilhar nada.
+async function enviarLocalizacao(posicao) {
+  try {
+    await authFetch('/api/alerta/localizacao', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lat: posicao.coords.latitude,
+        lng: posicao.coords.longitude,
+        precisao: posicao.coords.accuracy,
+      }),
+    });
+  } catch (err) {
+    console.error('Falha ao enviar localização:', err);
+  }
+}
+
+function pararCompartilhamento() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+}
+
+function desligarMeEncontre() {
+  encontreAtivo = false;
+  meEncontre.style.backgroundColor = '';
+  if (textoMeEncontre) textoMeEncontre.style.color = '';
+  if (iconeMeEncontre) iconeMeEncontre.src = 'assets/imagem/escudo.png';
+  pararCompartilhamento();
+}
 
 if (meEncontre) {
   meEncontre.addEventListener('click', () => {
     encontreAtivo = !encontreAtivo;
 
-    if (encontreAtivo) {
-      meEncontre.style.backgroundColor = '#ED1C24';
-      if (textoMeEncontre) textoMeEncontre.style.color = '#F4F4F4';
-      if (iconeMeEncontre) iconeMeEncontre.src = 'assets/imagem/escudoBranco.png';
-
-      alert('🚓 As autoridades locais já estão indo até você.\nMantenha o botão ligado para continuar compartilhando a sua localização.');
-    } else {
-      meEncontre.style.backgroundColor = '';
-      if (textoMeEncontre) textoMeEncontre.style.color = '';
-      if (iconeMeEncontre) iconeMeEncontre.src = 'assets/imagem/escudo.png';
+    if (!encontreAtivo) {
+      desligarMeEncontre();
       alert('Você parou de compartilhar a sua localização.');
+      return;
     }
+
+    meEncontre.style.backgroundColor = '#ED1C24';
+    if (textoMeEncontre) textoMeEncontre.style.color = '#F4F4F4';
+    if (iconeMeEncontre) iconeMeEncontre.src = 'assets/imagem/escudoBranco.png';
+
+    if (!navigator.geolocation) {
+      alert('Seu aparelho não permite compartilhar a localização.');
+      desligarMeEncontre();
+      return;
+    }
+
+    // watchPosition (e não getCurrentPosition): a posição continua sendo enviada
+    // enquanto a pessoa se move, que é o ponto de "me encontre".
+    watchId = navigator.geolocation.watchPosition(
+      (posicao) => enviarLocalizacao(posicao),
+      (erro) => {
+        console.error('Erro de geolocalização:', erro);
+        alert(
+          erro.code === erro.PERMISSION_DENIED
+            ? 'Permissão de localização negada. Autorize o acesso para que possam te encontrar.'
+            : 'Não foi possível obter a sua localização.'
+        );
+        desligarMeEncontre();
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+
+    alert('🚓 As autoridades locais já estão indo até você.\nMantenha o botão ligado para continuar compartilhando a sua localização.');
   });
 }
 
@@ -142,6 +200,12 @@ if (ligar190) {
     ligar190.style.backgroundColor = '';
     if (textoLigar) textoLigar.style.color = '';
     if (iconeLigar) iconeLigar.src = 'assets/imagem/telefone.png';
+  });
+
+  // Antes o botão só trocava de cor. Agora disca de verdade: no celular o
+  // sistema abre o teclado com o 190; no desktop simplesmente nada acontece.
+  ligar190.addEventListener('click', () => {
+    window.location.href = 'tel:190';
   });
 }
 
