@@ -85,8 +85,10 @@ const ORIGENS_PERMITIDAS = process.env.CORS_ORIGINS
 server.use(cors({
     origin: (origin, callback) => {
         // sem Origin = mesma origem, curl, app nativo: liberado
-        if (!origin || ORIGENS_PERMITIDAS.includes(origin)) return callback(null, true);
-        return callback(new Error("Origem não permitida pelo CORS"));
+        // Origem não permitida devolve `false`, não Error: lançar aqui viraria um 500
+        // com stack trace (e o caminho absoluto do projeto) no corpo da resposta.
+        // Sem os headers de CORS, o próprio navegador já bloqueia a leitura.
+        callback(null, !origin || ORIGENS_PERMITIDAS.includes(origin));
     },
 }));
 server.use(express.json({ limit: "100kb" }));
@@ -401,17 +403,29 @@ server.post("/gera-mapa", async (req: Request, res: Response) => {
     }
 });
 
-// Serve o app inteiro (as telas .html estão na raiz do projeto, junto de assets/).
-// Antes só `assets/` era servida, então nenhuma tela abria pelo servidor e era
-// preciso o Live Server do VS Code em paralelo.
+// As telas .html ficam na raiz do projeto, junto de data/, .env, node_modules e .git.
+// Servir a raiz inteira e tentar bloquear o que é sensível não funciona: um blocklist
+// por prefixo é furado por "//data/x", "/data%2Fx" e "/./data/x", que só são
+// normalizados depois, dentro do express.static. Por isso a regra aqui é allowlist —
+// serve-se apenas assets/ e as páginas .html, e nada mais fica alcançável.
 const ROOT_DIR = path.join(__dirname, "..", "..");
 
-// data/ guarda o "banco" e não pode ser servida como estática em hipótese alguma.
-// Precisa vir ANTES do express.static para interceptar a requisição.
-server.use("/data", (_req: Request, res: Response) => res.sendStatus(404));
-server.use("/node_modules", (_req: Request, res: Response) => res.sendStatus(404));
+server.use("/assets", express.static(path.join(ROOT_DIR, "assets"), { dotfiles: "deny" }));
 
-server.use(express.static(ROOT_DIR, { dotfiles: "deny", index: false }));
+const PAGINAS = new Set(
+	fs.readdirSync(ROOT_DIR).filter((arquivo) => arquivo.endsWith(".html"))
+);
+
+server.get("/:pagina", (req: Request, res: Response, next: NextFunction) => {
+	// basename() descarta qualquer tentativa de traversal antes da checagem
+	const pagina = path.basename(String(req.params.pagina));
+
+	if (!PAGINAS.has(pagina)) {
+		return next();
+	}
+
+	return res.sendFile(path.join(ROOT_DIR, pagina));
+});
 
 server.get("/", (req: Request, res: Response) => {
 	res.redirect('/login.html');
