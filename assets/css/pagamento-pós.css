@@ -225,3 +225,20 @@ footer {
 }
 
 /* testado */
+
+/* Elementos que já eram clicáveis viraram <button> para funcionar no teclado.
+   O reset mantém a aparência que tinham como div/a/h2. */
+#voltar, #divvoltar {
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    text-align: inherit;
+}
+
+:focus-visible {
+    outline: 3px solid #ED1C24;
+    outline-offset: 2px;
+}

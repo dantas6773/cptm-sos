@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
@@ -19,7 +19,7 @@
       <div class="header-todo">
         <div class="logo">
           <img src="assets/imagem/logo.png" alt="Logo">
-          <h1 id="boas-vindas">Carregando...</h1>
+          <h1 id="boas-vindas" aria-live="polite">Carregando...</h1>
         </div>
         <div class="perfil">
           <img src="assets/imagem/perfil.png" alt="Perfil">
@@ -35,20 +35,20 @@
             <h5 id="valor-saldo">Carregando...</h5>
             <img src="assets/imagem/olhosaldo.png" alt="" id="olho">
           </div>
-          <div class="recarga"><h1>Recarga</h1></div>
+          <div class="recarga"><span>Recarga</span></div>
         </div>
 
         <div class="qrcode" id="botao-qrcode">
           <img src="assets/imagem/qrcode.png" alt="qrcode">
-          <h1>Usar QR Code</h1>
+          <span>Usar QR Code</span>
         </div>
       </div>
 
       <div class="secao-mapa">
-        <h1>Mapa das Estações</h1>
+        <h2>Mapa das Estações</h2>
         <div class="mapa">
           <form action="">
-            <input class="input-busca" type="text" placeholder="Para onde?">
+            <input class="input-busca" aria-label="Buscar destino" type="text" placeholder="Para onde?">
           </form>
           <div class="endereco">
             <img src="assets/imagem/pin.png" alt="local">
@@ -59,8 +59,8 @@
       </div>
 
       <div class="secao-avisos">
-        <h1>Avisos</h1>
-        <div class="avisos-lista">
+        <h2>Avisos</h2>
+        <div class="avisos-lista" tabindex="0" role="group" aria-label="Avisos, role para o lado para ver mais">
           <div class="aviso-card">
             <svg class="aviso-icone aviso-icone-navy" width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 6v6c0 5 3.4 8.5 8 9.5 4.6-1 8-4.5 8-9.5V6l-8-3Z" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 12l1.8 1.8L15 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <h4>Novo sistema de segurança</h4>

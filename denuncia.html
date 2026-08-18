@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,12 +57,13 @@
         </div>
         <div class="slider-container" id="slider">
             <div class="slider-text">Arraste para desativar o alarme</div>
-            <div class="slider-button" id="slider-button"><img src="assets/imagem/cadeado.png" alt="" id="cadeado"></div>
+            <div class="slider-button" id="slider-button" role="button" tabindex="0" aria-label="Deslize ou pressione Enter para desativar o alarme"><img src="assets/imagem/cadeado.png" alt="" id="cadeado"></div>
         </div>
         <div id="cpf-container" class="hidden">
-            <a id="voltar"><img src="assets/imagem/setaVoltarBranca.png" alt=""> Voltar</a>
+            <button type="button" id="voltar"><img src="assets/imagem/setaVoltarBranca.png" alt=""> Voltar</button>
             <p>Digite o seu CPF para desativar o alarme:</p>
             <div id="cpf-input-container">
+                <label class="sr-only" for="cpf-input">Digite o seu CPF para desativar o alarme</label>
                 <input type="text" id="cpf-input" placeholder="Digite o seu CPF">
                 <button id="cpf-button">
                     <img src="assets/imagem/setaCircular.png" alt="Confirmar">

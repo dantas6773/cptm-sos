@@ -116,7 +116,7 @@ body {
     align-self: flex-start;
 }
 
-.recarga>h1 {
+.recarga>span {
     padding: 6px 18px;
     background-color: var(--cor-botao-recarga);
     color: var(--cor-fonte);
@@ -145,7 +145,7 @@ body {
     height: 44px;
 }
 
-.qrcode>h1 {
+.qrcode>span {
     font-size: 13px;
     font-weight: 600;
     color: var(--cor-fonte);
@@ -156,7 +156,7 @@ body {
     margin: 24px 15px 30px 15px;
 }
 
-.secao-mapa>h1 {
+.secao-mapa>h2 {
     font-size: 18px;
     font-weight: 600;
     color: #050505;
@@ -189,10 +189,14 @@ body {
 
 .input-busca {
     position: absolute;
+    /* Era left:30px com width:310px fixo, somando 340px: em telas de 320px o campo
+       vazava para fora da tela. Agora a largura acompanha o espaço disponível. */
     left: 30px;
+    right: 30px;
     top: 115px;
     border: 1px solid black;
-    width: 310px;
+    width: auto;
+    max-width: 310px;
     height: 62px;
     background-color: var(--cor-fonte);
     background-image: url(../imagem/lupa.png);
@@ -228,7 +232,7 @@ body {
     margin: 0 0 30px 15px;
 }
 
-.secao-avisos>h1 {
+.secao-avisos>h2 {
     font-size: 18px;
     font-weight: 600;
     color: #050505;
@@ -335,3 +339,32 @@ body {
 }
 
 /* testado */
+
+/* Primeira media query do projeto. Em telas de 320px (iPhone SE e similares) o
+   rodapé estourava a largura e o item "Ajustes" ficava cortado — o respiro entre
+   os itens era maior do que a tela comporta. Reduz o espaçamento em vez de
+   esconder qualquer item de navegação. */
+@media (max-width: 359px) {
+    .footer-todo {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .footer-left,
+    .footer-right {
+        gap: 10px;
+    }
+
+    .footer-right {
+        margin-left: 10px;
+    }
+
+    .botao-footer {
+        font-size: 11px;
+    }
+
+    .botao-footer svg {
+        width: 26px;
+        height: 26px;
+    }
+}

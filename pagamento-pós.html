@@ -24,16 +24,16 @@
     </header>
 
     <div class="conteudo">
-        <div id="divvoltar">
+        <button type="button" id="divvoltar">
             <img id="seta" src="assets/imagem/imgseta.png" alt="Voltar">
-            <a id="voltar" href="#">Voltar</a>
-        </div>
+            <span id="voltar">Voltar</span>
+        </button>
 
         <article id="bttsaldo">
             <img class="imagess" src="assets/imagem/imgpastas.png" alt="Ícone saldo">
             <div class="saldo-texto">
               <p id="seusaldo">Seu saldo:</p>
-              <p id="dinheiro">Carregando...</p>
+              <p id="dinheiro" aria-live="polite">Carregando...</p>
             </div>
         </article>
 
