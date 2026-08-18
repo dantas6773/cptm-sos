@@ -18,7 +18,7 @@ form.addEventListener("submit", async function (event) {
 
     if (email && cpf && senha) {
         try {
-            const response = await fetch('http://localhost:5001/api/cadastro', {
+            const response = await fetch('/api/cadastro', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -29,14 +29,9 @@ form.addEventListener("submit", async function (event) {
             const data = await response.json();
 
            if (response.ok) {
-                localStorage.setItem('authToken', data.token);
-                localStorage.setItem('idLogado', data.usuario.id);
-               
-                localStorage.setItem('cpfLogado', cpf); 
-                
-                localStorage.setItem('userEmail', email); 
+                salvarSessao({ token: data.token, usuario: data.usuario });
 
-                window.location.href = "apelido.html";
+                window.location.href = "apelido.html";
             } else {
                 alert(data.mensagem);
             }

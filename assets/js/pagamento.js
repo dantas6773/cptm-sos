@@ -6,10 +6,6 @@ seta_voltar.addEventListener('click', function () {
 });
 
 
-function formatBRL(num) {
-  return 'R$ ' + Number(num).toFixed(2).replace('.', ',');
-}
-
 
 async function carregarUsuario() {
   const dinheiroEl = document.getElementById('dinheiro');

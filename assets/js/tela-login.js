@@ -12,7 +12,7 @@ form.addEventListener("submit", async function (event) {
   }
 
   try {
-    const response = await fetch('http://localhost:5001/api/login', {
+    const response = await fetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -24,26 +24,10 @@ form.addEventListener("submit", async function (event) {
     });
 
     const data = await response.json();
-    console.log('Resposta do servidor:', data);
 
     if (response.status === 200) {
-      const usuario = data.usuario;
-
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('apelido', usuario.nome);
-      localStorage.setItem('userEmail', usuario.email);
-      localStorage.setItem('idLogado', usuario.id);
-      localStorage.setItem('cpfLogado', usuario.cpf);
-
-      console.log("Usuário logado:", usuario.nome, "CPF:", usuario.cpf);
-
-      
-      const base =
-        window.location.hostname === "ibmec-bh-3-periodo.github.io"
-          ? "/projeto-cptm-paraiso-feudal/"
-          : "/";
-
-      window.location.href = base + "home.html";
+      salvarSessao({ token: data.token, usuario: data.usuario });
+      window.location.href = "home.html";
     } else {
       alert(data.mensagem);
     }

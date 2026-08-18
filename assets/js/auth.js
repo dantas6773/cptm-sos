@@ -2,7 +2,17 @@
 // Inclua este script ANTES do script da tela em qualquer HTML que precise
 // chamar uma rota protegida da API (saldo, apelido, alerta, etc.).
 
-const API_BASE = "http://localhost:5001";
+// Vazio de propósito: o próprio servidor que expõe a API serve as telas, então
+// as chamadas são same-origin e o app funciona em qualquer host/porta sem editar
+// nada. Só defina window.API_BASE_OVERRIDE se abrir o front por outro servidor.
+const API_BASE = window.API_BASE_OVERRIDE || "";
+
+function formatBRL(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
 
 function salvarSessao({ token, usuario }) {
   if (token) localStorage.setItem("authToken", token);

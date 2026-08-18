@@ -9,24 +9,20 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("DOMContentLoaded", async function () {
 
   async function carregarSaldoBackend() {
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      console.warn('Nenhum email encontrado no localStorage (userEmail).');
-      return;
-    }
+    const saldoEl = document.querySelector('.saldo');
 
     try {
-      const resp = await fetch(`http://localhost:5001/api/usuario?email=${encodeURIComponent(email)}`);
+      // A rota é protegida e tira a identidade do token — passar ?email= não autentica.
+      const resp = await authFetch('/api/usuario');
       if (!resp.ok) throw new Error('Erro ao buscar saldo no servidor');
 
       const data = await resp.json();
       const saldo = data.usuario?.saldo ?? 0;
-      const saldoFormatado = 'R$' + saldo.toFixed(2).replace('.', ',');
 
-      const saldoEl = document.querySelector('.saldo');
-      if (saldoEl) saldoEl.textContent = `Seu saldo: ${saldoFormatado}`;
+      if (saldoEl) saldoEl.textContent = `Seu saldo: ${formatBRL(saldo)}`;
     } catch (error) {
       console.error('Erro ao carregar saldo do backend:', error);
+      if (saldoEl) saldoEl.textContent = 'Saldo indisponível';
     }
   }
 

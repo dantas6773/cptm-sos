@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // busca estações no backend; se falhar, usa DEFAULT_STATIONS
   async function fetchStations() {
     try {
-      const resp = await fetch('http://localhost:5001/api/estacoes');
+      const resp = await fetch('/api/estacoes');
       if (!resp.ok) throw new Error('Resposta inválida');
       const list = await resp.json();
       if (!Array.isArray(list) || list.length === 0) throw new Error('Lista vazia');
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         // solicita geração do mapa
-        const resp = await fetch('http://localhost:5001/gera-mapa', {
+        const resp = await fetch('/gera-mapa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -501,13 +501,9 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        // abre o mapa_rota.html via Live Server
+        // o mapa é servido pelo mesmo servidor do app: nada de porta fixa do Live Server
         if (data.url) {
-          // converte URL relativa do Node para URL do Live Server
-          const liveServerPort = '5500'; // porta padrão do Live Server
-          const liveServerUrl = `http://127.0.0.1:${liveServerPort}`;
-          const mapUrl = new URL('/assets/src/mapa_rota.html', liveServerUrl).toString();
-          window.open(mapUrl, '_blank');
+          window.open('/assets/src/mapa_rota.html', '_blank');
         }
 
         // feedback visual

@@ -5,14 +5,43 @@ import fs from "fs";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
 
 const SALT_ROUNDS = 10;
 const JWT_EXPIRES_IN = "2h";
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-inseguro-defina-JWT_SECRET-no-.env";
+const RECARGA_MAXIMA = 500;
+// Sem fallback embutido: um valor fixo no código-fonte de um repositório público
+// não é segredo nenhum — qualquer um forjaria um token válido para qualquer usuário.
+function lerJwtSecret(): string {
+    const secret = process.env.JWT_SECRET;
 
-if (!process.env.JWT_SECRET) {
-    console.warn("[server] JWT_SECRET não definido — usando um valor fixo de desenvolvimento. NÃO use isso em produção.");
+    if (!secret) {
+        console.error("[server] JWT_SECRET não definido. Copie .env.example para .env e defina um valor aleatório longo.");
+        console.error("[server] Ex.: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"");
+        process.exit(1);
+    }
+
+    return secret;
 }
+
+const JWT_SECRET = lerJwtSecret();
+
+// Sem isso, /api/login aceita tentativas ilimitadas — força bruta trivial.
+const limiteLogin = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { mensagem: "Muitas tentativas de login. Tente novamente em alguns minutos." },
+});
+
+const limiteCadastro = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { mensagem: "Muitas contas criadas a partir deste endereço. Tente mais tarde." },
+});
 
 interface AuthPayload {
     id: number;
@@ -47,8 +76,20 @@ function autenticar(req: AuthRequest, res: Response, next: NextFunction) {
 
 const server = express();
 
-server.use(cors());
-server.use(express.json());
+// O app agora é servido por este mesmo servidor (same-origin), então CORS só
+// precisa cobrir o desenvolvimento — e não qualquer origem da internet.
+const ORIGENS_PERMITIDAS = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+    : ["http://localhost:5001", "http://127.0.0.1:5001", "http://localhost:5500", "http://127.0.0.1:5500"];
+
+server.use(cors({
+    origin: (origin, callback) => {
+        // sem Origin = mesma origem, curl, app nativo: liberado
+        if (!origin || ORIGENS_PERMITIDAS.includes(origin)) return callback(null, true);
+        return callback(new Error("Origem não permitida pelo CORS"));
+    },
+}));
+server.use(express.json({ limit: "100kb" }));
 
 // usuario.json fica fora de `assets/` de propósito: essa pasta é servida
 // como estática (express.static abaixo), então qualquer arquivo dentro dela
@@ -78,7 +119,7 @@ function writeDB(data: any) {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2))
 }
 
-server.post("/api/cadastro", (req: Request, res: Response) => {
+server.post("/api/cadastro", limiteCadastro, (req: Request, res: Response) => {
     try {
         const { email, cpf, senha } = req.body
 
@@ -102,8 +143,11 @@ server.post("/api/cadastro", (req: Request, res: Response) => {
 
         const senhaHash = bcrypt.hashSync(senha, SALT_ROUNDS)
 
+        // maior id + 1, e não length + 1: com um usuário removido, length repetiria um id existente
+        const proximoId = db.usuarios.reduce((maior: number, u: any) => Math.max(maior, Number(u.id) || 0), 0) + 1
+
         const newUser = {
-            id: db.usuarios.length + 1,
+            id: proximoId,
             nome: "Temporário",
             cpf,
             email,
@@ -132,39 +176,26 @@ server.post("/api/cadastro", (req: Request, res: Response) => {
     }
 })
 
-// --- MODIFICAÇÕES (LOGS) NESTE ENDPOINT ---
 server.put("/api/usuario/apelido", autenticar, (req: AuthRequest, res: Response) => {
     try {
-        // 1. Log do que o servidor recebeu
-        console.log(`[PUT /api/usuario/apelido] Requisição recebida:`, req.body);
-
         const email = req.user!.email
         const { apelido } = req.body
 
         if (!apelido) {
-            // 2. Log de erro de validação (400)
-            console.warn(`[PUT /api/usuario/apelido] Erro 400: Campo faltando. Apelido: ${apelido}`);
             return res.status(400).json({
                 mensagem: "Apelido é obrigatório"
             })
         }
 
         const db = readDB()
-        
-        // 3. Log da busca no DB
-        console.log(`[PUT /api/usuario/apelido] Procurando por email: ${email}`);
         const userIndex = db.usuarios.findIndex((user: any) => user.email === email)
 
         if (userIndex === -1) {
-            // 4. Log de usuário não encontrado (404)
-            console.warn(`[PUT /api/usuario/apelido] Erro 404: Email ${email} não encontrado no banco de dados.`);
             return res.status(404).json({
                 mensagem: "Usuário não encontrado"
             })
         }
 
-        // 5. Log de sucesso
-        console.log(`[PUT /api/usuario/apelido] Usuário encontrado (Índice: ${userIndex}). Atualizando nome para: ${apelido}`);
         db.usuarios[userIndex].nome = apelido
         writeDB(db)
 
@@ -173,8 +204,7 @@ server.put("/api/usuario/apelido", autenticar, (req: AuthRequest, res: Response)
         })
 
     } catch (error) {
-        // 6. Log de erro interno (500)
-        console.error('[PUT /api/usuario/apelido] Erro 500 (Catch):', error)
+        console.error('[PUT /api/usuario/apelido] Erro:', error)
         return res.status(500).json({
             mensagem: "Erro interno do servidor"
         })
@@ -191,6 +221,18 @@ server.put("/api/usuario/saldo", autenticar, (req: AuthRequest, res: Response) =
             return res.status(400).json({ mensagem: "amount é obrigatório" });
         }
 
+        // Recarga é simulada (não há gateway de pagamento), mas ainda assim o valor
+        // não pode vir livre do cliente: sem teto, qualquer um se daria saldo infinito.
+        const valor = Number(amount);
+
+        if (!Number.isFinite(valor) || valor <= 0) {
+            return res.status(400).json({ mensagem: "amount deve ser um número positivo" });
+        }
+
+        if (valor > RECARGA_MAXIMA) {
+            return res.status(400).json({ mensagem: `Recarga máxima por operação é R$ ${RECARGA_MAXIMA}` });
+        }
+
         const db = readDB();
         const userIndex = db.usuarios.findIndex((u: any) => u.email === email);
 
@@ -199,7 +241,7 @@ server.put("/api/usuario/saldo", autenticar, (req: AuthRequest, res: Response) =
         }
 
         const atual = Number(db.usuarios[userIndex].saldo || 0);
-        db.usuarios[userIndex].saldo = Number((atual + Number(amount)).toFixed(2));
+        db.usuarios[userIndex].saldo = Number((atual + valor).toFixed(2));
         writeDB(db);
 
         const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
@@ -292,8 +334,20 @@ server.post("/gera-mapa", async (req: Request, res: Response) => {
         ];
 
         // executa Python com coleta de saída
-        const py = spawn('python', [scriptPath, ...args], { 
+        // python3: em macOS e na maioria das distros Linux não existe binário `python`
+        const pythonBin = process.env.PYTHON_BIN || 'python3';
+        const py = spawn(pythonBin, [scriptPath, ...args], {
             cwd: __dirname
+        });
+
+        py.on('error', (err) => {
+            console.error(`[gera-mapa] Falha ao executar "${pythonBin}":`, err.message);
+            if (!res.headersSent) {
+                return res.status(500).json({
+                    ok: false,
+                    error: `Não foi possível executar "${pythonBin}". Instale o Python e as dependências de assets/src/requirements.txt.`
+                });
+            }
         });
 
         let stdout = '';
@@ -347,22 +401,27 @@ server.post("/gera-mapa", async (req: Request, res: Response) => {
     }
 });
 
-// servir arquivos estáticos da pasta `assets` para facilitar testes locais
-const assetsDir = path.join(__dirname, "..");
-server.use(express.static(assetsDir));
+// Serve o app inteiro (as telas .html estão na raiz do projeto, junto de assets/).
+// Antes só `assets/` era servida, então nenhuma tela abria pelo servidor e era
+// preciso o Live Server do VS Code em paralelo.
+const ROOT_DIR = path.join(__dirname, "..", "..");
 
-// rota raiz útil para abrir direto o mapa
+// data/ guarda o "banco" e não pode ser servida como estática em hipótese alguma.
+// Precisa vir ANTES do express.static para interceptar a requisição.
+server.use("/data", (_req: Request, res: Response) => res.sendStatus(404));
+server.use("/node_modules", (_req: Request, res: Response) => res.sendStatus(404));
+
+server.use(express.static(ROOT_DIR, { dotfiles: "deny", index: false }));
+
 server.get("/", (req: Request, res: Response) => {
-	res.redirect('/html/mapa.html');
+	res.redirect('/login.html');
 });
-
-// --- FIM DAS MODIFICAÇÕES ---
 
 
 
 // ROTA LOGIN | INICIO
 
-server.post("/api/login", (req: Request, res: Response) => {
+server.post("/api/login", limiteLogin, (req: Request, res: Response) => {
     try {
         // Nunca logar req.body aqui: ele carrega a senha em texto puro.
         console.log(`[POST /api/login] Tentativa de login: ${req.body?.email}`);
@@ -459,32 +518,18 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
 const PORT = process.env.PORT ? Number(process.env.PORT) : 5001;
 
 function startServer() {
-    try {
-        const httpServer = server.listen(PORT, () => {
-            console.log(`[server] Escutando em http://127.0.0.1:${PORT}`);
-        });
+    const httpServer = server.listen(PORT, () => {
+        console.log(`[server] App em http://127.0.0.1:${PORT}`);
+    });
 
-        // Monitora eventos do servidor
-        httpServer.on('error', (err) => {
+    httpServer.on('error', (err: NodeJS.ErrnoException) => {
+        if (err.code === 'EADDRINUSE') {
+            console.error(`[server] A porta ${PORT} já está em uso. Encerre o outro processo ou use PORT=<outra> npm run dev`);
+        } else {
             console.error('[server] Erro no servidor:', err);
-        });
-
-        // Tenta reconectar se o servidor cair
-        httpServer.on('close', () => {
-            console.log('[server] Servidor fechado. Tentando reiniciar...');
-            setTimeout(startServer, 5000);
-        });
-
-        // Log periódico para confirmar que está rodando
-        setInterval(() => {
-            console.log('[server] Status: Ativo');
-        }, 30000);
-
-    } catch (err) {
-        console.error('[server] Erro ao iniciar o servidor:', err);
-        // Tenta reiniciar em caso de erro
-        setTimeout(startServer, 5000);
-    }
+        }
+        process.exit(1);
+    });
 }
 
 // === NOVA ROTA PARA OBTER SALDO DO USUÁRIO ===

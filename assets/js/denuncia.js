@@ -192,14 +192,21 @@ async function confirmarAlertaCpf(e) {
   }
 
   try {
-    await authFetch("/api/alerta/confirmar", {
+    const resp = await authFetch("/api/alerta/confirmar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf: cpfLogado }),
+      body: JSON.stringify({ cpf: cpfDigitado }),
     });
 
+    // Sem esta checagem o app sairia da tela dizendo que desativou o alarme
+    // mesmo quando o servidor recusou — perigoso justamente num fluxo de emergência.
+    if (!resp.ok) {
+      console.error("Falha ao confirmar alerta:", resp.status);
+      return;
+    }
+
     pararCamera(); // para a câmera antes de sair
-    window.location.href = "pré-denucia.html"; // ajusta se o nome do arquivo for diferente
+    window.location.href = "pré-denucia.html";
   } catch (err) {
     console.error("Erro ao confirmar alerta:", err);
   }

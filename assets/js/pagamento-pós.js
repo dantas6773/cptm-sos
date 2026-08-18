@@ -13,10 +13,6 @@ let quantidade = 0;
 let valor = 0;
 const PRECO_BILHETE = 5.20;
 
-// === Função para formatar valores em reais ===
-function formatBRL(num) {
-  return "R$ " + Number(num).toFixed(2).replace(".", ",");
-}
 
 // === Incrementar e decrementar bilhetes ===
 incrementarBilhetes.addEventListener("click", () => {
