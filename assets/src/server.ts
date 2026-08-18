@@ -318,6 +318,45 @@ server.post("/api/usuario/compra", autenticar, limiteSaldo, (req: AuthRequest, r
     }
 });
 
+// Passagem na catraca: aqui sim o saldo é DEBITADO, no valor de uma passagem.
+// É a contraparte de /api/usuario/compra, que credita a carteira.
+server.post("/api/usuario/passagem", autenticar, limiteSaldo, (req: AuthRequest, res: Response) => {
+    try {
+        const email = req.user!.email;
+
+        const db = readDB();
+        const userIndex = db.usuarios.findIndex((u: any) => u.email === email);
+
+        if (userIndex === -1) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado" });
+        }
+
+        const atual = Number(db.usuarios[userIndex].saldo || 0);
+
+        // A catraca recusa em vez de deixar o saldo negativo.
+        if (atual < PRECO_BILHETE) {
+            return res.status(400).json({
+                mensagem: "Saldo insuficiente para a passagem",
+                saldo: atual,
+                preco: PRECO_BILHETE
+            });
+        }
+
+        db.usuarios[userIndex].saldo = Number((atual - PRECO_BILHETE).toFixed(2));
+        writeDB(db);
+
+        const { senha: _senha, ...usuarioSafe } = db.usuarios[userIndex];
+        return res.status(200).json({
+            mensagem: "Passagem liberada",
+            preco: PRECO_BILHETE,
+            usuario: usuarioSafe
+        });
+    } catch (error) {
+        console.error('[POST /api/usuario/passagem] Erro:', error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
+    }
+});
+
 /**
  * GET /api/estacoes
  * Retorna lista de todas as estações únicas do sistema.

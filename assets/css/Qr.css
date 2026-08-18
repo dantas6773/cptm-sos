@@ -73,4 +73,33 @@ body {
     font-weight: 600;
 }
 
+#btn-catraca {
+    background-color: #ED1C24;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#btn-catraca:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.aviso {
+    min-height: 1.2em;
+    font-size: 14px;
+}
+
+.aviso.erro {
+    color: #FFB3B6;
+}
+
+.aviso.sucesso {
+    color: #9BE7A8;
+}
+
 /* testado */

@@ -21,8 +21,10 @@
 
   <div class="card-qr">
     <img id="qrfront" src="assets/imagem/qrcodehd_106111.png" alt="QR Code">
-    <p>Apresente o QR code<br>na catraca para comprar a passagem automaticamente</p>
-    <div class="saldo">Seu saldo: Carregando...</div>
+    <p>Apresente o QR code<br>na catraca para liberar a sua passagem</p>
+    <div class="saldo" aria-live="polite">Seu saldo: Carregando...</div>
+    <button id="btn-catraca" type="button">Simular passagem na catraca</button>
+    <p id="aviso-catraca" class="aviso" role="status"></p>
   </div>
 
   <script src="assets/js/auth.js"></script>
