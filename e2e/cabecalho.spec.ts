@@ -62,3 +62,54 @@ test("a tela pede /api/usuario uma vez só", async ({ page }) => {
 
     expect(chamadas).toBe(1);
 });
+
+// O rodapé precisa estar sempre na tela. A home e a denúncia já prendiam a
+// altura da página e rolavam só o miolo; pagamento, pós-pagamento e denúncia
+// deixavam a página inteira crescer — e no Safari do iPhone o fim da página cai
+// atrás da barra do navegador, o que passa por rodapé sumido.
+test("o rodapé fica visível sem rolar, em qualquer altura de tela", async ({ page }) => {
+    for (const altura of [932, 745, 660, 568]) {
+        await page.setViewportSize({ width: 393, height: altura });
+
+        for (const tela of TELAS) {
+            await page.goto(tela);
+            await page.waitForTimeout(150);
+
+            const m = await page.evaluate(() => {
+                const rodape = document.querySelector("footer")!.getBoundingClientRect();
+                return {
+                    fimDoRodape: Math.round(rodape.bottom),
+                    janela: window.innerHeight,
+                    paginaRola: document.documentElement.scrollHeight > window.innerHeight + 1,
+                };
+            });
+
+            expect(m.fimDoRodape, `${tela} em ${altura}px`).toBeLessThanOrEqual(m.janela + 1);
+            expect(m.paginaRola, `${tela} em ${altura}px rola a página inteira`).toBe(false);
+        }
+    }
+});
+
+// Quando o conteúdo não cabe, quem rola é o miolo — entre o cabeçalho e o
+// rodapé, que continuam parados.
+test("conteúdo que não cabe rola por dentro, sem levar as barras junto", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto("/pagamento-pós.html");
+
+    const m = await page.evaluate(() => {
+        const miolo = document.querySelector(".conteudo") as HTMLElement;
+        const topoAntes = document.querySelector(".header-todo")!.getBoundingClientRect().top;
+        miolo.scrollTop = miolo.scrollHeight;
+        return {
+            rolou: miolo.scrollTop > 0,
+            cabecalhoParado:
+                document.querySelector(".header-todo")!.getBoundingClientRect().top === topoAntes,
+            rodapeNaTela:
+                document.querySelector("footer")!.getBoundingClientRect().bottom <= window.innerHeight + 1,
+        };
+    });
+
+    expect(m.rolou).toBe(true);
+    expect(m.cabecalhoParado).toBe(true);
+    expect(m.rodapeNaTela).toBe(true);
+});

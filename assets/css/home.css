@@ -14,26 +14,12 @@
 
 html,
 body {
-    height: 100%;
-    overflow: hidden;
     background-color: #DADDE3;
 }
 
 .pagina {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
+    /* a casca (altura, coluna, largura máxima) vem de cabecalho.css */
     background-color: #FFFFFF;
-}
-
-.conteudo {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
 }
 
 .cartao-saldo {

@@ -18,13 +18,7 @@ html, body {
 }
 
 .pagina {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    min-height: 100dvh;
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
+    /* a casca (altura, coluna, largura máxima) vem de cabecalho.css */
     background-color: var(--cor-fundo);
 }
 
@@ -150,14 +144,27 @@ html, body {
     display: flex;
     align-items: baseline;
     justify-content: center;
-    gap: 6px;
     padding: 16px;
 }
 
+/* O número fica no eixo central do cartão, alinhado com o contador logo acima.
+   Antes o "R$" entrava na conta da centralização e empurrava o valor para a
+   direita, deixando os dois desencontrados. Tirando o cifrão do fluxo, quem é
+   centrado é o número — e o "R$" pende à esquerda dele. */
+.valor-com-cifrao {
+    position: relative;
+    display: inline-block;
+}
+
 .cifrao {
+    position: absolute;
+    right: 100%;
+    bottom: 0;
+    margin-right: 6px;
     font-size: 20px;
     font-weight: 500;
     color: #141A2E;
+    white-space: nowrap;
 }
 
 #valor-bilhetes {

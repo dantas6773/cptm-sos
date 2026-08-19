@@ -13,6 +13,36 @@
     --altura-barra: clamp(72px, 9.6vh, 88px);
 }
 
+/* Casca das telas internas: cabeçalho e rodapé presos às bordas, o miolo rolando
+   entre eles. Só a home e a denúncia faziam assim; as outras deixavam a página
+   inteira crescer, e no Safari do iPhone isso põe o fim da página atrás da barra
+   do navegador — o rodapé só aparece depois de rolar, o que passa por rodapé
+   sumido. Com a altura presa, ele não tem para onde escapar. */
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+.pagina {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* min-height: 0 é necessário para o item flex poder encolher abaixo do conteúdo
+   e, com isso, rolar por dentro em vez de esticar a página. */
+.pagina > .conteudo,
+.pagina > main {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 .header-todo {
     display: flex;
     width: 100%;
