@@ -69,16 +69,18 @@ test("o botão de ocultar saldo alterna e anuncia o estado", async ({ page }) =>
     await expect(olho).toHaveAttribute("aria-pressed", "false");
 });
 
-test("a faixa diagonal não invade a foto de perfil", async ({ page }) => {
+// Os trilhos ficam no canto justamente para não disputar espaço com a saudação:
+// antes a faixa cruzava o cabeçalho e já se sobrepunha ao texto com um nome comum.
+test("os trilhos do cabeçalho não invadem a área da saudação", async ({ page }) => {
     await page.goto("/home.html");
 
     const medidas = await page.evaluate(() => {
-        const faixa = document.querySelector(".barra")!.getBoundingClientRect();
-        const perfil = document.querySelector(".perfil")!.getBoundingClientRect();
-        return { faixaDireita: faixa.right, perfilEsquerda: perfil.left };
+        const trilhos = document.querySelector(".barra")!.getBoundingClientRect();
+        const saudacao = document.getElementById("boas-vindas")!.getBoundingClientRect();
+        return { trilhosEsquerda: trilhos.left, saudacaoDireita: saudacao.right };
     });
 
-    expect(medidas.faixaDireita).toBeLessThan(medidas.perfilEsquerda);
+    expect(medidas.saudacaoDireita).toBeLessThanOrEqual(medidas.trilhosEsquerda);
 });
 
 test("apelido comprido não empurra a foto de perfil para fora", async ({ page, request }) => {

@@ -65,14 +65,30 @@ body {
     white-space: nowrap;
 }
 
+/* Dois trilhos finos no canto, em vez de uma faixa larga cruzando o cabeçalho.
+   A faixa anterior começava em 140px e o texto da saudação chegava a 180px: já
+   se sobrepunham com um nome comum, e qualquer apelido maior piorava. Aqui os
+   trilhos começam depois dos 300px, deixando a área do texto livre — e dois
+   traços paralelos lembram trilho mais do que um só. */
 .barra {
     position: absolute;
-    left: 52%;
-    width: 22px;
-    height: 200px;
+    left: auto;
+    right: 22px;
+    width: 8px;
+    height: 170px;
     background-color: var(--cor-fonte);
     transform: rotate(-41.95deg);
     pointer-events: none;
+}
+
+.barra::after {
+    content: "";
+    position: absolute;
+    left: 17px;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background-color: var(--cor-fonte);
 }
 
 .perfil {
