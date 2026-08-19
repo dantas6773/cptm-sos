@@ -378,3 +378,33 @@ body {
         height: 26px;
     }
 }
+
+/* Indicadores de página do carrossel de avisos. Sem eles, o segundo card aparece
+   cortado na borda e nada informa que existem outros — no projeto há os pontos. */
+.avisos-indicadores {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.avisos-indicadores button {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #C7CBD4;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.avisos-indicadores button[aria-selected="true"] {
+    background-color: var(--cor-header);
+    transform: scale(1.25);
+}
+
+.avisos-indicadores button:focus-visible {
+    outline: 3px solid var(--cor-header);
+    outline-offset: 3px;
+}

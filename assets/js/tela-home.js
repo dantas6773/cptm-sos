@@ -67,3 +67,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await carregarUsuarioBackend()
 })
+
+// Indicadores de página do carrossel de avisos. O carrossel já rolava, mas nada
+// sinalizava quantos avisos existem nem em qual a pessoa está — o segundo card
+// aparecia cortado na borda e podia passar por corte acidental de layout.
+// O ponto e vírgula inicial é necessário: o bloco acima termina em `})` sem
+// pontuação, e sem ele o interpretador lê os dois como uma chamada só.
+;(() => {
+  const lista = document.querySelector(".avisos-lista");
+  const indicadores = document.querySelector(".avisos-indicadores");
+  if (!lista || !indicadores) return;
+
+  const cards = [...lista.querySelectorAll(".aviso-card")];
+  if (cards.length < 2) return;
+
+  cards.forEach((_, i) => {
+    const ponto = document.createElement("button");
+    ponto.type = "button";
+    ponto.setAttribute("role", "tab");
+    ponto.setAttribute("aria-label", `Aviso ${i + 1} de ${cards.length}`);
+    ponto.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    ponto.addEventListener("click", () => {
+      lista.scrollTo({ left: cards[i].offsetLeft - lista.offsetLeft, behavior: "smooth" });
+    });
+    indicadores.appendChild(ponto);
+  });
+
+  const pontos = [...indicadores.children];
+
+  function marcarAtual() {
+    // o card ativo é o que estiver mais próximo da borda esquerda da lista
+    const centro = lista.scrollLeft + lista.clientWidth / 2;
+    let atual = 0;
+    let menorDistancia = Infinity;
+
+    cards.forEach((card, i) => {
+      const meio = card.offsetLeft - lista.offsetLeft + card.offsetWidth / 2;
+      const distancia = Math.abs(meio - centro);
+      if (distancia < menorDistancia) {
+        menorDistancia = distancia;
+        atual = i;
+      }
+    });
+
+    pontos.forEach((p, i) => p.setAttribute("aria-selected", i === atual ? "true" : "false"));
+  }
+
+  lista.addEventListener("scroll", () => {
+    window.clearTimeout(lista.dataset.temporizador);
+    lista.dataset.temporizador = window.setTimeout(marcarAtual, 60);
+  });
+
+  marcarAtual();
+})();
