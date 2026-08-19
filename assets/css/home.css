@@ -470,3 +470,14 @@ body {
 .perfil {
     flex-shrink: 0;
 }
+
+/* A foto era exibida em 70px, o que sozinho definia a altura do cabeçalho — o
+   respiro já estava no mínimo. No Figma ela tem cerca de 58px; nesse tamanho o
+   cabeçalho fica da mesma altura do rodapé e a proporção volta à do projeto. */
+.perfil img {
+    width: 58px;
+    height: 58px;
+    display: block;
+    object-fit: cover;
+    border-radius: 50%;
+}
