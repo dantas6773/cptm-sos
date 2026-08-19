@@ -39,9 +39,19 @@ test("passar na catraca debita uma passagem", async ({ page, request }) => {
 
     await page.click("#btn-catraca");
 
-    await expect(page.locator("#aviso-catraca")).toContainText("Passagem liberada");
+    // A confirmação aparece aqui, e não na home como a da compra: quem apertou
+    // está na catraca e precisa do retorno na hora.
+    await expect(page.locator(".dialogo-confirmacao")).toBeVisible();
+    await expect(page.locator(".confirmacao-cartao h2")).toHaveText("Passagem liberada!");
+    await expect(page.locator(".confirmacao-detalhe")).toContainText("5,20 descontados");
+    await expect(page.locator(".confirmacao-detalhe")).toContainText("R$ 0,00");
+
     await expect(page.locator(".saldo")).toContainText("0,00");
     expect(saldoDe(EMAIL)).toBe(0);
+
+    // e o caminho de saída leva ao início
+    await page.locator(".confirmacao-botao").click();
+    await page.waitForURL(/home\.html$/);
 });
 
 // A recusa deixou de esperar o toque: sem saldo o botão já nasce desligado e a
@@ -147,10 +157,10 @@ test("a compra leva de volta à home com a confirmação", async ({ page }) => {
 
     await page.waitForURL(/home\.html$/);
 
-    await expect(page.locator(".dialogo-compra")).toBeVisible();
-    await expect(page.locator("#compra-titulo")).toHaveText("Compra concluída!");
-    await expect(page.locator(".compra-detalhe")).toContainText("3 bilhetes");
-    await expect(page.locator(".compra-detalhe")).toContainText("15,60");
+    await expect(page.locator(".dialogo-confirmacao")).toBeVisible();
+    await expect(page.locator(".confirmacao-cartao h2")).toHaveText("Compra concluída!");
+    await expect(page.locator(".confirmacao-detalhe")).toContainText("3 bilhetes");
+    await expect(page.locator(".confirmacao-detalhe")).toContainText("15,60");
 
     // o saldo da home já é o de depois da compra
     await expect(page.locator("#valor-saldo")).toContainText("15,60");
@@ -163,7 +173,7 @@ test("um bilhete só é anunciado no singular", async ({ page }) => {
     await page.click("#botao-comprar");
     await page.waitForURL(/home\.html$/);
 
-    await expect(page.locator(".compra-detalhe")).toContainText("1 bilhete —");
+    await expect(page.locator(".confirmacao-detalhe")).toContainText("1 bilhete —");
 });
 
 test("a confirmação não volta a aparecer ao recarregar a home", async ({ page }) => {
@@ -171,13 +181,13 @@ test("a confirmação não volta a aparecer ao recarregar a home", async ({ page
     await page.click("#incrementar-bilhetes");
     await page.click("#botao-comprar");
     await page.waitForURL(/home\.html$/);
-    await expect(page.locator(".dialogo-compra")).toBeVisible();
+    await expect(page.locator(".dialogo-confirmacao")).toBeVisible();
 
-    await page.locator(".compra-fechar").click();
-    await expect(page.locator(".dialogo-compra")).toHaveCount(0);
+    await page.locator(".confirmacao-botao").click();
+    await expect(page.locator(".dialogo-confirmacao")).toHaveCount(0);
 
     await page.reload();
-    await expect(page.locator(".dialogo-compra")).toHaveCount(0);
+    await expect(page.locator(".dialogo-confirmacao")).toHaveCount(0);
 });
 
 // Só dois números atravessam o localStorage, e a frase é montada na home. Assim
@@ -193,7 +203,7 @@ test("confirmação adulterada no armazenamento não vira mensagem", async ({ pa
     ]) {
         await page.evaluate((v) => localStorage.setItem("compraConcluida", v), lixo);
         await page.reload();
-        await expect(page.locator(".dialogo-compra"), lixo).toHaveCount(0);
+        await expect(page.locator(".dialogo-confirmacao"), lixo).toHaveCount(0);
     }
 });
 
@@ -209,4 +219,27 @@ test("compra recusada avisa na tela e não sai dela", async ({ page }) => {
 
     await expect(page.locator("#aviso-compra")).toContainText("Recusado no teste");
     expect(new URL(page.url()).pathname).toContain("pagamento-p");
+});
+
+// A caixa de confirmação é compartilhada pela compra e pela catraca, e recebe
+// texto vindo de resposta de API e do armazenamento do navegador. Quem escrever
+// a próxima chamada não deve precisar lembrar de escapar nada: o componente usa
+// textContent, então marcação chega como texto e não vira elemento.
+test("a caixa de confirmação trata o que recebe como texto, nunca como marcação", async ({ page }) => {
+    await page.goto("/home.html");
+
+    const r = await page.evaluate(() => {
+        const veneno = '<img src=x onerror="document.title=\'invadido\'">';
+        (window as any).mostrarConfirmacao({ titulo: veneno, detalhe: veneno });
+        const caixa = document.querySelector(".dialogo-confirmacao")!;
+        return {
+            imagens: caixa.querySelectorAll("img").length,
+            titulo: caixa.querySelector("h2")!.textContent,
+            tituloDaPagina: document.title,
+        };
+    });
+
+    expect(r.imagens).toBe(0);
+    expect(r.titulo).toContain("<img");
+    expect(r.tituloDaPagina).not.toBe("invadido");
 });

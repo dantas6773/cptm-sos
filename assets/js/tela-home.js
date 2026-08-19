@@ -57,28 +57,10 @@ function mostrarConfirmacaoDeCompra() {
 
   const bilhetes = quantidade === 1 ? '1 bilhete' : `${quantidade} bilhetes`
 
-  const dialogo = document.createElement('dialog')
-  dialogo.className = 'dialogo-compra'
-  dialogo.setAttribute('aria-labelledby', 'compra-titulo')
-  dialogo.innerHTML = `
-    <div class="compra-cartao">
-      <h2 id="compra-titulo">Compra concluída!</h2>
-      <p class="compra-detalhe"></p>
-    </div>
-    <button type="button" class="compra-fechar">FECHAR</button>
-  `
-  dialogo.querySelector('.compra-detalhe').textContent =
-    `${bilhetes} — ${formatBRL(total)} foram adicionados ao seu saldo.`
-
-  document.body.appendChild(dialogo)
-  dialogo.querySelector('.compra-fechar').addEventListener('click', () => dialogo.close())
-  dialogo.addEventListener('click', (evento) => {
-    if (evento.target === dialogo) dialogo.close()
+  mostrarConfirmacao({
+    titulo: 'Compra concluída!',
+    detalhe: `${bilhetes} — ${formatBRL(total)} foram adicionados ao seu saldo.`,
   })
-  dialogo.addEventListener('close', () => dialogo.remove())
-
-  if (typeof dialogo.showModal === 'function') dialogo.showModal()
-  else dialogo.setAttribute('open', '')
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
