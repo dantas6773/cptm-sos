@@ -1,40 +1,68 @@
-
 const form = document.getElementById("forme");
 const email = document.getElementById("email");
 const senha = document.getElementById("senha");
+const botao = document.getElementById("botao");
+
+validarAoSair(email, ehEmail);
+validarAoSair(senha, temTamanhoMinimo(1));
 
 form.addEventListener("submit", async function (event) {
   event.preventDefault();
-  
-  if (!email.value || !senha.value) {
-    alert("Todos os campos devem estar preenchidos para avançar");
+  limparErros(form);
+
+  // A validação aponta o campo que está errado, em vez de uma caixa do sistema
+  // dizendo "todos os campos são obrigatórios" sem indicar qual falta.
+  let valido = true;
+
+  if (!email.value.trim()) {
+    mostrarErro(email, "Informe o seu e-mail.");
+    valido = false;
+  } else if (!ehEmail(email.value)) {
+    mostrarErro(email, "Esse e-mail não parece válido.");
+    valido = false;
+  }
+
+  if (!senha.value) {
+    mostrarErro(senha, "Informe a sua senha.");
+    valido = false;
+  }
+
+  if (!valido) {
+    form.querySelector("input.invalido")?.focus();
     return;
   }
 
-  try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: email.value,
-        senha: senha.value
-      })
-    });
+  await comBotaoOcupado(botao, "Entrando...", async () => {
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.value.trim(), senha: senha.value }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.status === 200) {
-      salvarSessao({ token: data.token, usuario: data.usuario });
-      window.location.href = "home.html";
-    } else {
-      alert(data.mensagem);
+      if (response.status === 200) {
+        salvarSessao({ token: data.token, usuario: data.usuario });
+        window.location.href = "home.html";
+        return;
+      }
+
+      // 401 e 404 são o mesmo caso para quem está entrando: as credenciais não
+      // conferem. Distinguir os dois revelaria quais e-mails existem no sistema.
+      if (response.status === 401 || response.status === 404) {
+        mostrarErroGeral(form, "E-mail ou senha incorretos.");
+        senha.value = "";
+        senha.focus();
+        return;
+      }
+
+      mostrarErroGeral(form, data.mensagem || "Não foi possível entrar. Tente novamente.");
+    } catch (error) {
+      console.error("Erro ao entrar:", error);
+      mostrarErroGeral(form, "Sem conexão com o servidor. Verifique se ele está rodando.");
     }
-  } catch (error) {
-    console.error('Erro:', error);
-    alert("Erro ao conectar com o servidor. Verifique se o servidor está rodando.");
-  }
+  });
 });
 
 // Atalho de desenvolvimento. O botão só aparece quando o servidor roda com

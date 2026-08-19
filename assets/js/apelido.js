@@ -1,55 +1,55 @@
-const botao = document.getElementById('botao');
-const nome = document.getElementById('name'); // Assumindo que 'name' é o ID do input de apelido
+const form = document.getElementById("forme") || document.querySelector("form");
+const botao = document.getElementById("botao");
+const nome = document.getElementById("name");
 
-botao.addEventListener('click', async function(event) {
-    event.preventDefault();
+validarAoSair(nome, temTamanhoMinimo(2));
 
-    const apelido = nome.value;
+async function enviarApelido(event) {
+  event.preventDefault();
+  if (form) limparErros(form);
+  else limparErro(nome);
 
-    if (!apelido) {
-        alert('Preencha seu nome (apelido) antes de avançar');
-        return;
-    }
+  const apelido = nome.value.trim();
 
+  if (!apelido) {
+    mostrarErro(nome, "Diga como devemos te chamar.");
+    nome.focus();
+    return;
+  }
+
+  if (apelido.length < 2) {
+    mostrarErro(nome, "Use pelo menos 2 caracteres.");
+    nome.focus();
+    return;
+  }
+
+  await comBotaoOcupado(botao, "Salvando...", async () => {
     try {
-        console.log('Enviando para o servidor:', { apelido });
+      const response = await authFetch("/api/usuario/apelido", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apelido }),
+      });
 
-        const response = await authFetch('/api/usuario/apelido', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ apelido })
-        });
+      if (!response.ok) {
+        const mensagem = await response
+          .json()
+          .then((d) => d.mensagem)
+          .catch(() => null);
+        // A mensagem crua do servidor (que já chegou a ser um HTML de erro
+        // inteiro) não ajuda quem está usando o app.
+        mostrarErro(nome, mensagem || "Não foi possível salvar. Tente novamente.");
+        return;
+      }
 
-        // --- MANIPULAÇÃO DE ERRO CORRIGIDA ---
-        if (!response.ok) {
-            // Se a resposta não for OK, leia como TEXTO, não como JSON.
-            const errorText = await response.text();
-            
-            // Log do HTML/Texto de erro real recebido do servidor
-            console.error('Resposta de erro do servidor (não-JSON):', errorText); 
-            
-            // Tenta ver se é um 404 do Express
-            if (response.status === 404 && errorText.includes("Cannot PUT")) {
-                throw new Error(`Erro 404: Rota não encontrada no servidor. Verifique a URL: ${response.url}`);
-            }
-            
-            // Joga um erro genérico com o texto que recebemos
-            throw new Error(`Servidor respondeu com ${response.status}: ${errorText}`);
-        }
-        // --- FIM DA CORREÇÃO ---
-
-        // Se response.ok for true, esperamos JSON
-        const data = await response.json(); 
-        console.log('Resposta do servidor:', data.mensagem);
-
-        localStorage.setItem('apelido', apelido);
-        window.location.href = "/carregamento.html";
-        
+      localStorage.setItem("apelido", apelido);
+      window.location.href = "carregamento.html";
     } catch (error) {
-        // Agora o 'error.message' conterá o texto HTML que recebemos
-        console.error('Erro completo na requisição:', error);
-        alert(`Erro ao atualizar apelido: ${error.message}`);
+      console.error("Erro ao salvar apelido:", error);
+      mostrarErro(nome, "Sem conexão com o servidor. Tente novamente.");
     }
-});
+  });
+}
+
+botao.addEventListener("click", enviarApelido);
+if (form) form.addEventListener("submit", enviarApelido);
