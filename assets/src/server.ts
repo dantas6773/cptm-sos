@@ -306,9 +306,18 @@ server.put("/api/usuario/apelido", autenticar, (req: AuthRequest, res: Response)
         const email = req.user!.email
         const { apelido } = req.body
 
-        if (!apelido) {
+        if (!apelido || typeof apelido !== "string" || !apelido.trim()) {
             return res.status(400).json({
                 mensagem: "Apelido é obrigatório"
+            })
+        }
+
+        // O maxlength do campo é só da interface: sem esta checagem o banco
+        // aceitava apelidos de dezenas de milhares de caracteres, e a saudação
+        // da home empurrava a foto de perfil para fora da tela.
+        if (apelido.trim().length > MAX_APELIDO) {
+            return res.status(400).json({
+                mensagem: `O apelido pode ter no máximo ${MAX_APELIDO} caracteres`
             })
         }
 
@@ -321,7 +330,7 @@ server.put("/api/usuario/apelido", autenticar, (req: AuthRequest, res: Response)
             })
         }
 
-        db.usuarios[userIndex].nome = apelido
+        db.usuarios[userIndex].nome = apelido.trim()
         writeDB(db)
 
         return res.status(200).json({
@@ -429,6 +438,7 @@ const DENUNCIAS_PATH = process.env.DENUNCIAS_PATH
 const CATEGORIAS = ["assedio", "roubo", "outros"] as const;
 const MAX_DESCRICAO = 1000;
 const MAX_LOCAL = 200;
+const MAX_APELIDO = 40;
 // Localização de emergência não deve envelhecer no banco. É apagada ao desligar o
 // alerta, mas quem nunca desliga deixaria a posição gravada para sempre.
 const LOCALIZACAO_TTL_HORAS = 6;

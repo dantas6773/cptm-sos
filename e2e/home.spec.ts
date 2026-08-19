@@ -80,3 +80,28 @@ test("a faixa diagonal não invade a foto de perfil", async ({ page }) => {
 
     expect(medidas.faixaDireita).toBeLessThan(medidas.perfilEsquerda);
 });
+
+test("apelido comprido não empurra a foto de perfil para fora", async ({ page, request }) => {
+    const resp = await request.post("/api/login", {
+        data: { email: "ana.souza@example.com", senha: "demo1234" },
+    });
+    const { token } = await resp.json();
+
+    await request.put("/api/usuario/apelido", {
+        data: { apelido: "A".repeat(40) },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    await page.setViewportSize({ width: 393, height: 800 });
+    await page.goto("/home.html");
+    await page.waitForTimeout(600);
+
+    const medidas = await page.evaluate(() => {
+        const perfil = document.querySelector(".perfil")!.getBoundingClientRect();
+        return { perfilDireita: perfil.right, janela: window.innerWidth };
+    });
+
+    // a foto precisa continuar dentro da tela, e não empurrada para fora por um
+    // apelido comprido na saudação
+    expect(medidas.perfilDireita).toBeLessThanOrEqual(medidas.janela);
+});

@@ -44,7 +44,7 @@ body {
     color: var(--cor-fonte);
     align-items: center;
     justify-content: space-between;
-    padding: clamp(10px, 1.8vh, 18px) 15px;
+    padding: clamp(8px, 1.2vh, 14px) 15px;
     position: relative;
     overflow: hidden;
 }
@@ -450,4 +450,23 @@ body {
     height: 22px;
     flex-shrink: 0;
     color: var(--cor-fonte);
+}
+
+/* Apelido comprido não pode empurrar a foto de perfil para fora da tela: a
+   saudação encolhe e corta com reticências. O min-width:0 é necessário para que
+   o item flex possa encolher abaixo do tamanho do seu conteúdo. */
+.logo {
+    min-width: 0;
+    flex: 1;
+}
+
+#boas-vindas {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.perfil {
+    flex-shrink: 0;
 }
