@@ -553,9 +553,22 @@ footer {
     gap: 4px;
 }
 
+/* Os ícones do rodapé passaram de PNG para os mesmos SVG da home: vetoriais,
+   nítidos em qualquer densidade e herdando a cor do texto. O `color` precisa ser
+   declarado aqui — os SVG usam currentColor, e sem isso herdariam o preto padrão
+   e sumiriam contra o azul do rodapé. */
+.secoes,
+.home,
+.denuncia {
+    color: var(--cor-branco-principal);
+}
+
 .secoes img,
 .home img,
-.denuncia img {
+.denuncia img,
+.secoes svg,
+.home svg,
+.denuncia svg {
     width: 28px;
     height: 28px;
 }
