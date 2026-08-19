@@ -36,3 +36,26 @@ form.addEventListener("submit", async function (event) {
     alert("Erro ao conectar com o servidor. Verifique se o servidor está rodando.");
   }
 });
+
+// Atalho de desenvolvimento. O botão só aparece quando o servidor roda com
+// LOGIN_DEMO=1; em qualquer outro caso a tela é a de sempre. A autenticação não
+// muda — o atalho apenas envia as credenciais de demonstração, que são públicas.
+(async () => {
+  const botaoDemo = document.getElementById("botao-demo");
+  if (!botaoDemo) return;
+
+  try {
+    const resp = await fetch("/api/config");
+    const config = await resp.json();
+    if (!config.loginDemo) return;
+
+    botaoDemo.classList.remove("hidden");
+    botaoDemo.addEventListener("click", () => {
+      email.value = config.emailDemo;
+      senha.value = "demo1234";
+      form.requestSubmit();
+    });
+  } catch {
+    // sem config, a tela segue normal
+  }
+})();

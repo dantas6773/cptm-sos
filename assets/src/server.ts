@@ -234,6 +234,17 @@ function writeDB(data: any) {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2))
 }
 
+// Atalho de desenvolvimento: quando LOGIN_DEMO=1, a tela de login oferece um
+// botão que entra com a conta de demonstração em um clique. A autenticação em si
+// continua valendo — o atalho apenas preenche credenciais que já são públicas
+// (estão no seed e na documentação). Nenhuma rota deixa de exigir token.
+server.get("/api/config", (_req: Request, res: Response) => {
+    return res.json({
+        loginDemo: process.env.LOGIN_DEMO === "1",
+        emailDemo: process.env.LOGIN_DEMO === "1" ? "ana.souza@example.com" : null,
+    });
+});
+
 server.post("/api/cadastro", limiteCadastro, (req: Request, res: Response) => {
     try {
         const { email, cpf, senha } = req.body
