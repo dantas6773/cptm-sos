@@ -104,3 +104,46 @@ test("PUT /api/alerta com token de usuário que não existe mais no banco devolv
     });
     assert.equal(res.status, 404);
 });
+
+// A comparação era literal: um CPF digitado com ponto e traço — que é como a
+// tela de cadastro ensina a escrever — era recusado com o alarme tocando.
+test("confirmar o alerta aceita o CPF com ou sem pontuação", async () => {
+    for (const digitado of ["11111111111", "111.111.111-11", "111 111 111 11", " 11111111111 "]) {
+        await apiFetch(app.baseUrl, "/api/alerta", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenUsuarioA}` },
+            body: JSON.stringify({ alerta: true }),
+        });
+
+        const res = await apiFetch(app.baseUrl, "/api/alerta/confirmar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenUsuarioA}` },
+            body: JSON.stringify({ cpf: digitado }),
+        });
+
+        assert.equal(res.status, 200, `recusou ${JSON.stringify(digitado)}`);
+        assert.equal(app.readDb().usuarios[0].alerta, false);
+    }
+});
+
+// Aceitar a pontuação não pode virar aceitar qualquer coisa.
+test("confirmar o alerta continua recusando CPF de outra pessoa", async () => {
+    await apiFetch(app.baseUrl, "/api/alerta", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenUsuarioA}` },
+        body: JSON.stringify({ alerta: true }),
+    });
+
+    // inclui o CPF do outro usuário: normalizar não pode virar aceitar qualquer um
+    for (const errado of ["222.222.222-22", "22222222222", "1111111111", "111111111111"]) {
+        const res = await apiFetch(app.baseUrl, "/api/alerta/confirmar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenUsuarioA}` },
+            body: JSON.stringify({ cpf: errado }),
+        });
+        assert.equal(res.status, 403, `aceitou ${JSON.stringify(errado)}`);
+    }
+
+    // e o alarme continua ligado depois de todas as tentativas
+    assert.equal(app.readDb().usuarios[0].alerta, true);
+});

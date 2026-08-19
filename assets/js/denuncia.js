@@ -6,6 +6,8 @@ const cpfContainer = document.getElementById('cpf-container');
 const voltarBtn = document.getElementById('voltar');
 const cadeado = document.getElementById('cadeado');
 const inputCpf = document.getElementById('cpf-input');
+// mesma máscara do cadastro: o campo passa a guiar o formato em vez de recusar
+if (inputCpf) aplicarMascaraCPF(inputCpf);
 const setaCircular = document.getElementById('cpf-button');
 const videoCamera = document.getElementById('camera-video');
 let streamCamera = null;
@@ -268,7 +270,8 @@ async function confirmarAlertaCpf(e) {
     const resp = await authFetch("/api/alerta/confirmar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cpf: cpfDigitado }),
+      // só os dígitos, como o cadastro já enviava
+      body: JSON.stringify({ cpf: apenasDigitos(cpfDigitado) }),
     });
 
     // Sem esta checagem o app sairia da tela dizendo que desativou o alarme

@@ -94,3 +94,24 @@ test("'Me encontre' compartilha a localização de verdade", async ({ page }) =>
     expect(gravada.lat).toBeCloseTo(POSICAO.latitude, 3);
     expect(gravada.lng).toBeCloseTo(POSICAO.longitude, 3);
 });
+
+// A tela de cadastro aplica máscara e ensina a escrever "123.456.789-01"; este
+// campo comparava o texto literal e recusava exatamente esse formato, com o
+// alarme tocando. Agora ele aplica a mesma máscara e envia só os dígitos.
+test("o campo de CPF do alarme aceita o formato que o cadastro ensina", async ({ page }) => {
+    await page.goto("/denuncia.html");
+    await arrastarSlider(page);
+
+    const campo = page.locator("#cpf-input");
+    await campo.pressSequentially(usuarioDoSeed(EMAIL).cpf);
+
+    // a máscara guia o formato, como no cadastro
+    await expect(campo).toHaveValue(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/);
+    // e o teclado numérico é o que abre no celular
+    await expect(campo).toHaveAttribute("inputmode", "numeric");
+
+    // o formato pontuado desativa o alarme: era exatamente o que era recusado
+    await page.click("#cpf-button");
+    await page.waitForURL(/denucia\.html/, { timeout: 5000 });
+    expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).alerta).toBe(false);
+});

@@ -896,7 +896,12 @@ server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
       const usuario = db.usuarios.find((u: any) => Number(u.id) === Number(req.user!.id));
 
       if (!usuario) return res.sendStatus(404);
-      if (usuario.cpf !== cpf) return res.sendStatus(403);
+
+      // Compara só os dígitos. A comparação era literal, então um CPF digitado
+      // com ponto e traço — que é como a tela de cadastro ensina a escrever —
+      // era recusado num fluxo de emergência, com o alarme tocando.
+      const soDigitos = (valor: unknown) => String(valor ?? "").replace(/\D/g, "");
+      if (soDigitos(usuario.cpf) !== soDigitos(cpf)) return res.sendStatus(403);
 
       desligarAlerta(usuario);
       writeDB(db);
