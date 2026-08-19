@@ -31,7 +31,8 @@ body {
 
 #btn-voltar {
     position: absolute;
-    top: 30px;
+    /* afasta da barra de status agora que a página ocupa a tela inteira */
+    top: calc(30px + env(safe-area-inset-top));
     left: 20px;
     padding: 10px 20px;
     font-size: 16px;

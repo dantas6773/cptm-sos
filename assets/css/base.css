@@ -1,0 +1,23 @@
+/* Regras que valem para todas as telas.
+   Carregado antes do CSS de cada tela, para que ela possa sobrescrever. */
+
+/* Sem isto o iOS deixa arrastar a página inteira mesmo quando não há conteúdo
+   sobrando — o efeito elástico dá a impressão de que a tela está solta. */
+html,
+body {
+    overscroll-behavior: none;
+}
+
+/* Com viewport-fit=cover a página passa a ocupar também a área da barra de status
+   e a do indicador de início. O fundo preenche a tela toda, em vez de deixar duas
+   faixas escuras. Em aparelho sem recorte, env() vale 0 e nada muda. */
+
+/* Os contêineres de altura total recebem o recuo das áreas seguras. Como o box-sizing
+   é border-box, o recuo entra dentro dos 100dvh: o fundo segue preenchendo a tela
+   inteira e só o conteúdo se afasta das bordas do aparelho. */
+.pagina,
+.tela-auth,
+#background-pré-denuncia {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
