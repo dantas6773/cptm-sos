@@ -192,23 +192,25 @@ button {
     opacity: 1;
 }
 
-/* Não havia como voltar ao login a não ser pelo botão do navegador: quem entrasse
-   no cadastro por engano ficava sem saída dentro do app. */
-#voltar-login {
-    position: relative;
-    z-index: 2;
-    align-self: flex-start;
-    display: inline-flex;
+
+/* Espelha a linha equivalente da tela de login ("Não tem uma conta? Cadastre-se"),
+   para as duas telas se referenciarem com o mesmo peso visual. */
+.cadastro-link {
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    margin: 4px 0 0 clamp(20px, 6vw, 32px);
-    padding: 8px 4px;
-    color: #FFFFFF;
-    font-size: 15px;
-    text-decoration: none;
+    flex-wrap: wrap;
 }
 
-#voltar-login svg {
-    width: 18px;
-    height: 18px;
+.cadastro-link span {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+}
+
+#voltar-login {
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
 }

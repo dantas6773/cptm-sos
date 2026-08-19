@@ -39,7 +39,7 @@ test("revelar a senha devolve o foco ao campo", async ({ page }) => {
     expect(focado).toBe("senha");
 });
 
-test("o cadastro tem como voltar para o login", async ({ page }) => {
+test("o cadastro oferece o caminho de volta ao login", async ({ page }) => {
     await page.goto("/cadastro.html");
 
     await page.click("#voltar-login");
