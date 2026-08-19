@@ -119,14 +119,16 @@ async function comprar() {
       return;
     }
 
-    saldoEl.textContent = formatBRL(data.usuario.saldo ?? 0);
-    mostrarAviso(
-      `${data.quantidade} bilhete(s): ${formatBRL(data.total)} adicionados ao seu saldo.`,
-      "sucesso"
+    // A confirmação aparece na home, não aqui: a compra termina o fluxo e a
+    // pessoa volta para a tela onde o saldo novo está à vista. Guardamos só os
+    // dois números — a frase é montada lá, para nada que veio do armazenamento
+    // do navegador virar texto na tela.
+    localStorage.setItem(
+      "compraConcluida",
+      JSON.stringify({ quantidade: data.quantidade, total: data.total })
     );
-
-    quantidade = 0;
-    atualizarTela();
+    window.location.href = "home.html";
+    return;
   } catch (error) {
     console.error("Erro na compra:", error);
     mostrarAviso("Erro de conexão. Tente novamente.", "erro");

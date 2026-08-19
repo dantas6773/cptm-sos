@@ -33,16 +33,56 @@ olho.addEventListener('click', () => {
   olho.setAttribute('aria-label', saldoVisivel ? 'Ocultar saldo' : 'Mostrar saldo');
 });
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const confirmation = localStorage.getItem('confirmationMessage')
-  if (confirmation) {
-      requestAnimationFrame(() => {
-          setTimeout(() => {
-              alert(confirmation)
-              localStorage.removeItem('confirmationMessage')
-          }, 50)
-      })
+// Confirmação da compra de bilhetes. Quem compra volta para cá, onde o saldo
+// novo está à vista — antes esta tela lia uma chave de localStorage que nenhuma
+// outra escrevia e mostrava um alert(), a caixa do sistema que o resto do app já
+// tinha deixado de usar.
+function mostrarConfirmacaoDeCompra() {
+  const bruto = localStorage.getItem('compraConcluida')
+  if (!bruto) return
+  localStorage.removeItem('compraConcluida')
+
+  let dados
+  try {
+    dados = JSON.parse(bruto)
+  } catch {
+    return
   }
+
+  // Só os dois números atravessam o armazenamento, e ainda assim são conferidos:
+  // a frase é montada aqui, então nada de lá vira texto solto na tela.
+  const quantidade = Number(dados?.quantidade)
+  const total = Number(dados?.total)
+  if (!Number.isInteger(quantidade) || quantidade <= 0 || !Number.isFinite(total)) return
+
+  const bilhetes = quantidade === 1 ? '1 bilhete' : `${quantidade} bilhetes`
+
+  const dialogo = document.createElement('dialog')
+  dialogo.className = 'dialogo-compra'
+  dialogo.setAttribute('aria-labelledby', 'compra-titulo')
+  dialogo.innerHTML = `
+    <div class="compra-cartao">
+      <h2 id="compra-titulo">Compra concluída!</h2>
+      <p class="compra-detalhe"></p>
+    </div>
+    <button type="button" class="compra-fechar">FECHAR</button>
+  `
+  dialogo.querySelector('.compra-detalhe').textContent =
+    `${bilhetes} — ${formatBRL(total)} foram adicionados ao seu saldo.`
+
+  document.body.appendChild(dialogo)
+  dialogo.querySelector('.compra-fechar').addEventListener('click', () => dialogo.close())
+  dialogo.addEventListener('click', (evento) => {
+    if (evento.target === dialogo) dialogo.close()
+  })
+  dialogo.addEventListener('close', () => dialogo.remove())
+
+  if (typeof dialogo.showModal === 'function') dialogo.showModal()
+  else dialogo.setAttribute('open', '')
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  mostrarConfirmacaoDeCompra()
 
   // saldo do usuário logado. O nome do cabeçalho é preenchido por auth.js, que
   // busca o usuário uma vez só e compartilha o resultado com esta chamada.

@@ -129,20 +129,84 @@ test("os limites da compra aparecem nos botões, não em recusa do servidor", as
     await expect(page.locator("#incrementar-bilhetes")).toBeDisabled();
 });
 
-// O retorno da compra era um alert() do navegador: bloqueava a tela e sumia sem
-// deixar rastro para leitor de tela.
-test("a compra responde na própria tela, sem caixa do sistema", async ({ page }) => {
-    let houveDialogo = false;
+// A compra encerra o fluxo: quem comprou volta para a home, onde o saldo novo
+// está à vista, e a confirmação chega lá. O retorno era um alert() do navegador,
+// que bloqueava a tela e sumia sem deixar rastro para leitor de tela.
+test("a compra leva de volta à home com a confirmação", async ({ page }) => {
+    let houveCaixaDoSistema = false;
     page.on("dialog", async (d) => {
-        houveDialogo = true;
+        houveCaixaDoSistema = true;
         await d.dismiss();
     });
 
     await page.goto("/pagamento-pós.html?metodo=pix");
     await page.click("#incrementar-bilhetes");
+    await page.click("#incrementar-bilhetes");
+    await page.click("#incrementar-bilhetes");
     await page.click("#botao-comprar");
 
-    await expect(page.locator("#aviso-compra")).toContainText("adicionados ao seu saldo");
-    await expect(page.locator("#dinheiro")).toContainText("5,20");
-    expect(houveDialogo).toBe(false);
+    await page.waitForURL(/home\.html$/);
+
+    await expect(page.locator(".dialogo-compra")).toBeVisible();
+    await expect(page.locator("#compra-titulo")).toHaveText("Compra concluída!");
+    await expect(page.locator(".compra-detalhe")).toContainText("3 bilhetes");
+    await expect(page.locator(".compra-detalhe")).toContainText("15,60");
+
+    // o saldo da home já é o de depois da compra
+    await expect(page.locator("#valor-saldo")).toContainText("15,60");
+    expect(houveCaixaDoSistema).toBe(false);
+});
+
+test("um bilhete só é anunciado no singular", async ({ page }) => {
+    await page.goto("/pagamento-pós.html");
+    await page.click("#incrementar-bilhetes");
+    await page.click("#botao-comprar");
+    await page.waitForURL(/home\.html$/);
+
+    await expect(page.locator(".compra-detalhe")).toContainText("1 bilhete —");
+});
+
+test("a confirmação não volta a aparecer ao recarregar a home", async ({ page }) => {
+    await page.goto("/pagamento-pós.html");
+    await page.click("#incrementar-bilhetes");
+    await page.click("#botao-comprar");
+    await page.waitForURL(/home\.html$/);
+    await expect(page.locator(".dialogo-compra")).toBeVisible();
+
+    await page.locator(".compra-fechar").click();
+    await expect(page.locator(".dialogo-compra")).toHaveCount(0);
+
+    await page.reload();
+    await expect(page.locator(".dialogo-compra")).toHaveCount(0);
+});
+
+// Só dois números atravessam o localStorage, e a frase é montada na home. Assim
+// nada guardado no navegador vira texto na tela.
+test("confirmação adulterada no armazenamento não vira mensagem", async ({ page }) => {
+    await page.goto("/home.html");
+
+    for (const lixo of [
+        '{"quantidade":"<img src=x onerror=alert(1)>","total":1}',
+        '{"quantidade":-5,"total":10}',
+        '{"quantidade":2}',
+        "isto não é json",
+    ]) {
+        await page.evaluate((v) => localStorage.setItem("compraConcluida", v), lixo);
+        await page.reload();
+        await expect(page.locator(".dialogo-compra"), lixo).toHaveCount(0);
+    }
+});
+
+// O caminho de erro continua respondendo na própria tela, sem redirecionar.
+test("compra recusada avisa na tela e não sai dela", async ({ page }) => {
+    await page.route("**/api/usuario/compra", (rota) =>
+        rota.fulfill({ status: 400, contentType: "application/json", body: JSON.stringify({ mensagem: "Recusado no teste" }) })
+    );
+
+    await page.goto("/pagamento-pós.html");
+    await page.click("#incrementar-bilhetes");
+    await page.click("#botao-comprar");
+
+    await expect(page.locator("#aviso-compra")).toContainText("Recusado no teste");
+    expect(new URL(page.url()).pathname).toContain("pagamento-p");
 });
