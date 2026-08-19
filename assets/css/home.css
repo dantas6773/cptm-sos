@@ -136,14 +136,15 @@ body {
     width: 100%;
     height: 230px;
     background-image: url(../imagem/mapa-metro.png);
-    /* A imagem passou de 276px para 1100px de largura (regerada a partir do SVG
-       da rede, que já existia no projeto). O recorte é bem aproximado de
-       propósito: em miniatura, o mapa inteiro vira um emaranhado de rótulos.
-       Com poucas estações visíveis ele funciona como referência visual, que é o
-       papel dele aqui — quem quer o mapa de fato abre a tela de mapa. */
-    background-size: 420% auto;
+    /* Sem ampliação. O recorte anterior (420%) desenhava a imagem a 4574px de
+       dispositivo num cartão de 363px, a partir de uma fonte de 1100px: o
+       navegador ampliava 4,16x e o resultado saía borrado, com os rótulos das
+       bordas cortados no meio. Em `cover` a imagem é desenhada a 1089px de
+       dispositivo — praticamente 1:1 com a fonte, ou seja, nítida — e o mapa
+       aparece inteiro em vez de um pedaço ampliado. */
+    background-size: cover;
     background-repeat: no-repeat;
-    background-position: 46% 44%;
+    background-position: center;
     border-radius: 24px;
     /* sem contorno: no Figma o cartão não tem borda, só a sombra */
     box-shadow: 0px 5px 15px rgba(100, 100, 111, 0.35);
