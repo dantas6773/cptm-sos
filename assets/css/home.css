@@ -23,6 +23,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh;
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
@@ -211,16 +212,21 @@ body {
     background-color: var(--cor-fonte);
     background-image: url(../imagem/lupa.png);
     background-repeat: no-repeat;
-    background-position: 10px center;
+    background-position: 14px center;
+    background-size: 26px 26px;
+    /* espaço para a lupa: `position` e `left` em ::placeholder não são
+       propriedades válidas — o Chrome tolerava, o Safari ignorava e o texto
+       ficava por cima do ícone. O recuo pertence ao campo, não ao placeholder. */
+    padding-left: 52px;
+    padding-right: 18px;
+    font-size: 20px;
+    font-weight: 600;
     border-radius: 30px;
     z-index: 1;
 }
 
 .input-busca::placeholder {
     color: black;
-    position: absolute;
-    left: 55px;
-    top: 20px;
     font-size: 20px;
     font-weight: 600;
 }
