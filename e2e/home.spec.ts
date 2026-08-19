@@ -49,3 +49,34 @@ test("a home carrega sem erro de script", async ({ page }) => {
 
     expect(erros).toEqual([]);
 });
+
+test("o botão de ocultar saldo alterna e anuncia o estado", async ({ page }) => {
+    await page.goto("/home.html");
+
+    const olho = page.locator("#olho");
+    const valor = page.locator("#valor-saldo");
+
+    await expect(valor).toHaveText(/R\$/);
+    await expect(olho).toHaveAttribute("aria-label", "Ocultar saldo");
+
+    await olho.click();
+    await expect(valor).toHaveText("********");
+    await expect(olho).toHaveAttribute("aria-pressed", "true");
+    await expect(olho).toHaveAttribute("aria-label", "Mostrar saldo");
+
+    await olho.click();
+    await expect(valor).toHaveText(/R\$/);
+    await expect(olho).toHaveAttribute("aria-pressed", "false");
+});
+
+test("a faixa diagonal não invade a foto de perfil", async ({ page }) => {
+    await page.goto("/home.html");
+
+    const medidas = await page.evaluate(() => {
+        const faixa = document.querySelector(".barra")!.getBoundingClientRect();
+        const perfil = document.querySelector(".perfil")!.getBoundingClientRect();
+        return { faixaDireita: faixa.right, perfilEsquerda: perfil.left };
+    });
+
+    expect(medidas.faixaDireita).toBeLessThan(medidas.perfilEsquerda);
+});

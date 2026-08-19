@@ -35,7 +35,13 @@
           <h3>Seu saldo</h3>
           <div class="saldo-valor-linha">
             <h5 id="valor-saldo">Carregando...</h5>
-            <img src="assets/imagem/olhosaldo.png" alt="" id="olho">
+            <button type="button" id="olho" aria-pressed="false" aria-label="Ocultar saldo">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/>
+                <path class="olho-corte" d="M4 4l16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
           </div>
           <div class="recarga"><span>Recarga</span></div>
         </div>
@@ -53,7 +59,10 @@
             <input class="input-busca" aria-label="Buscar destino" type="text" placeholder="Para onde?">
           </form>
           <div class="endereco">
-            <img src="assets/imagem/pin.png" alt="local">
+            <svg class="icone-local" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <circle cx="12" cy="9.5" r="2.4" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
             <p>Rua Sugestão, 1234 - Lourdes</p>
           </div>
           <div class="azul"></div>

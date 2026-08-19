@@ -27,6 +27,10 @@ let saldoVisivel = true;
 olho.addEventListener('click', () => {
   saldoVisivel = !saldoVisivel;
   valorSaldo.textContent = saldoVisivel ? valorSaldo.dataset.valorReal || 'R$ 0,00' : '********';
+  // o ícone e o rótulo acompanham o estado, para quem usa leitor de tela saber
+  // o que o botão faz agora
+  olho.setAttribute('aria-pressed', String(!saldoVisivel));
+  olho.setAttribute('aria-label', saldoVisivel ? 'Ocultar saldo' : 'Mostrar saldo');
 });
 
 document.addEventListener('DOMContentLoaded', async () => {

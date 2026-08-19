@@ -44,7 +44,7 @@ body {
     color: var(--cor-fonte);
     align-items: center;
     justify-content: space-between;
-    padding: clamp(14px, 2.6vh, 26px) 15px;
+    padding: clamp(10px, 1.8vh, 18px) 15px;
     position: relative;
     overflow: hidden;
 }
@@ -67,7 +67,7 @@ body {
 
 .barra {
     position: absolute;
-    left: 62%;
+    left: 52%;
     width: 22px;
     height: 200px;
     background-color: var(--cor-fonte);
@@ -413,4 +413,41 @@ body {
 .avisos-indicadores button:focus-visible {
     outline: 3px solid var(--cor-header);
     outline-offset: 3px;
+}
+
+/* Olho e pin eram PNG de 29x29 e 23x23 — ampliados além do que tinham, ficavam
+   borrados em tela de alta densidade. Em SVG são nítidos em qualquer densidade e
+   herdam a cor do texto ao redor. */
+#olho {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--cor-fonte);
+    cursor: pointer;
+}
+
+#olho svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* o traço aparece só quando o saldo está oculto */
+#olho .olho-corte {
+    opacity: 0;
+}
+
+#olho[aria-pressed="true"] .olho-corte {
+    opacity: 1;
+}
+
+.icone-local {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    color: var(--cor-fonte);
 }
