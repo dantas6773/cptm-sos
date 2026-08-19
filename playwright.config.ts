@@ -42,8 +42,13 @@ export default defineConfig({
         env: {
             PORT: String(PORTA),
             JWT_SECRET: "segredo-de-teste-e2e-nao-usar-em-producao",
-            // a suíte faz um login por teste; o teto padrão (10) bloquearia o final dela
+            // a suíte exercita as mesmas rotas dezenas de vezes em segundos; os tetos
+            // padrão a bloqueariam no meio, com falha intermitente e enganosa
             RATE_LIMIT_LOGIN: "1000",
+            RATE_LIMIT_CADASTRO: "1000",
+            RATE_LIMIT_SALDO: "1000",
+            RATE_LIMIT_DENUNCIA: "1000",
+            RATE_LIMIT_LOCALIZACAO: "1000",
             // banco isolado: a suíte nunca toca no data/usuario.json de quem desenvolve
             DB_PATH: path.join(".e2e-tmp", "usuario.json"),
             DENUNCIAS_PATH: path.join(".e2e-tmp", "denuncias.json"),

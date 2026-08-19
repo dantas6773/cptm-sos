@@ -37,12 +37,17 @@ function lerJwtSecret(): string {
 
 const JWT_SECRET = lerJwtSecret();
 
+// Tetos configuráveis por variável de ambiente: a suíte e2e exercita as mesmas
+// rotas dezenas de vezes em poucos segundos e seria bloqueada pelos próprios
+// limites. Em produção vale o padrão de cada um.
+function teto(variavel: string, padrao: number) {
+    return Number(process.env[variavel]) || padrao;
+}
+
 // Sem isso, /api/login aceita tentativas ilimitadas — força bruta trivial.
-// O teto é configurável porque a suíte e2e faz muitos logins seguidos e seria
-// bloqueada por ele; em produção vale o padrão.
 const limiteLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: Number(process.env.RATE_LIMIT_LOGIN) || 10,
+    limit: teto("RATE_LIMIT_LOGIN", 10),
     standardHeaders: true,
     legacyHeaders: false,
     message: { mensagem: "Muitas tentativas de login. Tente novamente em alguns minutos." },
@@ -50,7 +55,7 @@ const limiteLogin = rateLimit({
 
 const limiteCadastro = rateLimit({
     windowMs: 60 * 60 * 1000,
-    limit: 20,
+    limit: teto("RATE_LIMIT_CADASTRO", 20),
     standardHeaders: true,
     legacyHeaders: false,
     message: { mensagem: "Muitas contas criadas a partir deste endereço. Tente mais tarde." },
@@ -59,7 +64,7 @@ const limiteCadastro = rateLimit({
 // Teto por operação sozinho não impede saldo infinito: bastava repetir a chamada.
 const limiteSaldo = rateLimit({
     windowMs: 60 * 1000,
-    limit: 10,
+    limit: teto("RATE_LIMIT_SALDO", 10),
     standardHeaders: true,
     legacyHeaders: false,
     message: { mensagem: "Muitas operações de saldo seguidas. Aguarde um instante." },
@@ -78,7 +83,7 @@ const limiteMapa = rateLimit({
 // /api/alerta/localizacao é alimentada por watchPosition, que dispara sozinho.
 const limiteDenuncia = rateLimit({
     windowMs: 60 * 60 * 1000,
-    limit: 20,
+    limit: teto("RATE_LIMIT_DENUNCIA", 20),
     standardHeaders: true,
     legacyHeaders: false,
     message: { mensagem: "Muitas denúncias enviadas seguidas. Aguarde um pouco." },
@@ -86,7 +91,7 @@ const limiteDenuncia = rateLimit({
 
 const limiteLocalizacao = rateLimit({
     windowMs: 60 * 1000,
-    limit: 30,
+    limit: teto("RATE_LIMIT_LOCALIZACAO", 30),
     standardHeaders: true,
     legacyHeaders: false,
     message: { mensagem: "Muitas atualizações de localização." },
