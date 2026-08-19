@@ -204,16 +204,15 @@ body {
     display: flex;
     width: 100%;
     height: 230px;
-    /* Esquema desenhado em vetor, nas cores oficiais das linhas, no lugar de um
-       recorte do mapa real. Em miniatura o mapa verdadeiro vira um emaranhado de
-       rótulos ilegíveis, e ainda depende da resolução do arquivo. O esquema é
-       nítido em qualquer densidade, pesa 1,7KB em vez de 288KB, e cumpre o papel
-       que este cartão tem: sinalizar "aqui está o mapa". Quem quer consultar o
-       traçado real abre a tela de mapa, onde ele está por inteiro. */
-    background-image: url(../imagem/mapa-esquema.svg);
-    background-size: cover;
+    background-image: url(../imagem/mapa-metro.png);
+    /* A imagem passou de 276px para 1100px de largura (regerada a partir do SVG
+       da rede, que já existia no projeto). O recorte é bem aproximado de
+       propósito: em miniatura, o mapa inteiro vira um emaranhado de rótulos.
+       Com poucas estações visíveis ele funciona como referência visual, que é o
+       papel dele aqui — quem quer o mapa de fato abre a tela de mapa. */
+    background-size: 420% auto;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: 46% 44%;
     border-radius: 24px;
     /* sem contorno: no Figma o cartão não tem borda, só a sombra */
     box-shadow: 0px 5px 15px rgba(100, 100, 111, 0.35);
