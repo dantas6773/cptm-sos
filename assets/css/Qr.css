@@ -10,6 +10,12 @@ body {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    /* No projeto esta tela é uma camada sobre a home, com o fundo escurecido.
+       Como aqui ela é uma página própria, não há nada atrás para escurecer: o
+       backdrop-filter abaixo rendia um cinza chapado, que além de destoar deixava
+       o botão "Voltar" com contraste de 2,84:1. O mesmo tom escuro já usado na
+       tela de pré-denúncia resolve as duas coisas. */
+    background-color: #0B0F1C;
 }
 
 .blur-background {
@@ -19,7 +25,7 @@ body {
     width: 100%;
     height: 100%;
     backdrop-filter: blur(8px);
-    background-color: rgba(0, 0, 0, 0.4); /* escurece um pouco junto com o blur */
+    background: radial-gradient(circle at 50% 40%, rgba(27, 70, 128, 0.35), transparent 70%);
     z-index: 0;
 }
 
