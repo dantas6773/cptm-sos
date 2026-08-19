@@ -75,9 +75,10 @@ body {
 .apelido {
     color: var(--cor-texto);
     font-size: clamp(28px, 8vw, 38px);
-    font-style: italic;
+    /* O itálico pertence à marca ("CPTM", "CPTM Security"), não aos títulos de
+       conteúdo: no Figma este texto é reto e centralizado. */
     font-weight: 300;
-    text-align: left;
+    text-align: center;
 }
 
 form {
