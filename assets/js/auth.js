@@ -59,6 +59,41 @@ async function authFetch(path, options = {}) {
   return resp;
 }
 
+// Dados de quem está logado. Buscados uma vez por página e reaproveitados: antes
+// cada tela fazia a sua própria chamada a /api/usuario, e as que mostram saudação
+// e saldo chegavam a pedir a mesma coisa duas vezes.
+let promessaUsuario = null;
+
+function carregarUsuario() {
+  if (!promessaUsuario) {
+    promessaUsuario = authFetch("/api/usuario")
+      .then((resp) => {
+        if (!resp.ok) throw new Error("Erro ao buscar usuário no servidor");
+        return resp.json();
+      })
+      .then((data) => data.usuario || {});
+  }
+  return promessaUsuario;
+}
+
+// Saudação do cabeçalho. Só age nas telas que têm o elemento, então este script
+// continua seguro em login e cadastro, onde ainda não há sessão.
+document.addEventListener("DOMContentLoaded", () => {
+  const alvo = document.getElementById("boas-vindas");
+  if (!alvo) return;
+
+  carregarUsuario()
+    .then((usuario) => {
+      const nome = usuario.nome || "";
+      alvo.textContent = "Olá, " + (nome.split(" ")[0] || "Usuário");
+    })
+    .catch(() => {
+      // authFetch já redireciona quando a sessão caiu; aqui só evita deixar
+      // "Carregando..." congelado se a rede falhar.
+      alvo.textContent = "Olá";
+    });
+});
+
 // Aviso de ambiente errado. Se a página for aberta pelo Live Server (ou por
 // qualquer servidor que só entregue arquivos estáticos), as chamadas de API caem
 // num lugar que não tem API e tudo falha com mensagens genéricas do tipo "erro ao

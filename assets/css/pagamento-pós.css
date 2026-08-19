@@ -28,41 +28,6 @@ html, body {
     background-color: var(--cor-fundo);
 }
 
-.header-todo {
-    display: flex;
-    width: 100%;
-    flex-shrink: 0;
-    background-color: var(--cor-header);
-    color: var(--cor-fonte);
-    align-items: center;
-    justify-content: space-between;
-    padding: clamp(14px, 2.6vh, 26px) 15px;
-    position: relative;
-    overflow: hidden;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    position: relative;
-    z-index: 1;
-}
-
-.barra {
-    position: absolute;
-    left: 240px;
-    width: 22px;
-    height: 200px;
-    background-color: var(--cor-fonte);
-    transform: rotate(-41.95deg);
-}
-
-.perfil {
-    position: relative;
-    z-index: 1;
-}
-
 .conteudo {
     flex: 1;
     display: flex;
@@ -99,9 +64,16 @@ html, body {
     padding: 18px 20px;
 }
 
+/* Os ícones eram PNGs de ~40px exibidos a 32px: num celular 3x faltava mais da
+   metade dos pixels e eles saíam borrados. Além disso vinham coloridos (Pix
+   verde, cartão amarelo) sobre o card azul, enquanto o ícone da carteira ao lado
+   era traço branco — duas linguagens de ícone na mesma tela. Em SVG herdam a cor
+   do texto e ficam nítidos em qualquer densidade. */
 .imagess {
     width: 32px;
     height: 32px;
+    flex-shrink: 0;
+    color: var(--cor-fonte);
 }
 
 .saldo-texto {
@@ -206,15 +178,6 @@ html, body {
     font-weight: 700;
     letter-spacing: 1px;
     cursor: pointer;
-}
-
-footer {
-    background-color: var(--cor-header);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(16px, 3vh, 26px) 20px;
 }
 
 #Ajuda {

@@ -28,32 +28,6 @@ html, body {
     background-color: var(--branco-sujo);
 }
 
-header {
-    width: 100%;
-    flex-shrink: 0;
-    background-color: var(--azul-principal);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: clamp(14px, 2.6vh, 26px) 20px;
-}
-
-.apresentacao {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.apresentacao img {
-    height: 28px;
-}
-
-#foto-perfil {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-}
-
 main {
     flex: 1;
     display: flex;
@@ -283,16 +257,6 @@ h4 {
     color: var(--branco-sujo);
     font-weight: 400;
     pointer-events: none;
-}
-
-footer {
-    width: 100%;
-    flex-shrink: 0;
-    background-color: var(--azul-principal);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: clamp(16px, 3vh, 24px) 20px;
 }
 
 h5 {

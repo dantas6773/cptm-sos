@@ -44,26 +44,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       })
   }
 
-  // busca nome + saldo reais do usuário logado em uma única chamada autenticada
+  // saldo do usuário logado. O nome do cabeçalho é preenchido por auth.js, que
+  // busca o usuário uma vez só e compartilha o resultado com esta chamada.
   async function carregarUsuarioBackend() {
     try {
-      const resp = await authFetch('/api/usuario')
-      if (!resp.ok) throw new Error('Erro ao buscar usuário no servidor')
+      const usuario = await carregarUsuario()
 
-      const data = await resp.json()
-
-      const saldo = data.usuario?.saldo ?? 0
+      const saldo = usuario.saldo ?? 0
       const saldoFormatado = 'R$ ' + Number(saldo).toFixed(2).replace('.', ',')
       const saldoEl = document.getElementById('valor-saldo')
       if (saldoEl) {
         saldoEl.textContent = saldoFormatado
         saldoEl.dataset.valorReal = saldoFormatado
       }
-
-      const nomeCompleto = data.usuario?.nome || 'Usuário'
-      const primeiroNome = nomeCompleto.split(' ')[0] || nomeCompleto
-      const boasEl = document.getElementById('boas-vindas')
-      if (boasEl) boasEl.textContent = `Olá, ${primeiroNome}`
     } catch (error) {
       console.error('Erro ao carregar usuário do backend:', error)
     }

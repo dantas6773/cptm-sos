@@ -7,20 +7,13 @@ seta_voltar.addEventListener('click', function () {
 
 
 
-async function carregarUsuario() {
+// A saudação do cabeçalho é preenchida por auth.js, que já busca o usuário.
+async function mostrarSaldo() {
   const dinheiroEl = document.getElementById('dinheiro');
-  const boas = document.getElementById('boas-vindas');
 
   try {
-    const resp = await authFetch('/api/usuario');
-    if (!resp.ok) throw new Error('Erro ao buscar usuário no servidor');
-    const data = await resp.json();
-
-    const saldo = data.usuario?.saldo ?? 0;
-    if (dinheiroEl) dinheiroEl.textContent = formatBRL(saldo);
-
-    const nome = data.usuario?.nome || '';
-    if (boas) boas.textContent = 'Olá, ' + (nome.split(' ')[0] || 'Usuário');
+    const usuario = await carregarUsuario();
+    if (dinheiroEl) dinheiroEl.textContent = formatBRL(usuario.saldo ?? 0);
   } catch (err) {
     console.error('Erro ao carregar usuário:', err);
     if (dinheiroEl) dinheiroEl.textContent = formatBRL(0);
@@ -29,7 +22,7 @@ async function carregarUsuario() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await carregarUsuario();
+  await mostrarSaldo();
 
   const metodoBtns = document.querySelectorAll('.mets');
   metodoBtns.forEach(btn => {

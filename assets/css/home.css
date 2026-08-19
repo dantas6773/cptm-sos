@@ -10,10 +10,6 @@
     --cor-fonte: #FFFFFF;
     --cor-botao-saldo: #4F4D56;
     --cor-botao-recarga: #ED1C24;
-    /* Cabeçalho e rodapé derivam desta altura, em vez de chegarem perto por
-       acaso: antes um dependia do tamanho da foto de perfil e o outro do ícone
-       mais o rótulo, e mudar qualquer um deles separava os dois sem aviso. */
-    --altura-barra: clamp(72px, 9.6vh, 88px);
 }
 
 html,
@@ -38,71 +34,6 @@ body {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
-}
-
-.header-todo {
-    display: flex;
-    width: 100%;
-    flex-shrink: 0;
-    background-color: var(--cor-header);
-    color: var(--cor-fonte);
-    align-items: center;
-    justify-content: space-between;
-    padding: clamp(8px, 1.2vh, 14px) 15px;
-    /* Espaço reservado à direita para os trilhos. Antes a foto de perfil ocupava
-       essa área e limitava a saudação; sem ela, um apelido comprido avançaria por
-       baixo dos trilhos. */
-    padding-right: 92px;
-    min-height: var(--altura-barra);
-    position: relative;
-    overflow: hidden;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    position: relative;
-    z-index: 1;
-}
-
-.logo h1 {
-    font-size: 18px;
-    color: var(--cor-fonte);
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-}
-
-/* Dois trilhos finos no canto, em vez de uma faixa larga cruzando o cabeçalho.
-   A faixa anterior começava em 140px e o texto da saudação chegava a 180px: já
-   se sobrepunham com um nome comum, e qualquer apelido maior piorava. Aqui os
-   trilhos começam depois dos 300px, deixando a área do texto livre — e dois
-   traços paralelos lembram trilho mais do que um só. */
-.barra {
-    position: absolute;
-    left: auto;
-    right: 22px;
-    width: 8px;
-    height: 170px;
-    background-color: var(--cor-fonte);
-    transform: rotate(-41.95deg);
-    pointer-events: none;
-}
-
-.barra::after {
-    content: "";
-    position: absolute;
-    left: 17px;
-    top: 0;
-    width: 8px;
-    height: 100%;
-    background-color: var(--cor-fonte);
-}
-
-.perfil {
-    position: relative;
-    z-index: 1;
 }
 
 .cartao-saldo {
@@ -499,34 +430,4 @@ body {
     height: 18px;
     flex-shrink: 0;
     color: var(--cor-fonte);
-}
-
-/* Apelido comprido não pode empurrar a foto de perfil para fora da tela: a
-   saudação encolhe e corta com reticências. O min-width:0 é necessário para que
-   o item flex possa encolher abaixo do tamanho do seu conteúdo. */
-.logo {
-    min-width: 0;
-    flex: 1;
-}
-
-#boas-vindas {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.perfil {
-    flex-shrink: 0;
-}
-
-/* A foto era exibida em 70px, o que sozinho definia a altura do cabeçalho — o
-   respiro já estava no mínimo. No Figma ela tem cerca de 58px; nesse tamanho o
-   cabeçalho fica da mesma altura do rodapé e a proporção volta à do projeto. */
-.perfil img {
-    width: 58px;
-    height: 58px;
-    display: block;
-    object-fit: cover;
-    border-radius: 50%;
 }

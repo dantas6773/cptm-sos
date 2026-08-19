@@ -8,15 +8,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/cabecalho.css">
     <link rel="stylesheet" href="assets/css/fomularioDenuncia.css">
 </head>
 <body>
   <div class="pagina">
     <header>
-        <div class="apresentacao">
-            <img src="assets/imagem/logoCptm.png" alt="logo CPTM">
+      <div class="header-todo">
+        <div class="logo">
+          <img src="assets/imagem/logo.png" alt="Logo">
+          <h1 id="boas-vindas" aria-live="polite">Carregando...</h1>
         </div>
-        <img src="assets/imagem/fotoPerfil.png" alt="Foto perfil" id="foto-perfil">
+        <div class="barra" aria-hidden="true"></div>
+      </div>
     </header>
     <main>
         <button type="button" id="voltar">
@@ -76,7 +80,7 @@
             </div>
         </div>
     </main>
-    <footer>
+    <footer class="rodape-simples">
         <h5><u>Central de Ajuda</u></h5>
     </footer>
   </div>

@@ -32,14 +32,11 @@ decrementarBilhetes.addEventListener("click", () => {
 });
 
 // === Carregar saldo real do usuário ===
+// O usuário vem de carregarUsuario() (auth.js), que também preenche a saudação.
 async function carregarSaldo() {
   try {
-    const response = await authFetch("/api/usuario");
-    if (!response.ok) throw new Error("Erro ao buscar saldo no servidor");
-
-    const data = await response.json();
-    const saldo = data.usuario.saldo ?? 0;
-
+    const usuario = await carregarUsuario();
+    const saldo = usuario.saldo ?? 0;
     saldoEl.textContent = formatBRL(saldo);
     return saldo;
   } catch (error) {

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Tela de pós-pagamento</title>
     <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/cabecalho.css">
     <link rel="stylesheet" href="assets/css/pagamento-pós.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,11 +17,9 @@
       <div class="header-todo">
         <div class="logo">
           <img src="assets/imagem/logo.png" alt="Logo">
+          <h1 id="boas-vindas" aria-live="polite">Carregando...</h1>
         </div>
-        <div class="barra"></div>
-        <div class="perfil">
-          <img src="assets/imagem/perfil.png" alt="Perfil">
-        </div>
+        <div class="barra" aria-hidden="true"></div>
       </div>
     </header>
 
@@ -31,7 +30,11 @@
         </button>
 
         <article id="bttsaldo">
-            <img class="imagess" src="assets/imagem/imgpastas.png" alt="Ícone saldo">
+            <svg class="imagess" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 10.5C4 9 5.1 7.8 6.6 7.6L22.4 5.3c1-.1 1.9.6 1.9 1.6v3.1"/>
+            <rect x="4" y="10.4" width="24" height="16.2" rx="3.2"/>
+            <circle cx="22.6" cy="18.5" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
             <div class="saldo-texto">
               <p id="seusaldo">Seu saldo:</p>
               <p id="dinheiro" aria-live="polite">Carregando...</p>
@@ -58,7 +61,7 @@
         <button id="botao-comprar" type="button">COMPRAR</button>
     </div>
 
-    <footer>
+    <footer class="rodape-simples">
         <a id="Ajuda" href="#">Central de Ajuda</a>
     </footer>
   </div>
