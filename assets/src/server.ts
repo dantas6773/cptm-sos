@@ -729,7 +729,7 @@ const ROOT_DIR = path.join(__dirname, "..", "..");
 
 // Só as subpastas de fato públicas. `assets/src/` fica de fora de propósito: guarda
 // o código do backend e o script Python, que não têm por que ser baixáveis.
-for (const pasta of ["css", "js", "imagem", "sons"]) {
+for (const pasta of ["css", "js", "imagem", "sons", "fontes"]) {
 	server.use(`/assets/${pasta}`, express.static(path.join(ROOT_DIR, "assets", pasta), { dotfiles: "deny" }));
 }
 
