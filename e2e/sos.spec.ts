@@ -64,7 +64,7 @@ test("CPF errado avisa e mantém o alerta ligado", async ({ page }) => {
     expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).alerta).toBe(true);
 });
 
-test("CPF correto desativa o alarme e avança", async ({ page }) => {
+test("CPF correto desativa o alarme e volta para a home com a confirmação", async ({ page }) => {
     const cpf = usuarioDoSeed(EMAIL).cpf;
 
     await page.goto("/denuncia.html");
@@ -73,8 +73,41 @@ test("CPF correto desativa o alarme e avança", async ({ page }) => {
     await page.fill("#cpf-input", cpf);
     await page.click("#cpf-button");
 
-    await page.waitForURL(/denucia\.html/, { timeout: 5000 });
+    await page.waitForURL(/home\.html$/, { timeout: 5000 });
     expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).alerta).toBe(false);
+
+    // quem sai de um fluxo de emergência não pode ficar em dúvida se ainda está
+    // sendo localizada
+    await expect(page.locator(".dialogo-confirmacao")).toBeVisible();
+    await expect(page.locator(".confirmacao-cartao h2")).toHaveText("Alarme desativado");
+    await expect(page.locator(".confirmacao-detalhe")).toContainText("localização");
+});
+
+// O servidor apaga a posição guardada junto com o alerta: desligar não pode
+// deixar para trás o último ponto de onde a pessoa estava.
+test("desativar o alarme apaga a localização guardada", async ({ page, request }) => {
+    const login = await request.post("/api/login", { data: { email: EMAIL, senha: "demo1234" } });
+    const { token } = await login.json();
+
+    await request.put("/api/alerta", {
+        data: { alerta: true },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    await request.post("/api/alerta/localizacao", {
+        data: { lat: -23.55, lng: -46.63 },
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).localizacao).toBeTruthy();
+
+    await page.goto("/denuncia.html");
+    await arrastarSlider(page);
+    await page.fill("#cpf-input", usuarioDoSeed(EMAIL).cpf);
+    await page.click("#cpf-button");
+    await page.waitForURL(/home\.html$/, { timeout: 5000 });
+
+    const usuario = lerBanco().usuarios.find((u: any) => u.email === EMAIL);
+    expect(usuario.alerta).toBe(false);
+    expect(usuario.localizacao).toBeUndefined();
 });
 
 test("'Me encontre' compartilha a localização de verdade", async ({ page }) => {
@@ -112,6 +145,6 @@ test("o campo de CPF do alarme aceita o formato que o cadastro ensina", async ({
 
     // o formato pontuado desativa o alarme: era exatamente o que era recusado
     await page.click("#cpf-button");
-    await page.waitForURL(/denucia\.html/, { timeout: 5000 });
+    await page.waitForURL(/home\.html$/, { timeout: 5000 });
     expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).alerta).toBe(false);
 });

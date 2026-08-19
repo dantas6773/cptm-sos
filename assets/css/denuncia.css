@@ -284,7 +284,9 @@ footer {
     border: none;
     outline: none;
     color: white;
-    font-size: 15px;
+    /* 16px é o limiar: abaixo disso o iOS amplia a página ao focar, ancorando o
+       zoom no campo e empurrando o botão de enviar para fora da tela. */
+    font-size: 16px;
 }
 
 #cpf-button {

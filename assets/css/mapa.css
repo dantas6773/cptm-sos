@@ -296,7 +296,8 @@ body {
     border-radius: 8px;
     border: 1px solid #ddd;
     font-family: inherit;
-    font-size: 14px;
+    /* 16px evita o zoom automático do iOS ao focar */
+    font-size: 16px;
 }
 
 .item-save,

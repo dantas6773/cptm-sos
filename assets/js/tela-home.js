@@ -33,6 +33,20 @@ olho.addEventListener('click', () => {
   olho.setAttribute('aria-label', saldoVisivel ? 'Ocultar saldo' : 'Mostrar saldo');
 });
 
+// Confirmação de que o alarme foi desligado. Quem desativa volta para a home, e
+// a mensagem diz o que parou — a pessoa acabou de sair de um fluxo de emergência
+// e não deve ficar em dúvida se ainda está sendo localizada.
+function mostrarConfirmacaoDeAlarme() {
+  if (localStorage.getItem('alarmeDesativado') !== '1') return false
+  localStorage.removeItem('alarmeDesativado')
+
+  mostrarConfirmacao({
+    titulo: 'Alarme desativado',
+    detalhe: 'A sirene parou e a sua localização deixou de ser compartilhada.',
+  })
+  return true
+}
+
 // Confirmação da compra de bilhetes. Quem compra volta para cá, onde o saldo
 // novo está à vista — antes esta tela lia uma chave de localStorage que nenhuma
 // outra escrevia e mostrava um alert(), a caixa do sistema que o resto do app já
@@ -64,7 +78,9 @@ function mostrarConfirmacaoDeCompra() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  mostrarConfirmacaoDeCompra()
+  // O aviso do alarme tem precedência: é o mais importante dos dois, e as duas
+  // caixas nunca devem aparecer empilhadas.
+  if (!mostrarConfirmacaoDeAlarme()) mostrarConfirmacaoDeCompra()
 
   // saldo do usuário logado. O nome do cabeçalho é preenchido por auth.js, que
   // busca o usuário uma vez só e compartilha o resultado com esta chamada.

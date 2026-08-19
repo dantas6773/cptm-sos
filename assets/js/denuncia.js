@@ -79,12 +79,62 @@ if (button) {
 const sirene = document.getElementById('sirene');
 const iconeSirene = document.getElementById('icone-sirene');
 const textoSirene = document.getElementById('texto-sirene');
-// Trecho de ~1s em loop, no lugar do arquivo de 55s e 10 MB: numa emergência o
-// som precisa sair na hora, não depois de baixar 10 MB no 4G. Continua em WAV de
+// Trecho em loop, no lugar do arquivo de 55s e 10 MB: numa emergência o som
+// precisa sair na hora, não depois de baixar 10 MB no 4G. Continua em WAV de
 // propósito — o mp3 acrescenta padding de encoder no início e no fim, e isso
 // produz um clique audível a cada volta do loop.
-const audioSirene = new Audio('assets/sons/sirene-loop.wav');
-audioSirene.loop = true;
+//
+// O trecho tem 8 ciclos inteiros da sirene (o ciclo mede 239ms) e começa e
+// termina em cruzamentos por zero subindo, com uma fusão cruzada de 12ms na
+// emenda. O corte anterior tinha 1s e emendava fora de fase, o que se ouvia como
+// o som cortando a cada volta.
+const CAMINHO_SIRENE = 'assets/sons/sirene-loop.wav';
+
+// O loop do <audio> não é contínuo: o Safari insere uma pausa a cada volta.
+// A Web Audio repete o buffer com precisão de amostra, sem emenda audível.
+let contextoAudio = null;
+let bufferSirene = null;
+let fonteSirene = null;
+let audioReserva = null;
+
+async function prepararSirene() {
+  if (bufferSirene || !window.AudioContext) return;
+  contextoAudio = contextoAudio || new AudioContext();
+  const resp = await fetch(CAMINHO_SIRENE);
+  bufferSirene = await contextoAudio.decodeAudioData(await resp.arrayBuffer());
+}
+
+async function tocarSirene() {
+  try {
+    await prepararSirene();
+    if (!bufferSirene) throw new Error('sem Web Audio');
+    // o navegador só libera o áudio a partir de um gesto; este é o clique
+    if (contextoAudio.state === 'suspended') await contextoAudio.resume();
+
+    pararSirene();
+    fonteSirene = contextoAudio.createBufferSource();
+    fonteSirene.buffer = bufferSirene;
+    fonteSirene.loop = true;
+    fonteSirene.connect(contextoAudio.destination);
+    fonteSirene.start();
+  } catch (err) {
+    console.error('Web Audio indisponível, tocando pelo <audio>:', err);
+    audioReserva = audioReserva || Object.assign(new Audio(CAMINHO_SIRENE), { loop: true });
+    audioReserva.play().catch((e) => console.error('Não foi possível tocar a sirene:', e));
+  }
+}
+
+function pararSirene() {
+  if (fonteSirene) {
+    try { fonteSirene.stop(); } catch { /* já parada */ }
+    fonteSirene.disconnect();
+    fonteSirene = null;
+  }
+  if (audioReserva) {
+    audioReserva.pause();
+    audioReserva.currentTime = 0;
+  }
+}
 
 let sireneAtiva = false;
 
@@ -96,13 +146,12 @@ if (sirene) {
       sirene.style.backgroundColor = '#ED1C24';
       if (textoSirene) textoSirene.style.color = '#F4F4F4';
       if (iconeSirene) iconeSirene.src = 'assets/imagem/sireneBranca.png';
-      audioSirene.play().catch((err) => console.error('Não foi possível tocar a sirene:', err));
+      tocarSirene();
     } else {
       sirene.style.backgroundColor = '';
       if (textoSirene) textoSirene.style.color = '';
       if (iconeSirene) iconeSirene.src = 'assets/imagem/sirene.png';
-      audioSirene.pause();
-      audioSirene.currentTime = 0;
+      pararSirene();
     }
   });
 }
@@ -287,8 +336,16 @@ async function confirmarAlertaCpf(e) {
       return;
     }
 
-    pararCamera(); // para a câmera antes de sair
-    window.location.href = "pré-denucia.html";
+    // Desliga tudo explicitamente, e não como efeito colateral de a página sair
+    // do ar. Antes só a câmera era encerrada: a sirene e o GPS paravam porque a
+    // navegação destruía a página — se ela falhasse ou demorasse, a sirene
+    // seguiria tocando e o aparelho seguiria enviando posição.
+    pararSirene();
+    pararCompartilhamento();
+    pararCamera();
+
+    localStorage.setItem("alarmeDesativado", "1");
+    window.location.href = "home.html";
   } catch (err) {
     console.error("Erro ao confirmar alerta:", err);
   }
