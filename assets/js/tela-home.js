@@ -1,23 +1,22 @@
-const botao_pix = document.getElementsByClassName('recarga')[0]
+// A denúncia saiu daqui: a barra de seções cuida da própria navegação. Sem esta
+// remoção o script quebrava na primeira linha ao não achar o rodapé antigo, e
+// tudo o que vem depois deixava de rodar.
+const destinos = [
+    ['recarga', 'pagamento.html'],
+    ['mapa', 'mapa.html'],
+]
+
+for (const [classe, destino] of destinos) {
+    const alvo = document.getElementsByClassName(classe)[0]
+    if (alvo) alvo.addEventListener('click', () => { window.location.href = destino })
+}
+
 const botao_qrcode = document.getElementById('botao-qrcode')
-const botao_denuncia = document.getElementsByClassName('botao-footer denuncia')[0]
-const botao_mapa = document.getElementsByClassName('mapa')[0]
-
-botao_pix.addEventListener('click', function() {
-    window.location.href = 'pagamento.html'
-})
-
-botao_qrcode.addEventListener('click', function() {
-    window.location.href = 'QR.html'
-})
-
-botao_denuncia.addEventListener('click', function() {
-    window.location.href = 'pré-denucia.html'
-})
-
-botao_mapa.addEventListener('click', function(){
-    window.location.href = 'mapa.html'
-})
+if (botao_qrcode) {
+    botao_qrcode.addEventListener('click', function() {
+        window.location.href = 'QR.html'
+    })
+}
 
 const olho = document.getElementById('olho');
 const valorSaldo = document.getElementById('valor-saldo');
@@ -47,27 +46,53 @@ function mostrarConfirmacaoDeAlarme() {
   return true
 }
 
+// Confirmação da passagem na catraca. O bilhete foi usado, então a tela do QR
+// não tem mais função — a pessoa volta para cá, onde o saldo já aparece
+// descontado por trás da caixa.
+function mostrarConfirmacaoDePassagem() {
+  const bruto = localStorage.getItem('passagemLiberada')
+  if (!bruto) return false
+  localStorage.removeItem('passagemLiberada')
+
+  let dados
+  try {
+    dados = JSON.parse(bruto)
+  } catch {
+    return false
+  }
+
+  const preco = Number(dados?.preco)
+  const saldo = Number(dados?.saldo)
+  if (!Number.isFinite(preco) || preco <= 0 || !Number.isFinite(saldo)) return false
+
+  mostrarConfirmacao({
+    titulo: 'Passagem liberada!',
+    detalhe: `${formatBRL(preco)} descontados do seu saldo. Agora você tem ${formatBRL(saldo)}.`,
+  })
+  return true
+}
+
 // Confirmação da compra de bilhetes. Quem compra volta para cá, onde o saldo
 // novo está à vista — antes esta tela lia uma chave de localStorage que nenhuma
 // outra escrevia e mostrava um alert(), a caixa do sistema que o resto do app já
 // tinha deixado de usar.
 function mostrarConfirmacaoDeCompra() {
   const bruto = localStorage.getItem('compraConcluida')
-  if (!bruto) return
+  if (!bruto) return false
   localStorage.removeItem('compraConcluida')
 
   let dados
   try {
     dados = JSON.parse(bruto)
   } catch {
-    return
+    return false
   }
 
   // Só os dois números atravessam o armazenamento, e ainda assim são conferidos:
   // a frase é montada aqui, então nada de lá vira texto solto na tela.
   const quantidade = Number(dados?.quantidade)
   const total = Number(dados?.total)
-  if (!Number.isInteger(quantidade) || quantidade <= 0 || !Number.isFinite(total)) return
+  if (!Number.isInteger(quantidade) || quantidade <= 0 || !Number.isFinite(total)) return false
 
   const bilhetes = quantidade === 1 ? '1 bilhete' : `${quantidade} bilhetes`
 
@@ -75,12 +100,13 @@ function mostrarConfirmacaoDeCompra() {
     titulo: 'Compra concluída!',
     detalhe: `${bilhetes} — ${formatBRL(total)} foram adicionados ao seu saldo.`,
   })
+  return true
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // O aviso do alarme tem precedência: é o mais importante dos dois, e as duas
-  // caixas nunca devem aparecer empilhadas.
-  if (!mostrarConfirmacaoDeAlarme()) mostrarConfirmacaoDeCompra()
+  // Uma caixa por vez, nunca empilhadas. O aviso do alarme vem primeiro: é o
+  // mais importante dos três.
+  mostrarConfirmacaoDeAlarme() || mostrarConfirmacaoDePassagem() || mostrarConfirmacaoDeCompra()
 
   // saldo do usuário logado. O nome do cabeçalho é preenchido por auth.js, que
   // busca o usuário uma vez só e compartilha o resultado com esta chamada.

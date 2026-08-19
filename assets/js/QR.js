@@ -65,15 +65,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       const novoSaldo = data.usuario?.saldo ?? 0;
       mostrarSaldo(novoSaldo);
 
-      // A confirmação aparece aqui, e não na home como a da compra: quem apertou
-      // está na catraca e precisa do retorno na hora. Um redirecionamento antes
-      // da resposta deixaria a dúvida de se passou ou não.
-      mostrarConfirmacao({
-        titulo: "Passagem liberada!",
-        detalhe: `${formatBRL(data.preco)} descontados do seu saldo. Agora você tem ${formatBRL(novoSaldo)}.`,
-        rotulo: "VOLTAR AO INÍCIO",
-        aoFechar: () => { window.location.href = "home.html"; },
-      });
+      // A confirmação aparece na home, como a da compra e a do alarme: o bilhete
+      // foi usado, então esta tela não tem mais função, e a home mostra o saldo
+      // já descontado por trás da caixa.
+      localStorage.setItem(
+        "passagemLiberada",
+        JSON.stringify({ preco: data.preco, saldo: novoSaldo })
+      );
+      window.location.href = "home.html";
+      return;
     } catch (error) {
       console.error("Erro ao passar na catraca:", error);
       avisar("Erro de conexão com o servidor.", "erro");

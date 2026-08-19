@@ -76,7 +76,7 @@ test("o rodapé fica visível sem rolar, em qualquer altura de tela", async ({ p
             await page.waitForTimeout(150);
 
             const m = await page.evaluate(() => {
-                const rodape = document.querySelector("footer, .rodape-acao")!.getBoundingClientRect();
+                const rodape = document.querySelector("footer, .rodape-acao, .barra-navegacao")!.getBoundingClientRect();
                 return {
                     fimDoRodape: Math.round(rodape.bottom),
                     janela: window.innerHeight,
@@ -105,11 +105,53 @@ test("conteúdo que não cabe rola por dentro, sem levar as barras junto", async
             cabecalhoParado:
                 document.querySelector(".header-todo")!.getBoundingClientRect().top === topoAntes,
             rodapeNaTela:
-                document.querySelector("footer, .rodape-acao")!.getBoundingClientRect().bottom <= window.innerHeight + 1,
+                document.querySelector("footer, .rodape-acao, .barra-navegacao")!.getBoundingClientRect().bottom <= window.innerHeight + 1,
         };
     });
 
     expect(m.rolou).toBe(true);
     expect(m.cabecalhoParado).toBe(true);
     expect(m.rodapeNaTela).toBe(true);
+});
+
+// A barra de seções existia duas vezes, com marcações diferentes: a home usava
+// <div class="botao-footer">, o mapa <div class="secoes"> — nenhuma alcançável
+// por teclado, e só a denúncia da home tinha destino.
+test("a barra de seções acende o item da tela em que se está", async ({ page }) => {
+    for (const [tela, esperado] of [
+        ["/home.html", "Home"],
+        ["/mapa.html", "Localização"],
+    ]) {
+        await page.goto(tela);
+        const aceso = page.locator('.item-nav[aria-current="page"]');
+        await expect(aceso, tela).toHaveCount(1);
+        await expect(aceso, tela).toContainText(esperado);
+    }
+});
+
+test("os itens da barra são alcançáveis por teclado e levam a algum lugar", async ({ page }) => {
+    await page.goto("/home.html");
+
+    const links = page.locator(".item-nav[href]");
+    await expect(links).toHaveCount(4);
+
+    // Ajustes não tem tela no projeto: fica declarado como indisponível em vez
+    // de parecer um botão que não faz nada.
+    const semDestino = page.locator('.item-nav[aria-disabled="true"]');
+    await expect(semDestino).toHaveCount(1);
+    await expect(semDestino).toContainText("Ajustes");
+
+    await links.nth(1).focus();
+    await expect(links.nth(1)).toBeFocused();
+    await page.keyboard.press("Enter");
+    await page.waitForURL(/mapa\.html$/);
+});
+
+test("a logo leva de volta à home, e não vira link na própria home", async ({ page }) => {
+    await page.goto("/pagamento.html");
+    await page.click(".logo-link");
+    await page.waitForURL(/home\.html$/);
+
+    // na home ela não é link: recarregar a página em que já se está é ruído
+    await expect(page.locator(".logo-link")).toHaveCount(0);
 });

@@ -136,3 +136,17 @@ body {
     text-underline-offset: 3px;
     cursor: pointer;
 }
+
+/* O logo leva à home. Não vira link na própria home: um atalho que recarrega a
+   página em que a pessoa já está é ruído, não navegação. */
+.logo-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+}
+
+.logo-link:focus-visible {
+    outline: 3px solid var(--cor-fonte);
+    outline-offset: 3px;
+}

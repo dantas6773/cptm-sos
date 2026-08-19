@@ -79,11 +79,16 @@ test("dá para enviar uma segunda denúncia sem recarregar a página", async ({ 
 test("as categorias são alcançáveis por teclado", async ({ page }) => {
     await page.goto("/formularioDenuncia.html");
 
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
+    // Tabula até chegar numa categoria em vez de fixar a posição: o que importa
+    // é que o teclado alcança, e a contagem exata muda a cada elemento novo no
+    // topo da página — foi o que aconteceu quando o logo virou link.
+    let categoriaFocada: string | undefined;
+    for (let i = 0; i < 8 && !categoriaFocada; i++) {
+        await page.keyboard.press("Tab");
+        categoriaFocada = await page.evaluate(
+            () => (document.activeElement as HTMLElement)?.dataset?.categoria
+        );
+    }
 
-    const categoriaFocada = await page.evaluate(
-        () => (document.activeElement as HTMLElement)?.dataset?.categoria
-    );
     expect(categoriaFocada).toBeTruthy();
 });

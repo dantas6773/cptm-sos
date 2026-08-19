@@ -126,7 +126,7 @@ test("cabeçalho e rodapé têm a mesma altura, em qualquer tela", async ({ page
 
         const m = await page.evaluate(() => ({
             cabecalho: document.querySelector(".header-todo")!.getBoundingClientRect().height,
-            rodape: document.querySelector(".footer-todo")!.getBoundingClientRect().height,
+            rodape: document.querySelector(".barra-navegacao")!.getBoundingClientRect().height,
         }));
 
         expect(Math.abs(m.cabecalho - m.rodape), `em tela de ${altura}px`).toBeLessThan(1);

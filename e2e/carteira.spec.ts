@@ -39,19 +39,18 @@ test("passar na catraca debita uma passagem", async ({ page, request }) => {
 
     await page.click("#btn-catraca");
 
-    // A confirmação aparece aqui, e não na home como a da compra: quem apertou
-    // está na catraca e precisa do retorno na hora.
+    // A confirmação chega na home, como a da compra e a do alarme: o bilhete foi
+    // usado, então a tela do QR não tem mais função.
+    await page.waitForURL(/home\.html$/);
     await expect(page.locator(".dialogo-confirmacao")).toBeVisible();
     await expect(page.locator(".confirmacao-cartao h2")).toHaveText("Passagem liberada!");
     await expect(page.locator(".confirmacao-detalhe")).toContainText("5,20 descontados");
     await expect(page.locator(".confirmacao-detalhe")).toContainText("R$ 0,00");
+    await expect(page.locator(".confirmacao-botao")).toHaveText("FECHAR");
 
-    await expect(page.locator(".saldo")).toContainText("0,00");
     expect(saldoDe(EMAIL)).toBe(0);
-
-    // e o caminho de saída leva ao início
-    await page.locator(".confirmacao-botao").click();
-    await page.waitForURL(/home\.html$/);
+    // o saldo da home já é o de depois da passagem
+    await expect(page.locator("#valor-saldo")).toContainText("0,00");
 });
 
 // A recusa deixou de esperar o toque: sem saldo o botão já nasce desligado e a
