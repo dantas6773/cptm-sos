@@ -64,6 +64,16 @@ body {
     white-space: nowrap;
 }
 
+.barra {
+    position: absolute;
+    left: 62%;
+    width: 22px;
+    height: 200px;
+    background-color: var(--cor-fonte);
+    transform: rotate(-41.95deg);
+    pointer-events: none;
+}
+
 .perfil {
     position: relative;
     z-index: 1;
