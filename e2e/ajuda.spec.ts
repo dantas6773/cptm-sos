@@ -5,14 +5,16 @@ import { autenticar, resetarBanco } from "./helpers.ts";
 // "Central de Ajuda" existia no rodapé de três telas sem fazer nada, escrito de
 // três formas diferentes — em pagamento.html era um <a> sem href, que o teclado
 // nem alcança. Agora abre uma folha com o que o app realmente oferece.
-const TELAS = ["/pagamento.html", "/pagamento-pós.html", "/formularioDenuncia.html"];
+// A tela de compra não entra: lá o rodapé é a própria ação (COMPRAR), e a ajuda
+// fica a um toque, na tela anterior.
+const TELAS = ["/pagamento.html", "/formularioDenuncia.html"];
 
 test.beforeEach(async ({ context, request }) => {
     resetarBanco();
     await autenticar(context, request, "ana.souza@example.com");
 });
 
-test("a ajuda abre nas três telas que a oferecem", async ({ page }) => {
+test("a ajuda abre nas telas que a oferecem", async ({ page }) => {
     for (const tela of TELAS) {
         await page.goto(tela);
         await page.click("#Ajuda");

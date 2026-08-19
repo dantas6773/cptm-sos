@@ -243,3 +243,40 @@ test("a caixa de confirmação trata o que recebe como texto, nunca como marcaç
     expect(r.titulo).toContain("<img");
     expect(r.tituloDaPagina).not.toBe("invadido");
 });
+
+// A ação principal não pode depender de rolagem. O botão morava dentro da área
+// que rola e, em tela baixa, ficava atrás da barra de ajuda — escondido, e sem
+// nada indicando que era preciso rolar para achá-lo.
+test("o botão de comprar fica sempre à vista, em qualquer altura de tela", async ({ page }) => {
+    for (const altura of [932, 745, 660, 568]) {
+        await page.setViewportSize({ width: 393, height: altura });
+        await page.goto("/pagamento-pós.html?metodo=boleto");
+        await page.waitForTimeout(150);
+
+        const m = await page.evaluate(() => {
+            const b = document.getElementById("botao-comprar")!.getBoundingClientRect();
+            return { topo: b.top, base: b.bottom, janela: window.innerHeight };
+        });
+
+        expect(m.topo, `em ${altura}px`).toBeGreaterThanOrEqual(0);
+        expect(m.base, `em ${altura}px`).toBeLessThanOrEqual(m.janela + 1);
+    }
+});
+
+// A barra fica ancorada embaixo, então a mensagem de erro cresce para cima e o
+// botão não muda de lugar debaixo do dedo de quem já ia tocar nele.
+test("o aviso de erro não empurra o botão de comprar", async ({ page }) => {
+    await page.route("**/api/usuario/compra", (rota) =>
+        rota.fulfill({ status: 400, contentType: "application/json", body: JSON.stringify({ mensagem: "Recusado no teste" }) })
+    );
+
+    await page.goto("/pagamento-pós.html");
+    await page.click("#incrementar-bilhetes");
+
+    const antes = await page.locator("#botao-comprar").boundingBox();
+    await page.click("#botao-comprar");
+    await expect(page.locator("#aviso-compra")).toContainText("Recusado no teste");
+    const depois = await page.locator("#botao-comprar").boundingBox();
+
+    expect(Math.abs(depois!.y - antes!.y)).toBeLessThan(1);
+});

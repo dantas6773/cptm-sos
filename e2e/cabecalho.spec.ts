@@ -76,7 +76,7 @@ test("o rodapé fica visível sem rolar, em qualquer altura de tela", async ({ p
             await page.waitForTimeout(150);
 
             const m = await page.evaluate(() => {
-                const rodape = document.querySelector("footer")!.getBoundingClientRect();
+                const rodape = document.querySelector("footer, .rodape-acao")!.getBoundingClientRect();
                 return {
                     fimDoRodape: Math.round(rodape.bottom),
                     janela: window.innerHeight,
@@ -105,7 +105,7 @@ test("conteúdo que não cabe rola por dentro, sem levar as barras junto", async
             cabecalhoParado:
                 document.querySelector(".header-todo")!.getBoundingClientRect().top === topoAntes,
             rodapeNaTela:
-                document.querySelector("footer")!.getBoundingClientRect().bottom <= window.innerHeight + 1,
+                document.querySelector("footer, .rodape-acao")!.getBoundingClientRect().bottom <= window.innerHeight + 1,
         };
     });
 

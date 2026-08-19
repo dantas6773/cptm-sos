@@ -173,6 +173,21 @@ html, body {
     color: #141A2E;
 }
 
+/* Nesta tela o rodapé é a própria ação. O botão morava dentro da área que rola,
+   então em tela baixa ele ficava atrás da barra de ajuda — a ação principal
+   escondida, e sem nada indicando que era preciso rolar. Preso aqui, ele está
+   sempre à vista; a Central de Ajuda continua a um toque, na tela anterior. */
+.rodape-acao {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 20px 16px;
+    background-color: var(--cor-fundo);
+    /* a linha sutil avisa que o conteúdo passa por baixo */
+    box-shadow: 0 -1px 0 rgba(20, 26, 46, 0.08);
+}
+
 #botao-comprar {
     width: 100%;
     background-color: var(--cor-header);
@@ -210,9 +225,14 @@ html, body {
 /* Retorno da compra. Antes era um alert() do navegador: bloqueava a tela, saía
    do visual do app e sumia sem deixar rastro para quem usa leitor de tela. */
 .aviso {
-    min-height: 1.3em;
     font-size: 15px;
     text-align: center;
+}
+
+/* Sem reservar altura: a barra está ancorada embaixo, então a mensagem cresce
+   para cima e o botão não sai do lugar quando ela aparece. */
+.aviso:empty {
+    display: none;
 }
 
 .aviso.erro {
