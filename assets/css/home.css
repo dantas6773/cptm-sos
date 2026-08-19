@@ -205,12 +205,17 @@ body {
     width: 100%;
     height: 230px;
     background-image: url(../imagem/mapa-metro.png);
-    background-size: 95%;
+    /* A imagem passou de 276px para 1100px de largura (regerada a partir do SVG
+       da rede, que já existia no projeto). Com o mapa inteiro cabendo no cartão
+       os nomes ficariam ilegíveis; o recorte aproximado mostra o trecho central,
+       como no projeto. */
+    background-size: 260% auto;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: 42% 38%;
     border-radius: 24px;
-    border: 1px solid var(--cor-fonte);
+    /* sem contorno: no Figma o cartão não tem borda, só a sombra */
     box-shadow: 0px 5px 15px rgba(100, 100, 111, 0.35);
+    overflow: hidden;
 }
 
 .azul {
@@ -218,9 +223,16 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 45%;
-    background: linear-gradient(to top, #1B4680 55%, transparent);
-    border-radius: 24px;
+    height: 62%;
+    /* A parada única em 55% criava uma linha perceptível onde o azul começava.
+       Com paradas intermediárias a transição fica gradual, como no projeto. */
+    background: linear-gradient(to top,
+        #1B4680 0%,
+        #1B4680 38%,
+        rgba(27, 70, 128, 0.82) 60%,
+        rgba(27, 70, 128, 0.45) 78%,
+        transparent 100%);
+    border-radius: 0 0 24px 24px;
 }
 
 .input-busca {
@@ -259,7 +271,9 @@ body {
 .endereco {
     position: absolute;
     bottom: 10px;
-    left: 28px;
+    /* alinhado com a lupa: o campo começa em 30px e a lupa fica a 14px dele */
+    left: 44px;
+    right: 30px;
     color: white;
     display: flex;
     align-items: center;
