@@ -264,8 +264,12 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 20px;
-    font-weight: 600;
+    /* O endereço é informação contextual, mas estava em 20px/600 — empatado com o
+       saldo e o campo de busca, e maior que os títulos de seção. Passa a ficar um
+       nível abaixo deles na hierarquia. Peso 500 e não 400 porque o fundo é azul
+       e o texto branco perde definição com peso leve. */
+    font-size: 16px;
+    font-weight: 500;
     z-index: 1;
 }
 
@@ -472,8 +476,8 @@ body {
 }
 
 .icone-local {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     color: var(--cor-fonte);
 }
