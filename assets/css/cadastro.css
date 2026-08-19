@@ -31,7 +31,12 @@ body {
     right: 0;
     bottom: 0;
     height: 68%;
-    background: linear-gradient(to top, #1B4680 55%, transparent);
+    /* Menos opaco que o azul sólido anterior: no Figma a foto do trem continua
+       visível através do azul na parte de baixo. */
+    background: linear-gradient(to top,
+        rgba(27, 70, 128, 0.92) 35%,
+        rgba(27, 70, 128, 0.72) 65%,
+        transparent);
     pointer-events: none;
 }
 
@@ -68,8 +73,10 @@ body {
 
 #bvd {
     font-size: clamp(26px, 7vw, 34px);
-    font-weight: 700;
+    /* mesmo tratamento do título da tela de login */
+    font-weight: 400;
     color: #FFFFFF;
+    text-align: center;
 }
 
 #forme {
@@ -110,6 +117,7 @@ button {
 .baixo {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
 }
@@ -140,4 +148,67 @@ button {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* O campo de senha ganha um botão de revelar. O contêiner vira referência de
+   posicionamento e o input abre espaço à direita, para o texto não passar por
+   baixo do ícone. */
+.input-group2 {
+    position: relative;
+}
+
+.input-group2 input {
+    padding-right: 52px;
+}
+
+.revelar-senha {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6B6E76;
+    cursor: pointer;
+}
+
+.revelar-senha svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* o traço sobre o olho só aparece quando a senha está visível */
+.revelar-senha .olho-cortado {
+    opacity: 0;
+}
+
+.revelar-senha.revelada .olho-cortado {
+    opacity: 1;
+}
+
+/* Não havia como voltar ao login a não ser pelo botão do navegador: quem entrasse
+   no cadastro por engano ficava sem saída dentro do app. */
+#voltar-login {
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 0 clamp(20px, 6vw, 32px);
+    padding: 8px 4px;
+    color: #FFFFFF;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+#voltar-login svg {
+    width: 18px;
+    height: 18px;
 }

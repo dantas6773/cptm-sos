@@ -15,6 +15,13 @@
         <h2 id="cptm">CPTM</h2>
       </div>
 
+      <a id="voltar-login" href="login.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Voltar
+      </a>
+
       <div class="conteudo-auth">
         <h3 id="bvd">Seja Bem Vindo!</h3>
 
@@ -48,6 +55,13 @@
               name="senha"
               required
             />
+            <button type="button" class="revelar-senha" aria-controls="senha" aria-pressed="false" aria-label="Mostrar senha">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path class="olho-aberto" d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <circle class="olho-aberto" cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/>
+                <path class="olho-cortado" d="M4 4l16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
           </div>
           <div>
             <button type="submit" id="botao">Cadastrar</button>
@@ -66,5 +80,6 @@
 
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/cadastro.js"></script>
+    <script src="assets/js/revelar-senha.js"></script>
   </body>
 </html>

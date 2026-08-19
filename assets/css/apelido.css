@@ -37,7 +37,12 @@ body {
     right: 0;
     bottom: 0;
     height: 68%;
-    background: linear-gradient(to top, #1B4680 55%, transparent);
+    /* Menos opaco que o azul sólido anterior: no Figma a foto do trem continua
+       visível através do azul na parte de baixo. */
+    background: linear-gradient(to top,
+        rgba(27, 70, 128, 0.92) 35%,
+        rgba(27, 70, 128, 0.72) 65%,
+        transparent);
     pointer-events: none;
 }
 
