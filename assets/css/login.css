@@ -31,7 +31,12 @@ body {
     right: 0;
     bottom: 0;
     height: 62%;
-    background: linear-gradient(to top, #1B4680 55%, transparent);
+    /* Menos opaco que o azul sólido anterior: no Figma a foto do trem continua
+       visível através do azul na parte de baixo. */
+    background: linear-gradient(to top,
+        rgba(27, 70, 128, 0.92) 35%,
+        rgba(27, 70, 128, 0.72) 65%,
+        transparent);
     pointer-events: none;
 }
 
@@ -68,8 +73,11 @@ body {
 
 #bvd {
     font-size: clamp(28px, 8vw, 38px);
-    font-weight: 700;
+    /* No Figma o título é centralizado e de peso normal; o negrito e o
+       alinhamento à esquerda vieram da implementação. */
+    font-weight: 400;
     color: #FFFFFF;
+    text-align: center;
 }
 
 #forme {
@@ -110,6 +118,7 @@ button {
 .cadastro-link {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     flex-wrap: wrap;
 }
@@ -129,6 +138,7 @@ button {
 .baixo {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
 }
