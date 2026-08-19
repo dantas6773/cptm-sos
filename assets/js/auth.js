@@ -58,3 +58,27 @@ async function authFetch(path, options = {}) {
 
   return resp;
 }
+
+// Aviso de ambiente errado. Se a página for aberta pelo Live Server (ou por
+// qualquer servidor que só entregue arquivos estáticos), as chamadas de API caem
+// num lugar que não tem API e tudo falha com mensagens genéricas do tipo "erro ao
+// cadastrar". Aqui a causa fica explícita, em vez de virar meia hora de caça.
+(async () => {
+  try {
+    const resp = await fetch(`${API_BASE}/api/config`);
+    const tipo = resp.headers.get("content-type") || "";
+    if (resp.ok && tipo.includes("application/json")) return;
+  } catch {
+    // sem resposta: cai no aviso abaixo
+  }
+
+  const aviso = document.createElement("div");
+  aviso.setAttribute("role", "alert");
+  aviso.style.cssText =
+    "position:fixed;top:0;left:0;right:0;z-index:9999;background:#B3151B;color:#fff;" +
+    "padding:12px 16px;font:14px/1.4 Inter,sans-serif;text-align:center";
+  aviso.innerHTML =
+    "Este app precisa ser aberto pelo servidor do projeto, não pelo Live Server.<br>" +
+    "Rode <strong>npm run dev</strong> e acesse <strong>http://localhost:5001</strong>";
+  document.body.prepend(aviso);
+})();
