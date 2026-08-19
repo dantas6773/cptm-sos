@@ -132,3 +132,21 @@ test("cabeçalho e rodapé têm a mesma altura, em qualquer tela", async ({ page
         expect(Math.abs(m.cabecalho - m.rodape), `em tela de ${altura}px`).toBeLessThan(1);
     }
 });
+
+// O endereço fica centrado entre o fim da busca e a base do cartão. Estava preso
+// a uma distância fixa da borda, que desalinhava se a busca ou o cartão mudassem.
+test("o endereço fica centrado no espaço abaixo da busca", async ({ page }) => {
+    await page.goto("/home.html");
+    await page.waitForTimeout(400);
+
+    const m = await page.evaluate(() => {
+        const cartao = document.querySelector(".mapa")!.getBoundingClientRect();
+        const busca = document.querySelector(".input-busca")!.getBoundingClientRect();
+        const endereco = document.querySelector(".endereco")!.getBoundingClientRect();
+        const centroDisponivel = busca.bottom + (cartao.bottom - busca.bottom) / 2;
+        const centroTexto = endereco.top + endereco.height / 2;
+        return Math.abs(centroTexto - centroDisponivel);
+    });
+
+    expect(m).toBeLessThan(2);
+});
