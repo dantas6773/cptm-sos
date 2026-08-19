@@ -242,6 +242,12 @@ server.get("/api/config", (_req: Request, res: Response) => {
     return res.json({
         loginDemo: process.env.LOGIN_DEMO === "1",
         emailDemo: process.env.LOGIN_DEMO === "1" ? "ana.souza@example.com" : null,
+        // A tela de compra precisa da tarifa e do teto para calcular o total e
+        // travar o contador. Antes repetia os dois números no JavaScript dela, e
+        // mudar a tarifa aqui deixava a tela mostrando um valor que o servidor
+        // não cobraria.
+        precoBilhete: PRECO_BILHETE,
+        maxBilhetes: MAX_BILHETES,
     });
 });
 

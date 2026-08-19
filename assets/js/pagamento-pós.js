@@ -1,6 +1,6 @@
-// === pagamento-pós.js (versão integrada ao seu backend server.ts) ===
+// Compra de bilhetes. O saldo é pré-pago: comprar bilhete credita a carteira, e
+// o débito de uma tarifa acontece na catraca (QR.html).
 
-// Elementos principais da página
 const incrementarBilhetes = document.getElementById("incrementar-bilhetes");
 const decrementarBilhetes = document.getElementById("decrecimo-bilhetes");
 const quantidadeBilhetes = document.getElementById("quantidade-bilhetes");
@@ -8,30 +8,63 @@ const valorBilhetes = document.getElementById("valor-bilhetes");
 const comprarBotao = document.getElementById("botao-comprar");
 const saldoEl = document.getElementById("dinheiro");
 const voltarEl = document.getElementById("divvoltar");
+const avisoEl = document.getElementById("aviso-compra");
 
 let quantidade = 0;
-let valor = 0;
-const PRECO_BILHETE = 5.20;
 
+// Valores de referência até /api/config responder. A tarifa e o teto de bilhetes
+// são do servidor: repetir os números aqui já significaria mostrar um total que
+// ele não cobraria se a tarifa mudasse.
+let precoBilhete = 5.20;
+let maxBilhetes = 20;
 
-// === Incrementar e decrementar bilhetes ===
-incrementarBilhetes.addEventListener("click", () => {
-  quantidade++;
-  valor = quantidade * PRECO_BILHETE;
+function mostrarAviso(texto, tipo) {
+  if (!avisoEl) return;
+  avisoEl.textContent = texto;
+  avisoEl.className = "aviso" + (tipo ? " " + tipo : "");
+}
+
+function atualizarTela() {
+  const valor = quantidade * precoBilhete;
   quantidadeBilhetes.textContent = quantidade;
   valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
+
+  // Os limites ficam visíveis no próprio botão, em vez de virarem uma recusa do
+  // servidor depois que a pessoa já apertou COMPRAR.
+  decrementarBilhetes.disabled = quantidade === 0;
+  incrementarBilhetes.disabled = quantidade >= maxBilhetes;
+  comprarBotao.disabled = quantidade === 0;
+}
+
+incrementarBilhetes.addEventListener("click", () => {
+  if (quantidade >= maxBilhetes) {
+    mostrarAviso(`Máximo de ${maxBilhetes} bilhetes por compra.`, "erro");
+    return;
+  }
+  quantidade++;
+  mostrarAviso("", null);
+  atualizarTela();
 });
 
 decrementarBilhetes.addEventListener("click", () => {
-  if (quantidade > 0) {
-    quantidade--;
-    valor = quantidade * PRECO_BILHETE;
-    quantidadeBilhetes.textContent = quantidade;
-    valorBilhetes.textContent = valor.toFixed(2).replace(".", ",");
-  }
+  if (quantidade === 0) return;
+  quantidade--;
+  mostrarAviso("", null);
+  atualizarTela();
 });
 
-// === Carregar saldo real do usuário ===
+async function carregarConfig() {
+  try {
+    const resp = await fetch("/api/config");
+    if (!resp.ok) return;
+    const config = await resp.json();
+    if (typeof config.precoBilhete === "number") precoBilhete = config.precoBilhete;
+    if (typeof config.maxBilhetes === "number") maxBilhetes = config.maxBilhetes;
+  } catch {
+    // sem config: seguem os valores de referência acima
+  }
+}
+
 // O usuário vem de carregarUsuario() (auth.js), que também preenche a saudação.
 async function carregarSaldo() {
   try {
@@ -46,15 +79,16 @@ async function carregarSaldo() {
   }
 }
 
-// === Função de compra de bilhetes ===
 async function comprar() {
-  if (quantidade <= 0) {
-    alert("Selecione uma quantidade de bilhetes.");
-    return;
-  }
+  if (quantidade <= 0) return;
+
+  comprarBotao.disabled = true;
+  const rotulo = comprarBotao.textContent;
+  comprarBotao.textContent = "COMPRANDO...";
+  mostrarAviso("", null);
 
   try {
-    // O servidor calcula o total e debita; aqui só se informa a quantidade.
+    // O servidor calcula o total e credita; aqui só se informa a quantidade.
     const response = await authFetch("/api/usuario/compra", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,33 +98,38 @@ async function comprar() {
     const data = await response.json();
 
     if (!response.ok) {
-      alert(data.mensagem || "Erro ao realizar a compra.");
+      mostrarAviso(data.mensagem || "Não foi possível concluir a compra.", "erro");
       return;
     }
 
     saldoEl.textContent = formatBRL(data.usuario.saldo ?? 0);
-    alert(`Compra realizada! ${formatBRL(data.total)} adicionados ao seu saldo (${data.quantidade} bilhete(s)).`);
+    mostrarAviso(
+      `${data.quantidade} bilhete(s): ${formatBRL(data.total)} adicionados ao seu saldo.`,
+      "sucesso"
+    );
+
+    quantidade = 0;
+    atualizarTela();
   } catch (error) {
     console.error("Erro na compra:", error);
-    alert("Erro ao realizar a compra. Tente novamente.");
+    mostrarAviso("Erro de conexão. Tente novamente.", "erro");
+  } finally {
+    comprarBotao.textContent = rotulo;
+    atualizarTela();
   }
 }
 
-// === Inicialização da página ===
 document.addEventListener("DOMContentLoaded", async () => {
-  // Carrega saldo real do banco de dados
+  await carregarConfig();
+  atualizarTela();
   await carregarSaldo();
 
-  // Evento de compra
   comprarBotao.addEventListener("click", comprar);
 
-  //Botão voltar
   if (voltarEl) {
-    voltarEl.style.cursor = "pointer";
     voltarEl.addEventListener("click", (e) => {
       e.preventDefault();
       window.location.href = "pagamento.html";
     });
   }
-
 });

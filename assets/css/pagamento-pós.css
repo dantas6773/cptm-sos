@@ -206,3 +206,25 @@ html, body {
     outline: 3px solid #ED1C24;
     outline-offset: 2px;
 }
+
+/* Retorno da compra. Antes era um alert() do navegador: bloqueava a tela, saía
+   do visual do app e sumia sem deixar rastro para quem usa leitor de tela. */
+.aviso {
+    min-height: 1.3em;
+    font-size: 15px;
+    text-align: center;
+}
+
+.aviso.erro {
+    color: #B3151B;
+}
+
+.aviso.sucesso {
+    color: #16704A;
+}
+
+#botao-comprar:disabled,
+#quantidade-bilhetes-box button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
