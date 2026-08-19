@@ -21,3 +21,42 @@ body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* --- Comportamento de aplicativo, não de página web --- */
+
+/* Arrastar o dedo sobre um texto não o realça mais, e o toque longo não abre o
+   menu Copiar / Consultar / Compartilhar do iOS. São os dois gestos que
+   entregam na hora que aquilo é uma página aberta no navegador. */
+html {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+
+    /* O retângulo cinza que o sistema pisca sobre o que é clicável. Cada tela já
+       tem o seu próprio estado de toque; o realce do sistema só se soma a ele. */
+    -webkit-tap-highlight-color: transparent;
+
+    /* Toque duplo deixa de dar zoom. `manipulation` desliga só esse gesto: rolar
+       e a pinça continuam funcionando, e é de propósito — bloquear o zoom por
+       completo tiraria a única saída de quem precisa ampliar para enxergar, e
+       nenhuma página aqui declara maximum-scale por esse mesmo motivo. */
+    touch-action: manipulation;
+}
+
+/* Onde selecionar é a função do elemento. Sem esta exceção não dá para corrigir
+   o que se digitou num campo, e o número de protocolo da denúncia — que a
+   própria tela manda guardar — ficaria impossível de copiar. */
+input,
+textarea,
+[contenteditable],
+.protocolo {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+}
+
+/* O controle de arrastar do alarme trata o gesto por conta própria. Sem isto o
+   navegador ainda pode reivindicar o arrasto horizontal e roubá-lo no meio. */
+.slider-button {
+    touch-action: none;
+}
