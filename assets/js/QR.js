@@ -3,6 +3,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   const botaoCatraca = document.getElementById("btn-catraca");
   const saldoEl = document.querySelector(".saldo");
   const avisoEl = document.getElementById("aviso-catraca");
+  const precoEl = document.getElementById("preco-passagem");
+
+  // Valor de referência até /api/config responder. A tarifa é do servidor: se
+  // ela mudasse, a tela prometeria um desconto diferente do que seria cobrado.
+  let precoPassagem = 5.20;
 
   botaoVoltar.addEventListener("click", function () {
     window.location.href = "home.html";
@@ -10,6 +15,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function mostrarSaldo(valor) {
     if (saldoEl) saldoEl.textContent = `Seu saldo: ${formatBRL(valor)}`;
+
+    // Saldo que não cobre a tarifa desliga o botão e diz por quê, em vez de
+    // deixar a pessoa apertar para receber a recusa do servidor.
+    const cobre = Number(valor) >= precoPassagem;
+    botaoCatraca.disabled = !cobre;
+    if (!cobre) avisar(`Saldo insuficiente. A passagem custa ${formatBRL(precoPassagem)}.`, "erro");
   }
 
   function avisar(texto, tipo) {
@@ -29,6 +40,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     } catch (error) {
       console.error("Erro ao carregar saldo do backend:", error);
       if (saldoEl) saldoEl.textContent = "Saldo indisponível";
+      // Sem saber o saldo não dá para prometer a passagem.
+      botaoCatraca.disabled = true;
+      avisar("Não foi possível consultar o seu saldo. Tente novamente.", "erro");
     }
   }
 
@@ -62,5 +76,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     botaoCatraca.addEventListener("click", passarNaCatraca);
   }
 
+  async function carregarPreco() {
+    try {
+      const resp = await fetch("/api/config");
+      if (!resp.ok) return;
+      const config = await resp.json();
+      if (typeof config.precoBilhete === "number") precoPassagem = config.precoBilhete;
+    } catch {
+      // sem config: segue o valor de referência acima
+    }
+    if (precoEl) precoEl.textContent = formatBRL(precoPassagem);
+  }
+
+  await carregarPreco();
   await carregarSaldoBackend();
 });

@@ -5,16 +5,33 @@
     box-sizing: border-box;
 }
 
+:root {
+    --cor-header: #1B4680;
+    --cor-fonte: #FFFFFF;
+}
+
 body {
     position: relative;
-    height: 100vh;
-    height: 100dvh;
-    width: 100vw;
-    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    /* O cartão e o botão ficam empilhados e centrados. Antes o cartão era
+       posicionado por translate(-50%,-50%) e o botão morava dentro dele; com o
+       botão do lado de fora, como no protótipo, a coluna resolve os dois. */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: calc(84px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+    /* Rolagem só se ainda assim não couber. A consulta de altura abaixo evita que
+       isso aconteça nos tamanhos reais, mas cortar o botão de usar o bilhete em
+       silêncio seria pior do que uma rolagem curta num aparelho pequeno. */
+    overflow-y: auto;
     /* No projeto esta tela é uma camada sobre a home, com o fundo escurecido.
        Como aqui ela é uma página própria, não há nada atrás para escurecer: o
-       backdrop-filter abaixo rendia um cinza chapado, que além de destoar deixava
-       o botão "Voltar" com contraste de 2,84:1. O mesmo tom escuro já usado na
+       backdrop-filter rendia um cinza chapado, que além de destoar deixava o
+       botão "Voltar" com contraste de 2,84:1. O mesmo tom escuro já usado na
        tela de pré-denúncia resolve as duas coisas. */
     background-color: #0B0F1C;
 }
@@ -35,71 +52,101 @@ body {
     /* afasta da barra de status agora que a página ocupa a tela inteira */
     top: calc(30px + env(safe-area-inset-top));
     left: 20px;
-    padding: 10px 20px;
+    padding: 10px 20px 10px 0;
     font-size: 16px;
     background: none;
-    color: white;
+    color: var(--cor-fonte);
     border: none;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     z-index: 2;
 }
 
 .card-qr {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #1B4680;
-    border-radius: 20px;
-    padding: 20px 20px 30px 20px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 320px;
+    background-color: var(--cor-header);
+    border-radius: 24px;
+    padding: 22px 20px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    z-index: 1;
+    gap: 18px;
+}
+
+/* O saldo abre o cartão, como no protótipo, mas mantém o realce em azul mais
+   escuro que a tela já tinha: no protótipo é texto solto sobre o azul do cartão,
+   e o número se perde no meio do resto. */
+.saldo {
+    width: 100%;
+    background-color: #0F1F72;
+    color: var(--cor-fonte);
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.moldura-qr {
+    width: 100%;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+    padding: 14px;
 }
 
 #qrfront {
-    width: 250px;
-    border-radius: 10px;
-    background: white;
-    padding: 10px;
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
-.card-qr p {
-    color: white;
+.valor-passagem {
+    color: var(--cor-fonte);
     text-align: center;
     font-size: 16px;
+    line-height: 1.4;
 }
 
-.saldo {
-    background-color: #0F1F72;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 600;
+.valor-passagem strong {
+    font-weight: 700;
 }
 
+/* O botão fica fora do cartão, como no protótipo. É o mesmo #1B4680 do cartão —
+   no Figma os dois só parecem tons diferentes por causa do fundo escurecido que
+   passa entre eles. */
 #btn-catraca {
-    background-color: #ED1C24;
-    color: #FFFFFF;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 320px;
+    background-color: var(--cor-header);
+    color: var(--cor-fonte);
     border: none;
-    border-radius: 10px;
-    padding: 12px 24px;
-    font-size: 15px;
-    font-weight: 600;
+    border-radius: 20px;
+    padding: 18px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
     cursor: pointer;
 }
 
 #btn-catraca:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: default;
 }
 
 .aviso {
-    min-height: 1.2em;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 320px;
+    min-height: 1.3em;
     font-size: 14px;
+    text-align: center;
+    color: var(--cor-fonte);
 }
 
 .aviso.erro {
@@ -110,4 +157,54 @@ body {
     color: #9BE7A8;
 }
 
+:focus-visible {
+    outline: 3px solid #FFFFFF;
+    outline-offset: 3px;
+}
+
 /* testado */
+
+/* Tela baixa: o cartão inteiro encolhe em vez de o botão sair da área visível.
+   Num 320x568 a coluna somava 658px de altura e o `overflow: hidden` cortava
+   justamente o botão que executa a ação. */
+@media (max-height: 700px) {
+    body {
+        padding-top: calc(56px + env(safe-area-inset-top));
+        gap: 12px;
+    }
+
+    #btn-voltar {
+        top: calc(16px + env(safe-area-inset-top));
+    }
+
+    .card-qr {
+        max-width: 250px;
+        padding: 16px 16px 18px;
+        gap: 12px;
+    }
+
+    .saldo {
+        font-size: 15px;
+        padding: 8px 14px;
+    }
+
+    .moldura-qr {
+        border-radius: 16px;
+        padding: 10px;
+    }
+
+    .valor-passagem {
+        font-size: 14px;
+    }
+
+    #btn-catraca {
+        max-width: 250px;
+        padding: 14px 20px;
+        border-radius: 16px;
+    }
+
+    .aviso {
+        max-width: 250px;
+        font-size: 13px;
+    }
+}

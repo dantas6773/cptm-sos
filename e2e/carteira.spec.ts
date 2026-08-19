@@ -44,15 +44,43 @@ test("passar na catraca debita uma passagem", async ({ page, request }) => {
     expect(saldoDe(EMAIL)).toBe(0);
 });
 
-test("catraca recusa quando o saldo não cobre a passagem", async ({ page }) => {
+// A recusa deixou de esperar o toque: sem saldo o botão já nasce desligado e a
+// tela diz quanto custa a passagem, em vez de aceitar a ação para negá-la depois.
+test("sem saldo, a catraca avisa antes e não deixa nem tentar", async ({ page }) => {
     await page.goto("/QR.html");
     await expect(page.locator(".saldo")).toContainText("0,00");
 
-    await page.click("#btn-catraca");
-
+    await expect(page.locator("#btn-catraca")).toBeDisabled();
     await expect(page.locator("#aviso-catraca")).toContainText("Saldo insuficiente");
-    // e o saldo não pode ficar negativo
+    await expect(page.locator("#aviso-catraca")).toContainText("5,20");
+
     expect(saldoDe(EMAIL)).toBe(0);
+});
+
+// O botão desligado é conveniência, não a trava. Quem chamar a rota direto
+// continua recusado, e o saldo não pode ficar negativo.
+test("a recusa por saldo continua valendo no servidor, não só na tela", async ({ request }) => {
+    const login = await request.post("/api/login", { data: { email: EMAIL, senha: "demo1234" } });
+    const { token } = await login.json();
+
+    const resp = await request.post("/api/usuario/passagem", {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(resp.status()).toBe(400);
+    expect(saldoDe(EMAIL)).toBe(0);
+});
+
+// A tarifa mostrada na tela é a que o servidor cobra — não um número repetido no
+// JavaScript, que passaria a mentir se a tarifa mudasse.
+test("a tarifa exibida no QR vem do servidor", async ({ page }) => {
+    const { precoBilhete } = await (await page.request.get("/api/config")).json();
+
+    await page.goto("/QR.html");
+    const mostrado = await page.locator("#preco-passagem").textContent();
+
+    const numero = Number(mostrado!.replace(/[^\d,]/g, "").replace(",", "."));
+    expect(numero).toBeCloseTo(precoBilhete, 2);
 });
 
 // Pix, cartão e boleto levavam à mesma tela e a escolha se perdia: quem clicava
