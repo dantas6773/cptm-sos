@@ -83,7 +83,7 @@ test("os trilhos do cabeçalho não invadem a área da saudação", async ({ pag
     expect(medidas.saudacaoDireita).toBeLessThanOrEqual(medidas.trilhosEsquerda);
 });
 
-test("apelido comprido não empurra a foto de perfil para fora", async ({ page, request }) => {
+test("apelido comprido não quebra o cabeçalho", async ({ page, request }) => {
     const resp = await request.post("/api/login", {
         data: { email: "ana.souza@example.com", senha: "demo1234" },
     });
@@ -99,11 +99,36 @@ test("apelido comprido não empurra a foto de perfil para fora", async ({ page, 
     await page.waitForTimeout(600);
 
     const medidas = await page.evaluate(() => {
-        const perfil = document.querySelector(".perfil")!.getBoundingClientRect();
-        return { perfilDireita: perfil.right, janela: window.innerWidth };
+        const saudacao = document.getElementById("boas-vindas")!;
+        const trilhos = document.querySelector(".barra")!.getBoundingClientRect();
+        return {
+            saudacaoDireita: saudacao.getBoundingClientRect().right,
+            trilhosEsquerda: trilhos.left,
+            truncou: saudacao.scrollWidth > saudacao.clientWidth,
+            vazaNaHorizontal: document.documentElement.scrollWidth > window.innerWidth + 1,
+        };
     });
 
-    // a foto precisa continuar dentro da tela, e não empurrada para fora por um
-    // apelido comprido na saudação
-    expect(medidas.perfilDireita).toBeLessThanOrEqual(medidas.janela);
+    // o texto corta com reticências em vez de empurrar o que vem depois
+    expect(medidas.truncou).toBe(true);
+    expect(medidas.saudacaoDireita).toBeLessThanOrEqual(medidas.trilhosEsquerda);
+    expect(medidas.vazaNaHorizontal).toBe(false);
+});
+
+// Cabeçalho e rodapé derivam da mesma variável de altura. Antes um dependia do
+// tamanho da foto de perfil e o outro do ícone mais o rótulo: ficavam próximos
+// por ajuste manual, e mudar qualquer um deles separava os dois sem aviso.
+test("cabeçalho e rodapé têm a mesma altura, em qualquer tela", async ({ page }) => {
+    for (const altura of [660, 800, 917]) {
+        await page.setViewportSize({ width: 393, height: altura });
+        await page.goto("/home.html");
+        await page.waitForTimeout(300);
+
+        const m = await page.evaluate(() => ({
+            cabecalho: document.querySelector(".header-todo")!.getBoundingClientRect().height,
+            rodape: document.querySelector(".footer-todo")!.getBoundingClientRect().height,
+        }));
+
+        expect(Math.abs(m.cabecalho - m.rodape), `em tela de ${altura}px`).toBeLessThan(1);
+    }
 });

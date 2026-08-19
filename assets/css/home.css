@@ -10,6 +10,10 @@
     --cor-fonte: #FFFFFF;
     --cor-botao-saldo: #4F4D56;
     --cor-botao-recarga: #ED1C24;
+    /* Cabeçalho e rodapé derivam desta altura, em vez de chegarem perto por
+       acaso: antes um dependia do tamanho da foto de perfil e o outro do ícone
+       mais o rótulo, e mudar qualquer um deles separava os dois sem aviso. */
+    --altura-barra: clamp(72px, 9.6vh, 88px);
 }
 
 html,
@@ -45,6 +49,11 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: clamp(8px, 1.2vh, 14px) 15px;
+    /* Espaço reservado à direita para os trilhos. Antes a foto de perfil ocupava
+       essa área e limitava a saudação; sem ela, um apelido comprido avançaria por
+       baixo dos trilhos. */
+    padding-right: 92px;
+    min-height: var(--altura-barra);
     position: relative;
     overflow: hidden;
 }
@@ -331,7 +340,8 @@ body {
     color: var(--cor-fonte);
     z-index: 100;
     box-sizing: border-box;
-    padding: clamp(10px, 1.8vh, 18px) 20px;
+    min-height: var(--altura-barra);
+    padding: clamp(8px, 1.4vh, 14px) 20px;
 }
 
 .footer-left,
