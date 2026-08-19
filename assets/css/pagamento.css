@@ -132,13 +132,6 @@ html, body {
     color: var(--cor-fonte);
 }
 
-#Ajuda {
-    font-family: "Inter", sans-serif;
-    color: var(--cor-fonte);
-    font-weight: 600;
-    font-size: 15px;
-    text-decoration: none;
-}
 
 /* testado */
 

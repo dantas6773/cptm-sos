@@ -79,3 +79,28 @@ for (const quantidade of [0, -1, 1.5, 21]) {
         assert.equal(db.usuarios[0].saldo, USUARIO.saldo, "saldo não pode mudar numa compra rejeitada");
     });
 }
+
+// A tarifa e o teto de bilhetes ficavam repetidos no JavaScript da tela. Mudar a
+// tarifa aqui deixava a tela mostrando um total que o servidor não cobraria.
+test("GET /api/config publica a tarifa e o teto usados pela tela de compra", async () => {
+    const config = await apiFetch(app.baseUrl, "/api/config");
+
+    assert.equal(config.status, 200);
+    assert.equal(config.body.precoBilhete, PRECO_BILHETE);
+    assert.equal(typeof config.body.maxBilhetes, "number");
+
+    // e o teto publicado é de fato o que a rota de compra aplica
+    const acimaDoTeto = await apiFetch(app.baseUrl, "/api/usuario/compra", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ quantidade: config.body.maxBilhetes + 1 }),
+    });
+    assert.equal(acimaDoTeto.status, 400);
+
+    const noTeto = await apiFetch(app.baseUrl, "/api/usuario/compra", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ quantidade: config.body.maxBilhetes }),
+    });
+    assert.equal(noTeto.status, 200);
+});

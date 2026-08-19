@@ -17,7 +17,6 @@ test.beforeEach(async ({ context, request }) => {
 
 test("comprar bilhetes credita o saldo", async ({ page }) => {
     await page.goto("/pagamento-pós.html");
-    page.on("dialog", (d) => d.accept());
 
     await page.click("#incrementar-bilhetes");
     await page.click("#incrementar-bilhetes");
@@ -54,4 +53,68 @@ test("catraca recusa quando o saldo não cobre a passagem", async ({ page }) => 
     await expect(page.locator("#aviso-catraca")).toContainText("Saldo insuficiente");
     // e o saldo não pode ficar negativo
     expect(saldoDe(EMAIL)).toBe(0);
+});
+
+// Pix, cartão e boleto levavam à mesma tela e a escolha se perdia: quem clicava
+// em Boleto via exatamente o que quem clicou em Pix, sem nada confirmando o que
+// tinha selecionado.
+test("o método escolhido chega à tela de compra", async ({ page }) => {
+    for (const [metodo, rotulo] of [
+        ["pix", "Pix"],
+        ["cartao", "Cartão de Crédito"],
+        ["boleto", "Boleto Bancário"],
+    ]) {
+        await page.goto("/pagamento.html");
+        await page.click(`[data-metodo="${metodo}"]`);
+
+        await expect(page).toHaveURL(new RegExp(`metodo=${metodo}$`));
+        await expect(page.locator("#metodo-nome")).toHaveText(rotulo);
+    }
+});
+
+test("chegar à compra sem escolher método não mostra linha vazia", async ({ page }) => {
+    await page.goto("/pagamento-pós.html");
+    await expect(page.locator("#metodo-escolhido")).toBeHidden();
+
+    // e um método inventado na URL não vira texto na tela
+    await page.goto("/pagamento-pós.html?metodo=qualquer-coisa");
+    await expect(page.locator("#metodo-escolhido")).toBeHidden();
+});
+
+// O contador subia sem limite e o servidor recusava em 21; COMPRAR ficava ativo
+// com zero bilhetes e só então avisava.
+test("os limites da compra aparecem nos botões, não em recusa do servidor", async ({ page }) => {
+    await page.goto("/pagamento-pós.html");
+
+    await expect(page.locator("#botao-comprar")).toBeDisabled();
+    await expect(page.locator("#decrecimo-bilhetes")).toBeDisabled();
+
+    await page.click("#incrementar-bilhetes");
+    await expect(page.locator("#botao-comprar")).toBeEnabled();
+    await expect(page.locator("#decrecimo-bilhetes")).toBeEnabled();
+
+    // sobe até o teto vindo de /api/config
+    const { maxBilhetes } = await (await page.request.get("/api/config")).json();
+    for (let i = 1; i < maxBilhetes; i++) await page.click("#incrementar-bilhetes");
+
+    await expect(page.locator("#quantidade-bilhetes")).toHaveText(String(maxBilhetes));
+    await expect(page.locator("#incrementar-bilhetes")).toBeDisabled();
+});
+
+// O retorno da compra era um alert() do navegador: bloqueava a tela e sumia sem
+// deixar rastro para leitor de tela.
+test("a compra responde na própria tela, sem caixa do sistema", async ({ page }) => {
+    let houveDialogo = false;
+    page.on("dialog", async (d) => {
+        houveDialogo = true;
+        await d.dismiss();
+    });
+
+    await page.goto("/pagamento-pós.html?metodo=pix");
+    await page.click("#incrementar-bilhetes");
+    await page.click("#botao-comprar");
+
+    await expect(page.locator("#aviso-compra")).toContainText("adicionados ao seu saldo");
+    await expect(page.locator("#dinheiro")).toContainText("5,20");
+    expect(houveDialogo).toBe(false);
 });

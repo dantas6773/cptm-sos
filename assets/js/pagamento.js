@@ -24,11 +24,15 @@ async function mostrarSaldo() {
 document.addEventListener('DOMContentLoaded', async () => {
   await mostrarSaldo();
 
+  // O método escolhido segue para a tela de compra. Antes os três botões levavam
+  // ao mesmo lugar e a escolha se perdia: quem clicava em Boleto via exatamente a
+  // mesma tela de quem clicou em Pix, sem nada confirmando o que foi selecionado.
   const metodoBtns = document.querySelectorAll('.mets');
   metodoBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      window.location.href = 'pagamento-pós.html';
+      const metodo = btn.dataset.metodo;
+      window.location.href = 'pagamento-pós.html' + (metodo ? '?metodo=' + metodo : '');
     });
   });
 });

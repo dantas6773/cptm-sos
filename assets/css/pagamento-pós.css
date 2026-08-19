@@ -180,13 +180,6 @@ html, body {
     cursor: pointer;
 }
 
-#Ajuda {
-    font-family: "Inter", sans-serif;
-    color: var(--cor-fonte);
-    font-weight: 600;
-    font-size: 15px;
-    text-decoration: none;
-}
 
 /* testado */
 
@@ -227,4 +220,31 @@ html, body {
 #quantidade-bilhetes-box button:disabled {
     opacity: 0.5;
     cursor: default;
+}
+
+/* Método escolhido na tela anterior. Sem esta linha, Pix, cartão e boleto
+   levavam a uma tela idêntica e nada confirmava o que a pessoa selecionou. */
+.metodo-escolhido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    color: #4A5162;
+}
+
+.metodo-escolhido[hidden] {
+    display: none;
+}
+
+.metodo-escolhido strong {
+    color: #141A2E;
+    font-weight: 600;
+}
+
+.metodo-escolhido a {
+    color: var(--cor-header);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }

@@ -90,3 +90,19 @@
     min-height: var(--altura-barra);
     padding: clamp(8px, 1.4vh, 14px) 20px;
 }
+
+/* Gatilho da folha de ajuda. Era um <a> sem href em uma tela (nem focável por
+   teclado), um href="#" em outra e um <h5><u> na terceira: três marcações para o
+   mesmo controle, nenhuma delas fazendo nada. */
+.link-ajuda {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cor-fonte);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}

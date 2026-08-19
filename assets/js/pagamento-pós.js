@@ -18,6 +18,23 @@ let quantidade = 0;
 let precoBilhete = 5.20;
 let maxBilhetes = 20;
 
+// Só estes três existem na tela anterior. A validação evita que a query string
+// vire um jeito de escrever qualquer texto na página.
+const METODOS = {
+  pix: "Pix",
+  cartao: "Cartão de Crédito",
+  boleto: "Boleto Bancário",
+};
+
+function mostrarMetodo() {
+  const escolhido = new URLSearchParams(window.location.search).get("metodo");
+  const nome = METODOS[escolhido];
+  if (!nome) return; // chegou direto na tela: a linha continua escondida
+
+  document.getElementById("metodo-nome").textContent = nome;
+  document.getElementById("metodo-escolhido").hidden = false;
+}
+
 function mostrarAviso(texto, tipo) {
   if (!avisoEl) return;
   avisoEl.textContent = texto;
@@ -120,6 +137,7 @@ async function comprar() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  mostrarMetodo();
   await carregarConfig();
   atualizarTela();
   await carregarSaldo();

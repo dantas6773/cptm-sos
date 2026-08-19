@@ -259,12 +259,6 @@ h4 {
     pointer-events: none;
 }
 
-h5 {
-    color: var(--branco-sujo);
-    font-size: 18px;
-    font-family: "Inter", sans-serif;
-    font-weight: 400;
-}
 
 .categoria:active {
     background-color: var(--vermelho-cptm);
