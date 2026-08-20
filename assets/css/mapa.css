@@ -561,8 +561,20 @@ p {
 /* Com o trajeto na tela o mapa já está no mínimo, e a sobreposição deixa de
    parecer intencional: vira o mapa espiando atrás de dois cartões empilhados.
    Sem trajeto, o efeito volta. */
+/* Com trajeto na tela, o mapa sai de cena. O meio-termo — mapa encolhido
+   aparecendo atrás de dois cartões — ficava confuso: nem servia para se
+   localizar, nem deixava o resultado respirar. A tela passa a ter dois estados
+   claros, e o "Voltar ao mapa" faz o que diz. */
 .pagina.com-trajeto {
     --sobreposicao-mapa: 0px;
+}
+
+.com-trajeto .map-container {
+    display: none;
+}
+
+.com-trajeto .conteudo-mapa {
+    flex: 1 1 auto;
 }
 
 /* Com trajeto, o bloco volta a receber o toque. O `pointer-events: none` existe

@@ -106,6 +106,9 @@
 
   centralizar();
   window.addEventListener("resize", centralizar);
+  // enquanto o mapa fica escondido a moldura não tem medida, então o centro é
+  // recalculado quando ele volta à tela
+  document.addEventListener("mapa:visivel", centralizar);
 })();
 
 const origemEl = document.getElementById("origem");
@@ -165,6 +168,7 @@ function limparTrajeto() {
 /** Volta à vista do mapa, desfazendo a busca. */
 function voltarAoMapa() {
   limparTrajeto();
+  document.dispatchEvent(new CustomEvent("mapa:visivel"));
   gerarBtn.focus();
 }
 

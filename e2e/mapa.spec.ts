@@ -152,9 +152,9 @@ test("o cartão encosta na barra de baixo, sem vão", async ({ page }) => {
     }
 });
 
-// Um trajeto longo não pode espremer o mapa até sumir nem empurrar o cartão para
-// fora: o mapa para num mínimo e o conteúdo rola por dentro.
-test("trajeto longo faz o conteúdo rolar, sem esmagar o mapa", async ({ page }) => {
+// Com trajeto na tela o mapa sai de cena, e o resultado usa a altura inteira:
+// rola por dentro, sem a página rolar e sem empurrar as barras para fora.
+test("trajeto longo rola por dentro, com as barras paradas", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     await page.goto("/mapa.html");
 
@@ -165,16 +165,17 @@ test("trajeto longo faz o conteúdo rolar, sem esmagar o mapa", async ({ page })
 
     const m = await page.evaluate(() => {
         const conteudo = document.querySelector(".conteudo-mapa") as HTMLElement;
+        const barra = document.querySelector(".barra-navegacao")!.getBoundingClientRect();
         return {
-            alturaMapa: Math.round(document.querySelector(".map-container")!.getBoundingClientRect().height),
             mioloRola: conteudo.scrollHeight > conteudo.clientHeight + 1,
             paginaRola: document.documentElement.scrollHeight > window.innerHeight + 1,
+            barraNaTela: barra.bottom <= window.innerHeight + 1,
         };
     });
 
-    expect(m.alturaMapa).toBeGreaterThanOrEqual(180);
     expect(m.mioloRola).toBe(true);
     expect(m.paginaRola).toBe(false);
+    expect(m.barraNaTela).toBe(true);
 });
 
 // A borda de baixo cortava o mapa em seco, no meio de linhas e nomes de estação.
@@ -353,4 +354,53 @@ test("o trajeto longo rola até o fim", async ({ page }) => {
     // a nota do rodapé do cartão só aparece rolando até o fim
     await page.locator(".trajeto-nota").scrollIntoViewIfNeeded();
     await expect(page.locator(".trajeto-nota")).toBeInViewport();
+});
+
+// O meio-termo — mapa encolhido aparecendo atrás de dois cartões — não servia
+// para se localizar nem deixava o resultado respirar. A tela tem dois estados.
+test("com trajeto na tela, o mapa sai de cena e a busca sobe", async ({ page }) => {
+    await page.goto("/mapa.html");
+    const cabecalho = (await page.locator("header").boundingBox())!;
+
+    await page.selectOption("#origem", "Adolfo Pinheiro");
+    await page.selectOption("#destino", "Brás");
+    await page.click("#gerar-mapa-btn");
+    await expect(page.locator(".trajeto-resumo")).toBeVisible();
+
+    await expect(page.locator(".map-container")).toBeHidden();
+
+    // o cartão de busca encosta logo abaixo do cabeçalho
+    const cartao = (await page.locator(".container-pesquisa").boundingBox())!;
+    expect(cartao.y - (cabecalho.y + cabecalho.height)).toBeLessThan(32);
+});
+
+// Enquanto escondido, a moldura não tem medida: sem recentrar ao voltar, o mapa
+// reaparecia deslocado para fora da área visível.
+test("o mapa volta centrado depois de desfazer a busca", async ({ page }) => {
+    const LARGURA_MAPA = 1313; // a mesma de assets/js/mapa.js
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto("/mapa.html");
+    await page.waitForTimeout(200);
+
+    await page.selectOption("#origem", "Luz");
+    await page.selectOption("#destino", "Brás");
+    await page.click("#gerar-mapa-btn");
+    await expect(page.locator(".map-container")).toBeHidden();
+
+    // muda a altura enquanto o mapa está escondido — é quando a moldura mede
+    // zero, e o mapa fica deslocado se ninguém recalcular ao trazê-lo de volta
+    await page.setViewportSize({ width: 390, height: 700 });
+    await page.waitForTimeout(150);
+
+    await page.click(".trajeto-voltar");
+    await expect(page.locator(".map-container")).toBeVisible();
+    await page.waitForTimeout(150);
+
+    const m = await page.evaluate(() => ({
+        esquerda: parseFloat((document.querySelector(".map") as HTMLElement).style.left),
+        moldura: document.querySelector(".map-container")!.getBoundingClientRect().width,
+    }));
+
+    // centrado é a moldura menos a largura do mapa, dividido por dois
+    expect(m.esquerda).toBeCloseTo((m.moldura - LARGURA_MAPA) / 2, 0);
 });
