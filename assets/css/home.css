@@ -282,22 +282,36 @@ body {
 .avisos-indicadores {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 14px;
+    /* o espaçamento visual entre os pontos já vem da área de toque de cada um */
+    gap: 0;
+    margin-top: 6px;
 }
 
+/* O ponto continua com 8px, mas a área de toque tem 24px: o alvo mínimo da WCAG
+   2.2. Antes o botão era o próprio ponto, e acertar 8px com o dedo é sorte. O
+   ponto é desenhado no ::before, então crescer o alvo não afasta os pontos. */
 .avisos-indicadores button {
-    width: 8px;
-    height: 8px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.avisos-indicadores button::before {
+    content: "";
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background-color: #C7CBD4;
-    cursor: pointer;
     transition: background-color 0.2s, transform 0.2s;
 }
 
-.avisos-indicadores button[aria-selected="true"] {
+.avisos-indicadores button[aria-selected="true"]::before {
     background-color: var(--cor-header);
     transform: scale(1.25);
 }

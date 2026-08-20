@@ -87,6 +87,34 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Campos e botões não herdam a fonte da página: o padrão deles vem do sistema,
+   e é por isso que o "VER TRAJETO" do mapa saía em Arial enquanto todo o resto
+   estava em Inter. Cada folha vinha declarando a fonte um controle por vez, o
+   que só funciona enquanto ninguém esquece. */
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+/* Alvo mínimo de toque (WCAG 2.2, critério 2.5.8): 24x24. Controles que são só
+   texto — "Voltar", "Faça login", os links do rodapé — ficavam com 15 a 20px de
+   altura, a altura da linha. Acertá-los com o dedo em movimento é sorte.
+
+   Sem tocar no `display`: a primeira tentativa usou inline-flex e desalinhou o
+   texto de todos os botões, porque em flex o text-align deixa de centralizar. Em
+   botão basta a altura mínima; em link, o recuo vertical aumenta a área de toque
+   sem empurrar o que está em volta, porque num elemento em linha ele não entra
+   no cálculo da altura da linha. */
+button {
+    min-height: 24px;
+}
+
+a[href] {
+    padding-block: 5px;
+}
+
 /* --- Comportamento de aplicativo, não de página web --- */
 
 /* Arrastar o dedo sobre um texto não o realça mais, e o toque longo não abre o

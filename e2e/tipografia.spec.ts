@@ -102,3 +102,35 @@ test("o itálico é o da fonte, não uma inclinação inventada pelo navegador",
     });
     expect(temItalico).toBe(true);
 });
+
+// Campos e botões não herdam a fonte da página: o padrão deles vem do sistema.
+// Era por isso que o "VER TRAJETO" do mapa saía em Arial enquanto todo o resto
+// estava em Inter — e cada folha vinha declarando a fonte um controle por vez, o
+// que só funciona enquanto ninguém esquece.
+test("nenhum elemento de texto usa fonte fora da Inter", async ({ page }) => {
+    for (const tela of TELAS) {
+        await page.goto(`/${encodeURIComponent(tela)}`);
+        await page.evaluate(() => document.fonts.ready);
+
+        const fora = await page.evaluate(() => {
+            const achados: string[] = [];
+            for (const el of Array.from(document.querySelectorAll("body *"))) {
+                const visivel = (el as HTMLElement).offsetParent !== null;
+                if (!visivel) continue;
+                const temTexto = Array.from(el.childNodes).some(
+                    (n) => n.nodeType === 3 && (n.textContent || "").trim()
+                );
+                if (!temTexto) continue;
+
+                const familia = getComputedStyle(el).fontFamily;
+                if (!/inter/i.test(familia)) {
+                    const nome = el.id || (el.className || "").toString().split(" ")[0] || el.tagName;
+                    achados.push(`${nome} → ${familia}`);
+                }
+            }
+            return achados;
+        });
+
+        expect(fora, tela).toEqual([]);
+    }
+});
