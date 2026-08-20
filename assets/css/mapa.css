@@ -11,6 +11,7 @@
     --cor-azul-principal: #1B4680;
     --cor-branco-principal: #f4f4f4;
     --cor-font-preto: #050505;
+    --sobreposicao-mapa: 96px;
     --vermelho-cptm: #ED1C24;
 }
 
@@ -107,6 +108,17 @@ body {
 .conteudo-mapa {
     flex: 0 1 auto;
     overflow-y: auto;
+    /* O cartão sobe por cima do mapa, que continua atrás dele e some no
+       esfumaçado. A margem negativa não move o cartão: ela devolve essa altura ao
+       mapa, que cresce o mesmo tanto para baixo. O valor leva a borda do mapa até
+       a base dos seletores de origem e destino. */
+    margin-top: calc(var(--sobreposicao-mapa) * -1);
+    position: relative;
+    z-index: 1;
+    /* O bloco cobre o mapa de ponta a ponta, e a área vazia dele engolia o toque:
+       dava para ver o mapa ao lado do cartão e não conseguir arrastá-lo. O bloco
+       deixa o toque passar; quem recebe são os filhos. */
+    pointer-events: none;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -116,6 +128,10 @@ body {
 /* ===========================
    CARTÃO DE PESQUISA / ROTAS
 =========================== */
+.conteudo-mapa > * {
+    pointer-events: auto;
+}
+
 .container-pesquisa {
     width: 100%;
     display: flex;

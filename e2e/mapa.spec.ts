@@ -189,12 +189,64 @@ test("a base do mapa se dissolve, em vez de terminar numa régua", async ({ page
     expect(mascara).toContain("linear-gradient");
     expect(mascara).toMatch(/transparent|rgba\(0, 0, 0, 0\)/);
 
-    // e a área esmaecida continua respondendo ao gesto: a máscara é só visual
-    const caixa = (await page.locator(".map-container").boundingBox())!;
+    // A área esmaecida continua respondendo ao gesto: a máscara é só visual.
+    // O ponto de teste é a faixa lateral ao cartão — a base do mapa passa por trás
+    // dele, então lá o toque pertence ao cartão, não ao mapa.
+    const mapa = (await page.locator(".map-container").boundingBox())!;
+    const cartao = (await page.locator(".container-pesquisa").boundingBox())!;
+    const y = (cartao.y + mapa.y + mapa.height) / 2; // dentro do esfumaçado
+    const x = cartao.x / 2; // à esquerda do cartão
+
     const antes = await page.locator(".map").evaluate((el) => (el as HTMLElement).style.left);
-    await page.mouse.move(caixa.x + caixa.width / 2, caixa.y + caixa.height - 20);
+    await page.mouse.move(x, y);
     await page.mouse.down();
-    await page.mouse.move(caixa.x + caixa.width / 2 - 60, caixa.y + caixa.height - 20, { steps: 8 });
+    await page.mouse.move(x + 60, y, { steps: 8 });
     await page.mouse.up();
     expect(await page.locator(".map").evaluate((el) => (el as HTMLElement).style.left)).not.toBe(antes);
+});
+
+// O mapa passa por trás do cartão e some no esfumaçado, em vez de terminar acima
+// dele. A margem negativa não move o cartão: devolve a altura ao mapa.
+test("o mapa continua por trás do cartão, até a altura dos seletores", async ({ page }) => {
+    await page.goto("/mapa.html");
+    await page.waitForTimeout(200);
+
+    const m = await page.evaluate(() => {
+        const caixa = (s: string) => document.querySelector(s)!.getBoundingClientRect();
+        return {
+            baseMapa: Math.round(caixa(".map-container").bottom),
+            topoCartao: Math.round(caixa(".container-pesquisa").top),
+            baseSeletor: Math.round(caixa("#origem").bottom),
+            camadaCartao: getComputedStyle(document.querySelector(".conteudo-mapa")!).zIndex,
+        };
+    });
+
+    // a borda do mapa desce além do topo do cartão
+    expect(m.baseMapa).toBeGreaterThan(m.topoCartao);
+    // e chega perto da base dos seletores
+    expect(Math.abs(m.baseMapa - m.baseSeletor)).toBeLessThan(24);
+    // com o cartão pintado por cima
+    expect(Number(m.camadaCartao)).toBeGreaterThan(0);
+});
+
+// O bloco do cartão cobre o mapa de ponta a ponta. Sem deixar o toque passar, a
+// faixa vazia ao lado do cartão vira uma área morta: o mapa aparece ali e não
+// responde ao arrasto.
+test("a faixa ao lado do cartão continua sendo do mapa", async ({ page }) => {
+    await page.goto("/mapa.html");
+    await page.waitForTimeout(200);
+
+    const bloco = await page
+        .locator(".conteudo-mapa")
+        .evaluate((el) => getComputedStyle(el).pointerEvents);
+    const cartao = await page
+        .locator(".container-pesquisa")
+        .evaluate((el) => getComputedStyle(el).pointerEvents);
+
+    expect(bloco).toBe("none");
+    expect(cartao).toBe("auto");
+
+    // e o cartão segue funcionando por cima
+    await page.selectOption("#origem", "Luz");
+    await expect(page.locator("#origem")).toHaveValue("Luz");
 });
