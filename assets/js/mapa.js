@@ -33,6 +33,52 @@
   let y = 0;
   let escala = 1;
 
+  // Pinça de dois dedos. A moldura declara touch-action: none para o arrasto não
+  // virar rolagem da página, e isso desliga junto o zoom que o navegador faria
+  // sozinho — então ele é feito aqui.
+  const pontos = new Map();
+  let pinca = null;
+
+  const meio = () => {
+    const [a, b] = [...pontos.values()];
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  };
+
+  const distancia = () => {
+    const [a, b] = [...pontos.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+
+  function iniciarPinca() {
+    const caixa = moldura.getBoundingClientRect();
+    const m = meio();
+    const local = { x: m.x - caixa.left, y: m.y - caixa.top };
+    pinca = {
+      distancia: distancia(),
+      escala,
+      // ponto do mapa que estava sob os dedos: é ele que fica parado
+      alvo: { x: (local.x - x) / escala, y: (local.y - y) / escala },
+    };
+    arrastando = false;
+    mapa.style.transition = "none";
+  }
+
+  function aplicarPinca() {
+    if (!pinca || pontos.size < 2) return;
+    const caixa = moldura.getBoundingClientRect();
+    const m = meio();
+    const local = { x: m.x - caixa.left, y: m.y - caixa.top };
+
+    escala = limitar((distancia() / pinca.distancia) * pinca.escala, ESCALA_MIN, ESCALA_MAX);
+    x = local.x - pinca.alvo.x * escala;
+    y = local.y - pinca.alvo.y * escala;
+
+    const [minX, minY, maxX, maxY] = limites();
+    x = limitar(x, minX, maxX);
+    y = limitar(y, minY, maxY);
+    aplicar();
+  }
+
   const limitar = (valor, min, max) => Math.min(max, Math.max(min, valor));
 
   function limites() {
@@ -53,24 +99,56 @@
   }
 
   moldura.addEventListener("pointerdown", (evento) => {
+    // O botão de expandir mora dentro da moldura. Capturar o ponteiro aqui
+    // redireciona os eventos seguintes para ela e o clique nunca chega ao botão —
+    // então o que é controle não inicia arrasto.
+    if (evento.target.closest("button, a")) return;
+
+    pontos.set(evento.pointerId, { x: evento.clientX, y: evento.clientY });
+    moldura.setPointerCapture(evento.pointerId);
+
+    if (pontos.size === 2) {
+      iniciarPinca();
+      return;
+    }
+
     arrastando = true;
     inicioX = evento.clientX - x;
     inicioY = evento.clientY - y;
     mapa.style.transition = "none";
-    // segue o dedo mesmo se ele sair da moldura
-    moldura.setPointerCapture(evento.pointerId);
   });
 
   const soltar = (evento) => {
-    arrastando = false;
-    if (evento.pointerId !== undefined && moldura.hasPointerCapture?.(evento.pointerId)) {
+    pontos.delete(evento.pointerId);
+    if (moldura.hasPointerCapture?.(evento.pointerId)) {
       moldura.releasePointerCapture(evento.pointerId);
+    }
+
+    if (pontos.size < 2) pinca = null;
+
+    if (pontos.size === 1) {
+      // um dedo continua na tela: o arrasto recomeça a partir de onde ele está,
+      // senão o mapa salta quando o outro dedo sai
+      const [restante] = [...pontos.values()];
+      arrastando = true;
+      inicioX = restante.x - x;
+      inicioY = restante.y - y;
+    } else if (pontos.size === 0) {
+      arrastando = false;
     }
   };
   moldura.addEventListener("pointerup", soltar);
   moldura.addEventListener("pointercancel", soltar);
 
   moldura.addEventListener("pointermove", (evento) => {
+    if (!pontos.has(evento.pointerId)) return;
+    pontos.set(evento.pointerId, { x: evento.clientX, y: evento.clientY });
+
+    if (pontos.size >= 2) {
+      aplicarPinca();
+      return;
+    }
+
     if (!arrastando) return;
     const [minX, minY, maxX, maxY] = limites();
     x = limitar(evento.clientX - inicioX, minX, maxX);
@@ -290,7 +368,10 @@ async function verTrajeto() {
 
 function abrirMapa() {
   overlay.classList.remove("hidden");
-  voltarBtn.focus();
+  // o foco vai para a camada, e não para o botão: no WebKit focar um botão por
+  // código desenha o anel de foco mesmo quando a abertura veio de um toque, e
+  // aparecia uma caixa azul em volta do "Voltar" que não existe no resto do app
+  overlay.focus();
 }
 
 function fecharMapa() {

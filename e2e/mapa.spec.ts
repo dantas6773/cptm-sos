@@ -413,3 +413,80 @@ test("o mapa volta centrado depois de desfazer a busca", async ({ page }) => {
     // centrado é a moldura menos a largura do mapa, dividido por dois
     expect(m.esquerda).toBeCloseTo((m.moldura - LARGURA_MAPA) / 2, 0);
 });
+
+// A moldura declara touch-action: none para o arrasto não virar rolagem da
+// página — e isso desliga junto o zoom que o navegador faria sozinho. Sem tratar
+// os dois dedos, não havia como aproximar o mapa no celular.
+test("dois dedos aproximam e afastam o mapa", async ({ page }) => {
+    await page.goto("/mapa.html");
+    await page.waitForTimeout(300);
+
+    const escala = () =>
+        page.evaluate(() => {
+            const t = (document.querySelector(".map") as HTMLElement).style.transform;
+            return Number(t.replace(/[^\d.]/g, "")) || 1;
+        });
+
+    const cdp = await page.context().newCDPSession(page);
+    const caixa = (await page.locator(".map-container").boundingBox())!;
+    const cx = caixa.x + caixa.width / 2;
+    const cy = caixa.y + caixa.height / 2;
+
+    const pinçar = async (de: number, ate: number) => {
+        await cdp.send("Input.dispatchTouchEvent", {
+            type: "touchStart",
+            touchPoints: [{ x: cx - de, y: cy }, { x: cx + de, y: cy }],
+        });
+        for (let i = 1; i <= 10; i++) {
+            const d = de + ((ate - de) * i) / 10;
+            await cdp.send("Input.dispatchTouchEvent", {
+                type: "touchMove",
+                touchPoints: [{ x: cx - d, y: cy }, { x: cx + d, y: cy }],
+            });
+        }
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+        await page.waitForTimeout(150);
+    };
+
+    const inicial = await escala();
+    await pinçar(40, 120);
+    const ampliado = await escala();
+    expect(ampliado).toBeGreaterThan(inicial);
+
+    await pinçar(120, 30);
+    expect(await escala()).toBeLessThan(ampliado);
+});
+
+// Focar um botão por código faz o WebKit desenhar o anel de foco mesmo quando a
+// abertura veio de um toque: aparecia uma caixa azul em volta do "Voltar" que
+// não existe no resto do app. O foco vai para a camada, que não é um controle.
+test("abrir o mapa expandido não desenha caixa em volta do voltar", async ({ page }) => {
+    await page.goto("/mapa.html");
+    await page.click("#expandir");
+
+    await expect(page.locator("#overlay")).toBeVisible();
+    const focado = await page.evaluate(() => document.activeElement?.id);
+    expect(focado).toBe("overlay");
+
+    // e o teclado continua entrando na camada e alcançando o botão
+    await page.keyboard.press("Tab");
+    await expect(page.locator("#btn-voltar")).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#overlay")).toBeHidden();
+});
+
+// A moldura captura o ponteiro para o arrasto seguir o dedo fora dela. Feito sem
+// exceção, isso redireciona os eventos e o clique nunca chega ao botão de
+// expandir, que mora dentro do mapa.
+test("o botão de expandir funciona por toque e por clique", async ({ page }) => {
+    await page.goto("/mapa.html");
+    await page.waitForTimeout(200);
+
+    await page.click("#expandir");
+    await expect(page.locator("#overlay")).toBeVisible();
+    await page.click("#btn-voltar");
+    await expect(page.locator("#overlay")).toBeHidden();
+
+    await page.tap("#expandir");
+    await expect(page.locator("#overlay")).toBeVisible();
+});

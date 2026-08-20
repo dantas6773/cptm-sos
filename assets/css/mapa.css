@@ -625,3 +625,15 @@ p {
     outline: 3px solid var(--cor-azul-principal);
     outline-offset: 2px;
 }
+
+/* A camada recebe o foco ao abrir, para que o teclado entre nela. Como não é um
+   controle, não desenha anel: quem precisa de indicação visível é o botão. */
+#overlay:focus {
+    outline: none;
+}
+
+#btn-voltar:focus-visible {
+    outline: 3px solid var(--cor-branco-principal);
+    outline-offset: 3px;
+    border-radius: 8px;
+}
