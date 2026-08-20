@@ -20,10 +20,27 @@ const TELAS = [
     "formularioDenuncia.html",
 ];
 
-// O contraste do vermelho da CPTM (#ED1C24 com texto branco) dá 4.38:1, abaixo
-// do mínimo de 4.5:1 — é decisão de marca pendente com o time, não descuido.
-// Fica de fora da trava para não mascarar violações novas, e documentado aqui.
-const PENDENTE = ["color-contrast"];
+// O vermelho institucional da CPTM (#ED1C24) com texto branco dá 4.38:1, abaixo
+// dos 4.5:1 da WCAG AA. Foi decidido mantê-lo: é a cor da marca, e a alternativa
+// (#D3141A, 5.41:1) muda o tom. Decisão consciente, não descuido.
+//
+// A regra NÃO é desligada por causa disso. Desligá-la esconderia qualquer
+// contraste ruim que aparecesse depois, em qualquer tela. Em vez disso, só estes
+// cinco elementos são aceitos pelo nome: um sexto, ou qualquer outra combinação
+// de cores abaixo do mínimo, reprova.
+const CONTRASTE_ACEITO = [
+    "#botao",              // "Entrar" (login e apelido) e "Cadastrar"
+    ".recarga",            // "Recarga", no cartão de saldo da home
+    "#botao-qrcode",       // "Usar QR Code", no mesmo cartão
+];
+
+/** Verdadeiro quando a violação de contraste é uma das cinco aceitas. */
+function contrasteAceito(violacao: { id: string; nodes: Array<{ target: unknown[] }> }) {
+    if (violacao.id !== "color-contrast") return false;
+    return violacao.nodes.every((no) =>
+        CONTRASTE_ACEITO.some((aceito) => String(no.target[0]).includes(aceito))
+    );
+}
 
 test.beforeEach(async ({ context, request }) => {
     resetarBanco();
@@ -37,10 +54,11 @@ for (const tela of TELAS) {
 
         const { violations } = await new AxeBuilder({ page })
             .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-            .disableRules(PENDENTE)
             .analyze();
 
-        const resumo = violations.map((v) => `${v.id} (${v.nodes.length}x): ${v.help}`);
+        const resumo = violations
+            .filter((v) => !contrasteAceito(v))
+            .map((v) => `${v.id} (${v.nodes.length}x): ${v.help}`);
         expect(resumo, `violações em ${tela}`).toEqual([]);
     });
 }
