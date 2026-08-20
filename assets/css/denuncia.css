@@ -364,3 +364,32 @@ footer {
     outline: 3px solid #ED1C24;
     outline-offset: 2px;
 }
+
+/* Retorno do alarme, no lugar das caixas do sistema. Fica sobre o fundo escuro
+   da tela e não some sozinho: quem está numa emergência não deve precisar
+   reagir a tempo de ler. */
+.aviso-alarme {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+    min-height: 1.3em;
+    padding: 0 8px;
+    text-align: center;
+    font-family: "Inter", sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #FFFFFF;
+    white-space: pre-line;
+}
+
+.aviso-alarme:empty {
+    display: none;
+}
+
+.aviso-alarme.erro {
+    color: #FFB3B6;
+}
+
+.aviso-alarme.destaque {
+    font-weight: 600;
+}

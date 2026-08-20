@@ -5,6 +5,20 @@ const botoes = document.getElementById('botoes');
 const cpfContainer = document.getElementById('cpf-container');
 const voltarBtn = document.getElementById('voltar');
 const cadeado = document.getElementById('cadeado');
+const avisoAlarme = document.getElementById('aviso-alarme');
+
+/**
+ * Retorno do alarme na própria tela. As caixas do sistema travavam tudo —
+ * inclusive o "Ligar 190" — e no celular ainda anunciam o endereço do servidor
+ * no topo. A mensagem fica até ser substituída: numa emergência ninguém deve
+ * precisar reagir a tempo de ler.
+ */
+function avisarAlarme(texto, tipo) {
+  if (!avisoAlarme) return;
+  avisoAlarme.textContent = texto;
+  avisoAlarme.className = 'aviso-alarme' + (tipo ? ' ' + tipo : '');
+}
+
 const inputCpf = document.getElementById('cpf-input');
 // mesma máscara do cadastro: o campo passa a guiar o formato em vez de recusar
 if (inputCpf) aplicarMascaraCPF(inputCpf);
@@ -183,7 +197,7 @@ async function enviarLocalizacao(posicao) {
     // sendo localizada enquanto o servidor descarta cada envio.
     if (resposta.status === 409) {
       desligarMeEncontre();
-      alert('O alerta foi desligado, então a sua localização não está mais sendo compartilhada.');
+      avisarAlarme('O alerta foi desligado, então a sua localização não está mais sendo compartilhada.');
       return;
     }
 
@@ -216,7 +230,7 @@ if (meEncontre) {
 
     if (!encontreAtivo) {
       desligarMeEncontre();
-      alert('Você parou de compartilhar a sua localização.');
+      avisarAlarme('Você parou de compartilhar a sua localização.');
       return;
     }
 
@@ -225,7 +239,7 @@ if (meEncontre) {
     if (iconeMeEncontre) iconeMeEncontre.src = 'assets/imagem/escudoBranco.png';
 
     if (!navigator.geolocation) {
-      alert('Seu aparelho não permite compartilhar a localização.');
+      avisarAlarme('Seu aparelho não permite compartilhar a localização.', 'erro');
       desligarMeEncontre();
       return;
     }
@@ -243,14 +257,14 @@ if (meEncontre) {
         // reativar o botão no meio de uma emergência; o watchPosition se recupera
         // sozinho quando o sinal volta.
         if (erro.code === erro.PERMISSION_DENIED) {
-          alert('Permissão de localização negada. Autorize o acesso para que possam te encontrar.');
+          avisarAlarme('Permissão de localização negada. Autorize o acesso para que possam te encontrar.', 'erro');
           desligarMeEncontre();
         }
       },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
 
-    alert('🚓 As autoridades locais já estão indo até você.\nMantenha o botão ligado para continuar compartilhando a sua localização.');
+    avisarAlarme('🚓 As autoridades locais já estão indo até você.\nMantenha o botão ligado para continuar compartilhando a sua localização.', 'destaque');
   });
 }
 
@@ -326,13 +340,13 @@ async function confirmarAlertaCpf(e) {
     // Sem esta checagem o app sairia da tela dizendo que desativou o alarme
     // mesmo quando o servidor recusou — perigoso justamente num fluxo de emergência.
     if (resp.status === 403) {
-      alert("CPF não confere com o do seu cadastro.");
+      avisarAlarme('CPF não confere com o do seu cadastro.', 'erro');
       return;
     }
 
     if (!resp.ok) {
       console.error("Falha ao confirmar alerta:", resp.status);
-      alert("Não foi possível desativar o alarme. Tente novamente.");
+      avisarAlarme('Não foi possível desativar o alarme. Tente novamente.', 'erro');
       return;
     }
 
@@ -372,7 +386,7 @@ async function iniciarCamera() {
     videoCamera.srcObject = streamCamera;
   } catch (err) {
     console.error("Erro ao acessar a câmera:", err);
-    alert("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
+    avisarAlarme('Não foi possível acessar a câmera. Verifique as permissões do navegador.', 'erro');
   }
 }
 

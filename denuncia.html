@@ -53,6 +53,11 @@
                 <h4>Ligar 190</h4>
             </a>
         </div>
+        <!-- Retorno do alarme. Substitui os alert() do sistema: no celular eles
+             mostram o endereço do servidor no topo e travam a tela inteira —
+             inclusive o "Ligar 190" — justamente numa emergência. -->
+        <p id="aviso-alarme" class="aviso-alarme" role="status" aria-live="assertive"></p>
+
         <div class="slider-container" id="slider">
             <div class="slider-text">Arraste para desativar o alarme</div>
             <div class="slider-button" id="slider-button" role="button" tabindex="0" aria-label="Deslize ou pressione Enter para desativar o alarme"><img src="assets/imagem/cadeado.png" alt="" id="cadeado"></div>

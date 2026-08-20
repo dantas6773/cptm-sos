@@ -48,20 +48,48 @@ test("CPF errado avisa e mantém o alerta ligado", async ({ page }) => {
     await page.goto("/denuncia.html");
     await arrastarSlider(page);
 
-    const avisos: string[] = [];
+    // As caixas do sistema travavam a tela inteira — inclusive o "Ligar 190" —
+    // e no celular anunciam o endereço do servidor no topo. O aviso agora é da
+    // própria tela, e nenhum diálogo deve aparecer.
+    let houveCaixaDoSistema = false;
     page.on("dialog", async (d) => {
-        avisos.push(d.message());
-        await d.accept();
+        houveCaixaDoSistema = true;
+        await d.dismiss();
     });
 
     await page.fill("#cpf-input", "00000000000");
     await page.click("#cpf-button");
-    await page.waitForTimeout(1200);
+
+    await expect(page.locator("#aviso-alarme")).toContainText("CPF");
+    expect(houveCaixaDoSistema).toBe(false);
 
     // não pode navegar, nem derrubar a sessão levando ao login
     expect(page.url()).toContain("denuncia.html");
-    expect(avisos.join(" ")).toContain("CPF");
     expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).alerta).toBe(true);
+});
+
+// A tela do alarme era a última com caixa do sistema. Numa emergência elas são o
+// pior formato possível: bloqueiam tudo, inclusive o botão de ligar para a
+// polícia, e somem sem deixar rastro para leitor de tela.
+test("o alarme responde na própria tela, sem caixa do sistema", async ({ page, context }) => {
+    await context.grantPermissions(["geolocation"]);
+    await context.setGeolocation({ latitude: -23.55, longitude: -46.63 });
+
+    let houveCaixaDoSistema = false;
+    page.on("dialog", async (d) => {
+        houveCaixaDoSistema = true;
+        await d.dismiss();
+    });
+
+    await page.goto("/denuncia.html");
+    await page.click("#meEncontre");
+
+    // a mensagem fica na tela, e continua lá — não é um aviso que passa
+    await expect(page.locator("#aviso-alarme")).toContainText("autoridades locais");
+    await page.waitForTimeout(1200);
+    await expect(page.locator("#aviso-alarme")).toContainText("autoridades locais");
+
+    expect(houveCaixaDoSistema).toBe(false);
 });
 
 test("CPF correto desativa o alarme e volta para a home com a confirmação", async ({ page }) => {
