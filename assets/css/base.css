@@ -125,3 +125,37 @@ textarea,
 .slider-button {
     touch-action: none;
 }
+
+/* --- Transição entre telas --- */
+
+/* Cada tela é um documento próprio, então trocar de tela descartava tudo e
+   remontava: o resultado é o flash branco a cada toque. Com a transição entre
+   documentos o navegador guarda o quadro anterior e faz a passagem, sem que o
+   app deixe de ser multipágina.
+
+   Não substitui uma aplicação de página única — o documento continua sendo
+   recarregado por baixo. Resolve o que se vê, que era a queixa. */
+@view-transition {
+    navigation: auto;
+}
+
+/* Cabeçalho e barra de seções são os mesmos de uma tela para a outra. Com nome
+   próprio, o navegador os trata como o mesmo elemento e os mantém parados
+   enquanto só o miolo troca — em vez de dissolver a tela inteira. */
+.header-todo {
+    view-transition-name: cabecalho;
+}
+
+.barra-navegacao {
+    view-transition-name: barra-secoes;
+}
+
+/* Quem pede menos movimento no sistema não recebe nenhum: a transição é conforto
+   visual, e para parte das pessoas é o contrário disso. */
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}

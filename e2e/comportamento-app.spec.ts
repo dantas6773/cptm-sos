@@ -107,3 +107,66 @@ test("a pinça para ampliar continua disponível", async ({ page }) => {
         expect(conteudo, tela).not.toMatch(/maximum-scale/);
     }
 });
+
+// Cada tela é um documento próprio, então trocar de tela descartava tudo e
+// remontava — daí o flash branco a cada toque. A transição entre documentos
+// guarda o quadro anterior e faz a passagem, sem deixar de ser multipágina.
+test("a troca de tela usa transição em vez de recarregar à vista", async ({ page }) => {
+    await page.goto("/home.html");
+
+    const estado = await page.evaluate(() => {
+        let encontrada = null;
+        for (const folha of Array.from(document.styleSheets)) {
+            try {
+                for (const regra of Array.from(folha.cssRules)) {
+                    if (/@view-transition/.test(regra.cssText || "")) encontrada = regra.cssText;
+                }
+            } catch {
+                // folha de outra origem: não há nenhuma, mas o acesso pode lançar
+            }
+        }
+        return {
+            regra: encontrada,
+            // cabeçalho e barra têm nome próprio, então ficam parados enquanto o
+            // miolo troca, em vez de a tela inteira dissolver
+            cabecalho: getComputedStyle(document.querySelector(".header-todo")!).viewTransitionName,
+            barra: getComputedStyle(document.querySelector(".barra-navegacao")!).viewTransitionName,
+        };
+    });
+
+    expect(estado.regra).toContain("navigation: auto");
+    expect(estado.cabecalho).toBe("cabecalho");
+    expect(estado.barra).toBe("barra-secoes");
+});
+
+// A transição é conforto visual; para parte das pessoas o movimento é o
+// contrário disso, e o sistema já diz quando é o caso.
+test("quem pede menos movimento no sistema não recebe animação", async ({ browser }) => {
+    const contexto = await browser.newContext({ reducedMotion: "reduce" });
+    const pagina = await contexto.newPage();
+    await pagina.goto("/login.html");
+
+    const regra = await pagina.evaluate(() => {
+        for (const folha of Array.from(document.styleSheets)) {
+            try {
+                for (const r of Array.from(folha.cssRules)) {
+                    const texto = r.cssText || "";
+                    if (texto.includes("prefers-reduced-motion") && texto.includes("view-transition")) {
+                        return texto;
+                    }
+                }
+            } catch {
+                // ignora
+            }
+        }
+        return null;
+    });
+
+    expect(regra, "regra de movimento reduzido ausente").not.toBeNull();
+    // o navegador devolve o atalho na forma longa, então a checagem é pelo nome
+    // da animação (none) e pelo !important, não pelo texto que foi escrito
+    expect(regra).toMatch(/animation:[^;}]*none[^;}]*!important/);
+    expect(regra).toContain("::view-transition-group(*)");
+
+    await contexto.close();
+});
