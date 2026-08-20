@@ -594,26 +594,34 @@ p {
     mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent 100%);
 }
 
-/* Caminho de volta ao mapa, como o "Voltar" que o projeto visual põe acima do
-   cartão de trajeto. Sem ele, quem pesquisa uma vez fica com meia tela ocupada
-   pelo resultado e sem como desfazer. */
+/* Caminho de volta ao mapa. Fica fora do cartão de trajeto e sobre o fundo da
+   página: dentro do cartão, azul sobre azul, ele se confundia com o conteúdo e
+   passava por mais uma etiqueta de linha. */
 .trajeto-voltar {
     align-self: flex-start;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 14px 6px 10px;
-    border: none;
+    padding: 10px 18px 10px 14px;
+    border: 1px solid rgba(27, 70, 128, 0.25);
     border-radius: 999px;
-    background-color: rgba(255, 255, 255, 0.14);
-    color: var(--cor-branco-principal);
+    background-color: var(--cor-branco-principal);
+    color: var(--cor-azul-principal);
     font-family: "Inter", sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
 }
 
+.trajeto-voltar[hidden] {
+    display: none;
+}
+
+.trajeto-voltar:active {
+    background-color: #e6ecf9;
+}
+
 .trajeto-voltar:focus-visible {
-    outline: 3px solid var(--cor-branco-principal);
+    outline: 3px solid var(--cor-azul-principal);
     outline-offset: 2px;
 }

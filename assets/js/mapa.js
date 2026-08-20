@@ -118,6 +118,7 @@ const trajetoEl = document.getElementById("trajeto-info");
 const overlay = document.getElementById("overlay");
 const expandirBtn = document.getElementById("expandir");
 const voltarBtn = document.getElementById("btn-voltar");
+const voltarMapaBtn = document.querySelector(".trajeto-voltar");
 
 function preencher(select, estacoes) {
   for (const estacao of estacoes) {
@@ -162,6 +163,7 @@ function atualizarBotao() {
 function limparTrajeto() {
   trajetoEl.className = "container-trajeto hidden";
   trajetoEl.textContent = "";
+  voltarMapaBtn.hidden = true;
   document.querySelector(".pagina").classList.remove("com-trajeto");
 }
 
@@ -196,6 +198,7 @@ function montarTrajeto(rota) {
   // Com o trajeto na tela o mapa encolhe até o mínimo, e aí a sobreposição
   // deixa de parecer intencional: vira o mapa espiando atrás de dois cartões.
   document.querySelector(".pagina").classList.add("com-trajeto");
+  voltarMapaBtn.hidden = false;
 
   if (rota.mesmaBaldeacao) {
     mostrarAviso(
@@ -203,18 +206,9 @@ function montarTrajeto(rota) {
       null
     );
     document.querySelector(".pagina").classList.add("com-trajeto");
+  voltarMapaBtn.hidden = false;
     return;
   }
-
-  const voltar = document.createElement("button");
-  voltar.type = "button";
-  voltar.className = "trajeto-voltar";
-  voltar.append(Object.assign(document.createElement("span"), {
-    textContent: "←",
-    ariaHidden: "true",
-  }));
-  voltar.append(" Voltar ao mapa");
-  voltar.addEventListener("click", voltarAoMapa);
 
   const lista = document.createElement("ol");
   lista.className = "trajeto-pernas";
@@ -251,7 +245,7 @@ function montarTrajeto(rota) {
   nota.className = "trajeto-nota";
   nota.textContent = "Estimativa por número de paradas; o projeto não usa tabela de horários.";
 
-  trajetoEl.append(voltar, lista, resumo, nota);
+  trajetoEl.append(lista, resumo, nota);
 }
 
 function seta() {
@@ -310,6 +304,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   origemEl.addEventListener("change", atualizarBotao);
   destinoEl.addEventListener("change", atualizarBotao);
   gerarBtn.addEventListener("click", verTrajeto);
+  voltarMapaBtn.addEventListener("click", voltarAoMapa);
 
   if (expandirBtn) expandirBtn.addEventListener("click", abrirMapa);
   if (voltarBtn) voltarBtn.addEventListener("click", fecharMapa);

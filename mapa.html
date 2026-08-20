@@ -61,6 +61,12 @@
         </div>
       </section>
 
+      <!-- desfaz a busca e devolve o mapa; fora do cartão de trajeto, para não
+           se confundir com o conteúdo dele -->
+      <button type="button" class="trajeto-voltar" hidden>
+        <span aria-hidden="true">&#8592;</span> Voltar ao mapa
+      </button>
+
       <!-- container onde você vai injetar as infos de trajeto -->
       <section
         class="container-trajeto hidden"

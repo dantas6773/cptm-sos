@@ -256,6 +256,12 @@ test("a faixa ao lado do cartão continua sendo do mapa", async ({ page }) => {
 // desfazer: o mapa continuava lá atrás, encolhido, sem caminho de volta.
 test("dá para voltar ao mapa depois de pesquisar", async ({ page }) => {
     await page.goto("/mapa.html");
+
+    // só aparece quando há o que desfazer, e fora do cartão de trajeto: dentro
+    // dele, azul sobre azul, passava por mais uma etiqueta de linha
+    await expect(page.locator(".trajeto-voltar")).toBeHidden();
+    await expect(page.locator("#trajeto-info .trajeto-voltar")).toHaveCount(0);
+
     await page.selectOption("#origem", "Alto da Boa Vista");
     await page.selectOption("#destino", "Água Branca");
     await page.click("#gerar-mapa-btn");
@@ -263,9 +269,12 @@ test("dá para voltar ao mapa depois de pesquisar", async ({ page }) => {
 
     const mapaComRota = await page.locator(".map-container").evaluate((el) => el.getBoundingClientRect().height);
 
+    await expect(page.locator(".trajeto-voltar")).toBeVisible();
+    await expect(page.locator("#trajeto-info .trajeto-voltar")).toHaveCount(0);
     await page.click(".trajeto-voltar");
 
     await expect(page.locator(".trajeto-pernas")).toHaveCount(0);
+    await expect(page.locator(".trajeto-voltar")).toBeHidden();
     const mapaDepois = await page.locator(".map-container").evaluate((el) => el.getBoundingClientRect().height);
     expect(mapaDepois).toBeGreaterThan(mapaComRota);
 
