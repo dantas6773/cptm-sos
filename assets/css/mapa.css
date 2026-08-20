@@ -565,6 +565,15 @@ p {
     --sobreposicao-mapa: 0px;
 }
 
+/* Com trajeto, o bloco volta a receber o toque. O `pointer-events: none` existe
+   só para o mapa continuar arrastável na faixa que o bloco cobre — e sem
+   sobreposição não há faixa coberta. Mantê-lo aqui custaria caro: no WebKit um
+   container que rola e não recebe ponteiro simplesmente não rola, e o trajeto
+   ficava preso no que coubesse na tela. */
+.com-trajeto .conteudo-mapa {
+    pointer-events: auto;
+}
+
 /* Com trajeto, o cartão costuma passar da altura disponível e rola por dentro —
    e era cortado em seco pela barra de baixo. Mesmo esfumaçado usado na base do
    mapa e no carrossel da home, agora sinalizando que há mais para ver. */

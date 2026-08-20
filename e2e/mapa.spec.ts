@@ -314,3 +314,43 @@ test("a sobreposição some quando há trajeto e volta quando ele sai", async ({
     await page.click(".trajeto-voltar");
     expect(await sobreposicao()).not.toBe("0px");
 });
+
+// A regra que importa, e não a propriedade que a implementa: se o bloco precisa
+// rolar, ele tem de receber o toque. No WebKit um container que rola com
+// pointer-events: none simplesmente não rola, e o trajeto ficava preso no que
+// coubesse na tela — o Chromium rola assim mesmo, então só o invariante pega.
+test("todo bloco que precisa rolar recebe o toque", async ({ page }) => {
+    for (const altura of [800, 745, 700, 660, 568]) {
+        await page.setViewportSize({ width: 393, height: altura });
+        await page.goto("/mapa.html");
+        await page.selectOption("#origem", "AACD-Servidor");
+        await page.selectOption("#destino", "Calmon Viana");
+        await page.click("#gerar-mapa-btn");
+        await expect(page.locator(".trajeto-resumo")).toBeVisible();
+
+        const m = await page.evaluate(() => {
+            const bloco = document.querySelector(".conteudo-mapa") as HTMLElement;
+            return {
+                precisaRolar: bloco.scrollHeight > bloco.clientHeight + 1,
+                recebeToque: getComputedStyle(bloco).pointerEvents !== "none",
+            };
+        });
+
+        if (m.precisaRolar) {
+            expect(m.recebeToque, `em ${altura}px o bloco rola mas não recebe toque`).toBe(true);
+        }
+    }
+});
+
+test("o trajeto longo rola até o fim", async ({ page }) => {
+    await page.setViewportSize({ width: 393, height: 700 });
+    await page.goto("/mapa.html");
+    await page.selectOption("#origem", "AACD-Servidor");
+    await page.selectOption("#destino", "Calmon Viana");
+    await page.click("#gerar-mapa-btn");
+    await expect(page.locator(".trajeto-resumo")).toBeVisible();
+
+    // a nota do rodapé do cartão só aparece rolando até o fim
+    await page.locator(".trajeto-nota").scrollIntoViewIfNeeded();
+    await expect(page.locator(".trajeto-nota")).toBeInViewport();
+});
