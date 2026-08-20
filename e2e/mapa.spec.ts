@@ -123,3 +123,56 @@ test("o mapa da tela é arrastável, inclusive por toque", async ({ page }) => {
     const toque = await page.locator(".map-container").evaluate((el) => getComputedStyle(el).touchAction);
     expect(toque).toBe("none");
 });
+
+// Sobrava um vão de 173px entre o cartão e a barra de baixo: o mapa e o bloco de
+// conteúdo tinham flex: 1 e dividiam a sobra. Agora só o mapa cresce.
+test("o cartão encosta na barra de baixo, sem vão", async ({ page }) => {
+    for (const altura of [800, 660, 568]) {
+        await page.setViewportSize({ width: 393, height: altura });
+        await page.goto("/mapa.html");
+        await page.waitForTimeout(200);
+
+        const m = await page.evaluate(() => {
+            // mede o cartão, não a caixa que o contém: o vão que se enxergava
+            // ficava dentro do bloco, com o cartão no topo e o resto vazio
+            const cartao = document.querySelector(".container-pesquisa")!.getBoundingClientRect();
+            const barra = document.querySelector(".barra-navegacao")!.getBoundingClientRect();
+            return {
+                vao: Math.round(barra.top - cartao.bottom),
+                alturaMapa: Math.round(document.querySelector(".map-container")!.getBoundingClientRect().height),
+                paginaRola: document.documentElement.scrollHeight > window.innerHeight + 1,
+            };
+        });
+
+        // só o respiro do bloco, não um vazio
+        expect(m.vao, `em ${altura}px`).toBeLessThanOrEqual(32);
+        // e a altura que sobra vai para o mapa
+        expect(m.alturaMapa, `em ${altura}px`).toBeGreaterThan(200);
+        expect(m.paginaRola, `em ${altura}px`).toBe(false);
+    }
+});
+
+// Um trajeto longo não pode espremer o mapa até sumir nem empurrar o cartão para
+// fora: o mapa para num mínimo e o conteúdo rola por dentro.
+test("trajeto longo faz o conteúdo rolar, sem esmagar o mapa", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto("/mapa.html");
+
+    await page.selectOption("#origem", "Jundiaí");
+    await page.selectOption("#destino", "Jabaquara");
+    await page.click("#gerar-mapa-btn");
+    await expect(page.locator(".trajeto-resumo")).toBeVisible();
+
+    const m = await page.evaluate(() => {
+        const conteudo = document.querySelector(".conteudo-mapa") as HTMLElement;
+        return {
+            alturaMapa: Math.round(document.querySelector(".map-container")!.getBoundingClientRect().height),
+            mioloRola: conteudo.scrollHeight > conteudo.clientHeight + 1,
+            paginaRola: document.documentElement.scrollHeight > window.innerHeight + 1,
+        };
+    });
+
+    expect(m.alturaMapa).toBeGreaterThanOrEqual(180);
+    expect(m.mioloRola).toBe(true);
+    expect(m.paginaRola).toBe(false);
+});
