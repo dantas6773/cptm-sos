@@ -557,3 +557,42 @@ p {
 .map-container {
     touch-action: none;
 }
+
+/* Com o trajeto na tela o mapa já está no mínimo, e a sobreposição deixa de
+   parecer intencional: vira o mapa espiando atrás de dois cartões empilhados.
+   Sem trajeto, o efeito volta. */
+.pagina.com-trajeto {
+    --sobreposicao-mapa: 0px;
+}
+
+/* Com trajeto, o cartão costuma passar da altura disponível e rola por dentro —
+   e era cortado em seco pela barra de baixo. Mesmo esfumaçado usado na base do
+   mapa e no carrossel da home, agora sinalizando que há mais para ver. */
+.com-trajeto .conteudo-mapa {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent 100%);
+}
+
+/* Caminho de volta ao mapa, como o "Voltar" que o projeto visual põe acima do
+   cartão de trajeto. Sem ele, quem pesquisa uma vez fica com meia tela ocupada
+   pelo resultado e sem como desfazer. */
+.trajeto-voltar {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 10px;
+    border: none;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.14);
+    color: var(--cor-branco-principal);
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.trajeto-voltar:focus-visible {
+    outline: 3px solid var(--cor-branco-principal);
+    outline-offset: 2px;
+}

@@ -250,3 +250,67 @@ test("a faixa ao lado do cartão continua sendo do mapa", async ({ page }) => {
     await page.selectOption("#origem", "Luz");
     await expect(page.locator("#origem")).toHaveValue("Luz");
 });
+
+// Depois de pesquisar, metade da tela ficava com o resultado e não havia como
+// desfazer: o mapa continuava lá atrás, encolhido, sem caminho de volta.
+test("dá para voltar ao mapa depois de pesquisar", async ({ page }) => {
+    await page.goto("/mapa.html");
+    await page.selectOption("#origem", "Alto da Boa Vista");
+    await page.selectOption("#destino", "Água Branca");
+    await page.click("#gerar-mapa-btn");
+    await expect(page.locator(".trajeto-resumo")).toBeVisible();
+
+    const mapaComRota = await page.locator(".map-container").evaluate((el) => el.getBoundingClientRect().height);
+
+    await page.click(".trajeto-voltar");
+
+    await expect(page.locator(".trajeto-pernas")).toHaveCount(0);
+    const mapaDepois = await page.locator(".map-container").evaluate((el) => el.getBoundingClientRect().height);
+    expect(mapaDepois).toBeGreaterThan(mapaComRota);
+
+    // e o foco não se perde ao desfazer
+    await expect(page.locator("#gerar-mapa-btn")).toBeFocused();
+});
+
+// O resultado escondia o topo do cartão de busca: eu rolava o bloco para o
+// trajeto ficar à vista, e os rótulos ORIGEM e DESTINO saíam por cima do corte.
+test("o cartão de busca continua inteiro depois da pesquisa", async ({ page }) => {
+    for (const altura of [745, 700, 660]) {
+        await page.setViewportSize({ width: 393, height: altura });
+        await page.goto("/mapa.html");
+        await page.selectOption("#origem", "Alto da Boa Vista");
+        await page.selectOption("#destino", "Água Branca");
+        await page.click("#gerar-mapa-btn");
+        await expect(page.locator(".trajeto-resumo")).toBeVisible();
+
+        const m = await page.evaluate(() => {
+            const bloco = document.querySelector(".conteudo-mapa")!;
+            const rotulo = document.querySelector(".dropdown-label")!.getBoundingClientRect();
+            return { rolagem: bloco.scrollTop, cortado: rotulo.top < bloco.getBoundingClientRect().top };
+        });
+
+        expect(m.rolagem, `em ${altura}px`).toBe(0);
+        expect(m.cortado, `em ${altura}px`).toBe(false);
+    }
+});
+
+// Com dois cartões empilhados e o mapa já no mínimo, a sobreposição deixa de
+// parecer intencional e vira o mapa espiando por trás deles.
+test("a sobreposição some quando há trajeto e volta quando ele sai", async ({ page }) => {
+    await page.goto("/mapa.html");
+    const sobreposicao = () =>
+        page.evaluate(() =>
+            getComputedStyle(document.querySelector(".pagina")!).getPropertyValue("--sobreposicao-mapa").trim()
+        );
+
+    expect(await sobreposicao()).not.toBe("0px");
+
+    await page.selectOption("#origem", "Luz");
+    await page.selectOption("#destino", "Brás");
+    await page.click("#gerar-mapa-btn");
+    await expect(page.locator(".trajeto-resumo")).toBeVisible();
+    expect(await sobreposicao()).toBe("0px");
+
+    await page.click(".trajeto-voltar");
+    expect(await sobreposicao()).not.toBe("0px");
+});

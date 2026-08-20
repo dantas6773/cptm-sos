@@ -159,6 +159,13 @@ function atualizarBotao() {
 function limparTrajeto() {
   trajetoEl.className = "container-trajeto hidden";
   trajetoEl.textContent = "";
+  document.querySelector(".pagina").classList.remove("com-trajeto");
+}
+
+/** Volta à vista do mapa, desfazendo a busca. */
+function voltarAoMapa() {
+  limparTrajeto();
+  gerarBtn.focus();
 }
 
 /** Etiqueta colorida da linha, como os chips do projeto visual. */
@@ -182,13 +189,28 @@ function montarTrajeto(rota) {
   trajetoEl.className = "container-trajeto";
   trajetoEl.textContent = "";
 
+  // Com o trajeto na tela o mapa encolhe até o mínimo, e aí a sobreposição
+  // deixa de parecer intencional: vira o mapa espiando atrás de dois cartões.
+  document.querySelector(".pagina").classList.add("com-trajeto");
+
   if (rota.mesmaBaldeacao) {
     mostrarAviso(
       `${rota.origem} e ${rota.destino} são a mesma baldeação: dá para ir a pé, sem pegar trem.`,
       null
     );
+    document.querySelector(".pagina").classList.add("com-trajeto");
     return;
   }
+
+  const voltar = document.createElement("button");
+  voltar.type = "button";
+  voltar.className = "trajeto-voltar";
+  voltar.append(Object.assign(document.createElement("span"), {
+    textContent: "←",
+    ariaHidden: "true",
+  }));
+  voltar.append(" Voltar ao mapa");
+  voltar.addEventListener("click", voltarAoMapa);
 
   const lista = document.createElement("ol");
   lista.className = "trajeto-pernas";
@@ -225,7 +247,7 @@ function montarTrajeto(rota) {
   nota.className = "trajeto-nota";
   nota.textContent = "Estimativa por número de paradas; o projeto não usa tabela de horários.";
 
-  trajetoEl.append(lista, resumo, nota);
+  trajetoEl.append(voltar, lista, resumo, nota);
 }
 
 function seta() {
@@ -257,7 +279,6 @@ async function verTrajeto() {
     }
 
     montarTrajeto(dados);
-    trajetoEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (err) {
     console.error("Erro ao calcular trajeto:", err);
     mostrarAviso("Erro de conexão. Tente novamente.", "erro");
