@@ -14,7 +14,9 @@ data/usuario*.json
 # documento interno de coordenação; não deve ir para o repositório público
 LIMPEZA-HISTORICO.md
 
-# ambiente virtual do Python usado pelo gerador de mapa
+# ambiente virtual do Python. O projeto não usa mais Python — o cálculo de rota
+# foi reescrito em TypeScript — mas a linha fica: quem clonou antes ainda tem a
+# pasta no disco, e ela não pode escorregar para o repositório.
 .venv/
 
 
