@@ -20,7 +20,6 @@ async function ativarAlerta() {
     });
 
     if (response.ok) {
-      console.log("🚨 ALERTA ATIVADO COM SUCESSO!");
     } else {
       console.error("⚠️ Erro ao ativar alerta:", response.status);
     }

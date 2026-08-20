@@ -1,7 +1,7 @@
 {
   "name": "projeto-cptm-paraiso-feudal",
   "version": "1.0.0",
-  "description": "**Integrantes:**  \r Benjamin • João Pedro • Paulo • Thales • Thomas • Waldir",
+  "description": "App da CPTM com botão de emergência. Integrantes: Benjamin, João Pedro, Paulo, Thales, Thomas e Waldir.",
   "main": "assets/src/server.ts",
   "scripts": {
     "dev": "tsx watch assets/src/server.ts",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal.git"
+    "url": "git+https://github.com/projeto-inegrador-2025-2/projeto-cptm-paraiso-feudal.git"
   },
   "keywords": [],
   "author": "Grupo Paraíso Feudal",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal/issues"
+    "url": "https://github.com/projeto-inegrador-2025-2/projeto-cptm-paraiso-feudal/issues"
   },
-  "homepage": "https://github.com/ibmec-bh-3-periodo/projeto-cptm-paraiso-feudal#readme",
+  "homepage": "https://github.com/projeto-inegrador-2025-2/projeto-cptm-paraiso-feudal#readme",
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",

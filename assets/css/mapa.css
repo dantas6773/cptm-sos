@@ -304,36 +304,7 @@ body {
 
 .aviso-trajeto.erro {
     background-color: #7A1015;
-}
-
-/* Ações editar/remover */
-.item-actions button {
-    background: transparent;
-    border: none;
-    color: var(--cor-azul-principal);
-    margin-left: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    transition: color 0.2s ease;
-}
-
-.item-actions button:hover {
-    color: var(--vermelho-cptm);
-}.item-save,
-.item-cancel {
-    margin-left: 6px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* ===========================
+}/* ===========================
    CONTEÚDO DE TRAJETO / RESULTADO
 =========================== */
 .container-trajeto {
@@ -343,75 +314,15 @@ body {
     padding: 20px;
     font-family: 'Inter', sans-serif;
     color: var(--cor-branco-principal);
-}
-
-/* bloco que mostra o caminho completo */
-.trajeto-linha-completa {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
-}
-
-.trajeto-item {
+}.estacao {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    font-size: 14px;
-}
-
-.estacao {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.nome-estacao {
-    font-weight: bold;
-    font-size: 14px;
-    color: var(--cor-branco-principal);
-}
-
-.linha-metro {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: var(--cor-branco-principal);
-    font-size: 14px;
-}
-
-.linha-vermelha { background-color: var(--vermelho-cptm); }
-.linha-verde { background-color: #00b300; }
-
-.bolinha-branca {
-    width: 14px;
-    height: 14px;
-    background-color: #ffffff;
-    border-radius: 50%;
-}
-
-.seta {
+}.seta {
     font-size: 20px;
     color: var(--cor-branco-principal);
-}
-
-.trajeto-infos {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 16px;
-    color: var(--cor-branco-principal);
-}
-
-.trajeto-infos hr {
-    border: 0.5px solid var(--cor-branco-principal);
-    margin: 8px 0;
-}
-
-/* ===========================
+}/* ===========================
    TEXTOS / TIPOGRAFIA GENÉRICA
 =========================== */
 h2 {
@@ -446,52 +357,7 @@ p {
     font-size: 22px;
     font-family: 'Inter', sans-serif;
     color: var(--cor-branco-principal);
-}
-
-/* ===========================
-   LISTAS / BOTÕES EXTRAS
-=========================== */
-#lista-estacoes-container h4 {
-    margin: 0 0 6px 0;
-    color: var(--cor-font-preto);
-}
-
-#lista-estacoes {
-    background: transparent;
-    padding: 8px 10px;
-    border-radius: 10px;
-    max-height: 120px;
-    overflow: auto;
-}
-
-.btn-imprimir {
-    background-color: var(--cor-azul-principal);
-    color: var(--cor-branco-principal);
-    border: none;
-    padding: 10px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.btn-imprimir:active { background-color: var(--vermelho-cptm); }
-
-.list-card {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #ffffff;
-    color: var(--cor-font-preto);
-    font-weight: 600;
-    padding: 10px 12px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    cursor: pointer;
-}
-
-.list-card:active { transform: translateY(1px); }
-
-/* ===========================
+}/* ===========================
    OVERLAY / MAPA EXPANDIDO
 =========================== */
 #overlay {

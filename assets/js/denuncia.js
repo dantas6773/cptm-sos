@@ -358,7 +358,6 @@ if (setaCircular) {
 // ========================= CÂMERA =========================
 async function iniciarCamera() {
   if (!videoCamera || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    console.log("getUserMedia não suportado neste navegador.");
     return;
   }
 
@@ -371,7 +370,6 @@ async function iniciarCamera() {
     });
 
     videoCamera.srcObject = streamCamera;
-    console.log("📷 Câmera iniciada");
   } catch (err) {
     console.error("Erro ao acessar a câmera:", err);
     alert("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
@@ -382,7 +380,6 @@ function pararCamera() {
   if (streamCamera) {
     streamCamera.getTracks().forEach(track => track.stop());
     streamCamera = null;
-    console.log("📷 Câmera parada");
   }
 }
 

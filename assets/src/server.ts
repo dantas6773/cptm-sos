@@ -648,11 +648,13 @@ server.get("/", (req: Request, res: Response) => {
 server.post("/api/login", limiteLogin, (req: Request, res: Response) => {
     try {
         // Nunca logar req.body aqui: ele carrega a senha em texto puro.
-        console.log(`[POST /api/login] Tentativa de login: ${req.body?.email}`);
+        // Sem o e-mail: registrar quem tentou entrar, a cada tentativa, deixa
+        // dado pessoal no log do servidor sem que isso ajude a operar nada.
+        console.log('[POST /api/login] Tentativa de login recebida');
 
         const { email, senha } = req.body;
         if (!email || !senha) {
-            console.warn(`[POST /api/login] Erro 400: Campos faltando. Email: ${email}`);
+            console.warn('[POST /api/login] Erro 400: campos faltando');
             return res.status(400).json({ mensagem: "Email e senha são obrigatórios" });
         }
 
@@ -660,18 +662,21 @@ server.post("/api/login", limiteLogin, (req: Request, res: Response) => {
         const user = db.usuarios.find((u: any) => u.email === email);
 
         if (!user) {
-            console.warn(`[POST /api/login] Erro 404: Email ${email} não encontrado.`);
+            // Sem distinguir "não existe" de "senha errada", e sem o e-mail: a
+            // resposta já é a mesma nos dois casos justamente para não revelar
+            // quais contas existem, e o log não pode desfazer isso.
+            console.warn('[POST /api/login] Erro 401: credencial inválida');
             return res.status(404).json({ mensagem: "Usuário não encontrado" });
         }
 
         if (!bcrypt.compareSync(senha, user.senha)) {
-            console.warn(`[POST /api/login] Erro 401: Senha incorreta para ${email}.`);
+            console.warn('[POST /api/login] Erro 401: credencial inválida');
             return res.status(401).json({ mensagem: "Credenciais inválidas" });
         }
 
         // Remover a senha do objeto retornado
         const token = gerarToken({ id: user.id, email: user.email });
-        console.log(`[POST /api/login] Login bem-sucedido: ${email}`);
+        console.log('[POST /api/login] Login bem-sucedido');
 
         return res.status(200).json({
             mensagem: "Login efetuado com sucesso",
@@ -799,10 +804,15 @@ function startServer() {
 
     httpServer.on('error', (err: NodeJS.ErrnoException) => {
         if (err.code === 'EADDRINUSE') {
+            // Sem encerrar o processo: com `tsx watch`, sair aqui mata o
+            // observador junto, e a partir daí salvar um arquivo não recarrega
+            // mais nada — sem nenhuma mensagem dizendo por quê. Mantendo o
+            // processo vivo, a próxima alteração tenta subir de novo.
             console.error(`[server] A porta ${PORT} já está em uso. Encerre o outro processo ou use PORT=<outra> npm run dev`);
-        } else {
-            console.error('[server] Erro no servidor:', err);
+            return;
         }
+
+        console.error('[server] Erro no servidor:', err);
         process.exit(1);
     });
 }
