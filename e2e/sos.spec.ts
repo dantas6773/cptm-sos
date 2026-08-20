@@ -176,3 +176,33 @@ test("o campo de CPF do alarme aceita o formato que o cadastro ensina", async ({
     await page.waitForURL(/home\.html$/, { timeout: 5000 });
     expect(lerBanco().usuarios.find((u: any) => u.email === EMAIL).alerta).toBe(false);
 });
+
+// Prometer socorro a quem o app não consegue localizar é o pior erro possível
+// nesta tela. A confirmação só pode aparecer quando existe posição de verdade.
+test("permissão de localização negada não promete socorro", async ({ page, context }) => {
+    await context.clearPermissions();
+    await page.goto("/denuncia.html");
+
+    // o aparelho recusa a posição
+    await page.evaluate(() => {
+        navigator.geolocation.watchPosition = (_ok, erro) => {
+            (erro as PositionErrorCallback)({ code: 1, PERMISSION_DENIED: 1 } as GeolocationPositionError);
+            return 1;
+        };
+    });
+
+    await page.click("#meEncontre");
+
+    await expect(page.locator("#aviso-alarme")).toContainText("Permissão de localização negada");
+    await expect(page.locator("#aviso-alarme")).not.toContainText("autoridades");
+});
+
+test("com posição de verdade, aí sim a tela confirma o socorro", async ({ page, context }) => {
+    await context.grantPermissions(["geolocation"]);
+    await context.setGeolocation({ latitude: -23.55, longitude: -46.63 });
+
+    await page.goto("/denuncia.html");
+    await page.click("#meEncontre");
+
+    await expect(page.locator("#aviso-alarme")).toContainText("autoridades locais");
+});

@@ -244,10 +244,28 @@ if (meEncontre) {
       return;
     }
 
+    // A confirmação só aparece quando existe posição de verdade. Antes ela era
+    // exibida logo depois de pedir a localização, sem esperar resposta: com a
+    // permissão negada, a mensagem de erro era escrita e em seguida sobrescrita
+    // pela de que as autoridades estavam a caminho. Prometer socorro a quem o app
+    // não consegue localizar é o pior erro possível nesta tela.
+    let jaConfirmou = false;
+
+    // A provisória vem ANTES de pedir a posição. Escrita depois, ela sobrescreve
+    // o que o retorno já tiver escrito quando ele chega na mesma volta do laço —
+    // foi assim que a negativa de permissão sumia da tela.
+    avisarAlarme('Procurando a sua localização...');
+
     // watchPosition (e não getCurrentPosition): a posição continua sendo enviada
     // enquanto a pessoa se move, que é o ponto de "me encontre".
     watchId = navigator.geolocation.watchPosition(
-      (posicao) => enviarLocalizacao(posicao),
+      (posicao) => {
+        enviarLocalizacao(posicao);
+        if (!jaConfirmou) {
+          jaConfirmou = true;
+          avisarAlarme('🚓 As autoridades locais já estão indo até você.\nMantenha o botão ligado para continuar compartilhando a sua localização.', 'destaque');
+        }
+      },
       (erro) => {
         console.error('Erro de geolocalização:', erro);
 
@@ -259,12 +277,16 @@ if (meEncontre) {
         if (erro.code === erro.PERMISSION_DENIED) {
           avisarAlarme('Permissão de localização negada. Autorize o acesso para que possam te encontrar.', 'erro');
           desligarMeEncontre();
+          return;
+        }
+
+        // ainda sem posição nenhuma: não dá para dizer que estão a caminho
+        if (!jaConfirmou) {
+          avisarAlarme('Procurando a sua localização...');
         }
       },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
-
-    avisarAlarme('🚓 As autoridades locais já estão indo até você.\nMantenha o botão ligado para continuar compartilhando a sua localização.', 'destaque');
   });
 }
 
