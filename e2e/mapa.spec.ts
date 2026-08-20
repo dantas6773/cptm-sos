@@ -176,3 +176,25 @@ test("trajeto longo faz o conteúdo rolar, sem esmagar o mapa", async ({ page })
     expect(m.mioloRola).toBe(true);
     expect(m.paginaRola).toBe(false);
 });
+
+// A borda de baixo cortava o mapa em seco, no meio de linhas e nomes de estação.
+// A máscara faz o mapa se dissolver no fundo da página nos últimos pixels.
+test("a base do mapa se dissolve, em vez de terminar numa régua", async ({ page }) => {
+    await page.goto("/mapa.html");
+
+    const mascara = await page
+        .locator(".map-container")
+        .evaluate((el) => getComputedStyle(el).maskImage || (getComputedStyle(el) as any).webkitMaskImage);
+
+    expect(mascara).toContain("linear-gradient");
+    expect(mascara).toMatch(/transparent|rgba\(0, 0, 0, 0\)/);
+
+    // e a área esmaecida continua respondendo ao gesto: a máscara é só visual
+    const caixa = (await page.locator(".map-container").boundingBox())!;
+    const antes = await page.locator(".map").evaluate((el) => (el as HTMLElement).style.left);
+    await page.mouse.move(caixa.x + caixa.width / 2, caixa.y + caixa.height - 20);
+    await page.mouse.down();
+    await page.mouse.move(caixa.x + caixa.width / 2 - 60, caixa.y + caixa.height - 20, { steps: 8 });
+    await page.mouse.up();
+    expect(await page.locator(".map").evaluate((el) => (el as HTMLElement).style.left)).not.toBe(antes);
+});

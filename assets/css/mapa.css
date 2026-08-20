@@ -54,6 +54,13 @@ body {
     overflow: hidden;
     position: relative;
     cursor: grab;
+
+    /* A borda de baixo cortava o mapa em seco, no meio de linhas e nomes de
+       estação. Aqui ele se dissolve no fundo da página nos últimos pixels, em vez
+       de terminar numa régua. É a mesma máscara que o carrossel de avisos da home
+       usa na borda direita. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent 100%);
 }
 
 .map-container:active {
