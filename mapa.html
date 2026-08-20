@@ -7,6 +7,7 @@
 
   <!-- CSS principal -->
   <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/cabecalho.css" />
   <link rel="stylesheet" href="assets/css/navegacao.css" />
   <link rel="stylesheet" href="assets/css/mapa.css" />
 
@@ -16,6 +17,16 @@
 
 <body>
   <div class="pagina">
+    <header>
+      <div class="header-todo">
+        <div class="logo">
+          <a href="home.html" class="logo-link" aria-label="Ir para a home"><img src="assets/imagem/logo.png" alt="Logo"></a>
+          <h1 id="boas-vindas" aria-live="polite">Carregando...</h1>
+        </div>
+        <div class="barra" aria-hidden="true"></div>
+      </div>
+    </header>
+
     <!-- área principal do mapa interativo -->
     <main class="map-container">
       <div class="map"></div>
@@ -30,48 +41,23 @@
       <!-- bloco de busca / seleção de rota -->
       <section class="container-pesquisa">
         <div class="dropdown-row">
-          <!-- ORIGEM -->
-          <div class="dropdown" id="dropdown-origem">
-            <label class="dropdown-label" for="toggle-origem">ORIGEM</label>
-            <div
-              class="dropdown-btn"
-              id="toggle-origem"
-              role="button"
-              tabindex="0"
-              aria-haspopup="listbox"
-              aria-expanded="false"
-            >
-              Selecionar ▾
-            </div>
-
-            <div class="dropdown-panel hidden" id="panel-origem">
-              <ul class="dropdown-list" id="list-origem"></ul>
-            </div>
+          <div class="campo-estacao">
+            <label class="dropdown-label" for="origem">ORIGEM</label>
+            <select id="origem" class="seletor-estacao">
+              <option value="">Selecionar</option>
+            </select>
           </div>
 
-          <!-- DESTINO -->
-          <div class="dropdown" id="dropdown-destino">
-            <label class="dropdown-label" for="toggle-destino">DESTINO</label>
-            <div
-              class="dropdown-btn"
-              id="toggle-destino"
-              role="button"
-              tabindex="0"
-              aria-haspopup="listbox"
-              aria-expanded="false"
-            >
-              Selecionar ▾
-            </div>
-
-            <div class="dropdown-panel hidden" id="panel-destino">
-              <ul class="dropdown-list" id="list-destino"></ul>
-            </div>
+          <div class="campo-estacao">
+            <label class="dropdown-label" for="destino">DESTINO</label>
+            <select id="destino" class="seletor-estacao">
+              <option value="">Selecionar</option>
+            </select>
           </div>
         </div>
 
-        <!-- botão GERAR MAPA -->
         <div class="gerar-wrapper">
-          <button id="gerar-mapa-btn" class="btn-gerar">GERAR MAPA</button>
+          <button id="gerar-mapa-btn" class="btn-gerar" type="button" disabled>VER TRAJETO</button>
         </div>
       </section>
 
@@ -105,6 +91,7 @@
   </div>
 
   <!-- JS principal -->
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/navegacao.js"></script>
   <script src="assets/js/mapa.js"></script>
 </body>

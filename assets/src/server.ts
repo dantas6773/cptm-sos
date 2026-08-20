@@ -71,13 +71,14 @@ const limiteSaldo = rateLimit({
     message: { mensagem: "Muitas operações de saldo seguidas. Aguarde um instante." },
 });
 
-// /gera-mapa sobe um processo Python por chamada — sem limite, é flood de CPU fácil.
-const limiteMapa = rateLimit({
+// O cálculo de rota percorre a rede inteira a cada chamada. É barato, mas não a
+// ponto de valer a pena deixar em rajada livre.
+const limiteRota = rateLimit({
     windowMs: 60 * 1000,
-    limit: 5,
+    limit: Number(process.env.RATE_LIMIT_ROTA) || 60,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { ok: false, error: "Muitas gerações de mapa seguidas. Aguarde um instante." },
+    message: { mensagem: "Muitos cálculos de trajeto seguidos. Aguarde um instante." },
 });
 
 // Rotas de escrita que faltavam limite: /api/denuncias incha um arquivo JSON, e
@@ -590,7 +591,7 @@ server.get("/api/estacoes", (_req: Request, res: Response) => {
  * quantas paradas são. Substitui o /gera-mapa, que dependia de Python e desenhava
  * as estações em coordenadas que ele mesmo inventava.
  */
-server.get("/api/rota", limiteMapa, (req: Request, res: Response) => {
+server.get("/api/rota", limiteRota, (req: Request, res: Response) => {
     const origem = String(req.query.origem || "").trim();
     const destino = String(req.query.destino || "").trim();
 
@@ -610,123 +611,6 @@ server.get("/api/rota", limiteMapa, (req: Request, res: Response) => {
     }
 });
 
-/**
- * POST /gera-mapa
- * Gera visualização do mapa com rota entre duas estações
- *
- * Corpo da requisição:
- * {
- *   origin: string,      // Nome da estação de origem
- *   destination: string  // Nome da estação de destino
- * }
- *
- * Processo:
- * 1. Recebe origem/destino do frontend
- * 2. Executa script Python para gerar mapa (mapa_estacoes.py)
- * 3. Salva HTML do mapa gerado
- * 4. Retorna URL do mapa via Live Server
- *
- * Resposta:
- * {
- *   ok: true,
- *   url: string // URL do mapa gerado (ex: http://127.0.0.1:5500/assets/src/mapa_rota.html)
- * }
- *
- * Usado por: Página de seleção de estações (mapa)
- */
-server.post("/gera-mapa", limiteMapa, async (req: Request, res: Response) => {
-    // valida parâmetros
-    const { origin, destination } = req.body || {};
-    if (!origin || !destination) {
-        return res.status(400).json({ 
-            ok: false, 
-            error: "origin e destination são obrigatórios" 
-        });
-    }
-
-    console.log("Gera mapa solicitado:", origin, "->", destination);
-
-    try {
-        // prepara execução do script Python
-        const { spawn } = await import('child_process');
-        const scriptPath = path.join(__dirname, 'mapa_estacoes.py');
-        const args = [
-            '--start', origin,
-            '--end', destination
-        ];
-
-        // executa Python com coleta de saída
-        // python3: em macOS e na maioria das distros Linux não existe binário `python`
-        const pythonBin = process.env.PYTHON_BIN || 'python3';
-        const py = spawn(pythonBin, [scriptPath, ...args], {
-            cwd: __dirname
-        });
-
-        py.on('error', (err) => {
-            console.error(`[gera-mapa] Falha ao executar "${pythonBin}":`, err.message);
-            if (!res.headersSent) {
-                return res.status(500).json({
-                    ok: false,
-                    error: `Não foi possível executar "${pythonBin}". Instale o Python e as dependências de assets/src/requirements.txt.`
-                });
-            }
-        });
-
-        let stdout = '';
-        let stderr = '';
-
-        // captura saída em tempo real
-        py.stdout.on('data', (data) => {
-            const text = data.toString();
-            stdout += text;
-            console.log('[Python stdout]', text.trim());
-        });
-        py.stderr.on('data', (data) => {
-            const text = data.toString();
-            stderr += text;
-            console.error('[Python stderr]', text.trim());
-        });
-
-        // aguarda término e retorna resultado
-        py.on('close', (code) => {
-            console.log(`Python process exited with code ${code}`);
-            
-            if (code === 0) {
-                // Caminho pelo qual o mapa é realmente servido. Antes daqui saía
-                // "/src/mapa_rota.html", que não existe — o front só funcionava
-                // porque ignorava este campo e montava a URL por conta própria.
-                const url = `/assets/src/mapa_rota.html`;
-
-                // stdout do script traz o caminho absoluto do arquivo no servidor;
-                // fica no log, não na resposta.
-                console.log('[gera-mapa]', stdout.trim());
-
-                return res.json({
-                    ok: true,
-                    origin,
-                    destination,
-                    url
-                });
-            } else {
-                // erro: retorna detalhes para debug
-                console.error('[gera-mapa] Python falhou:', { code, stderr: stderr.slice(0, 500) });
-                return res.status(500).json({
-                    ok: false,
-                    error: 'Erro ao gerar mapa'
-                });
-            }
-        });
-    } catch (err) {
-        // erro ao executar Python
-        console.error('Erro ao executar script python:', err);
-        return res.status(500).json({ 
-            ok: false, 
-            error: 'Erro interno ao executar script',
-            details: err instanceof Error ? err.message : String(err)
-        });
-    }
-});
-
 // As telas .html ficam na raiz do projeto, junto de data/, .env, node_modules e .git.
 // Servir a raiz inteira e tentar bloquear o que é sensível não funciona: um blocklist
 // por prefixo é furado por "//data/x", "/data%2Fx" e "/./data/x", que só são
@@ -735,22 +619,10 @@ server.post("/gera-mapa", limiteMapa, async (req: Request, res: Response) => {
 const ROOT_DIR = path.join(__dirname, "..", "..");
 
 // Só as subpastas de fato públicas. `assets/src/` fica de fora de propósito: guarda
-// o código do backend e o script Python, que não têm por que ser baixáveis.
+// o código do backend, que não tem por que ser baixável.
 for (const pasta of ["css", "js", "imagem", "sons", "fontes"]) {
 	server.use(`/assets/${pasta}`, express.static(path.join(ROOT_DIR, "assets", pasta), { dotfiles: "deny" }));
 }
-
-// exceção: o mapa gerado pelo script Python precisa ser aberto pelo navegador.
-// É um artefato — não vem no clone, só existe depois da primeira geração.
-server.get("/assets/src/mapa_rota.html", (_req: Request, res: Response) => {
-	const mapa = path.join(ROOT_DIR, "assets", "src", "mapa_rota.html");
-
-	if (!fs.existsSync(mapa)) {
-		return res.status(404).send("Nenhum mapa gerado ainda. Escolha origem e destino na tela de mapa.");
-	}
-
-	return res.sendFile(mapa);
-});
 
 const PAGINAS = new Set(
 	fs.readdirSync(ROOT_DIR).filter((arquivo) => arquivo.endsWith(".html"))
@@ -770,8 +642,6 @@ server.get("/:pagina", (req: Request, res: Response, next: NextFunction) => {
 server.get("/", (req: Request, res: Response) => {
 	res.redirect('/login.html');
 });
-
-
 
 // ROTA LOGIN | INICIO
 
@@ -816,7 +686,6 @@ server.post("/api/login", limiteLogin, (req: Request, res: Response) => {
 
 // ROTA LOGIN | FIM
 // ROTA DENUNCIA | INICIO 
-
 
 server.put("/api/alerta", autenticar, (req: AuthRequest, res: Response) => {
     try {
