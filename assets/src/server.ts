@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
+import { calcularRota, listarEstacoes } from "./rota.ts";
 import fs from "fs";
 import cors from "cors";
 import bcrypt from "bcryptjs";
@@ -574,32 +575,38 @@ server.post("/api/usuario/passagem", autenticar, limiteSaldo, (req: AuthRequest,
  * Extrai nomes das estações do arquivo estacoes.json,
  * remove duplicatas e retorna array ordenado alfabeticamente.
  */
-server.get("/api/estacoes", (req: Request, res: Response) => {
+server.get("/api/estacoes", (_req: Request, res: Response) => {
     try {
-        // carrega e parseia estacoes.json
-        const filePath = path.join(__dirname, "estacoes.json");
-        const raw = fs.readFileSync(filePath, "utf8");
-        const linhas = JSON.parse(raw) as Array<any>;
-
-        // extrai nomes de estações de todas as linhas
-        const nomes: string[] = [];
-        linhas.forEach((linha) => {
-            if (Array.isArray(linha.trajeto)) {
-                linha.trajeto.forEach((estacao: string) => nomes.push(estacao));
-            }
-        });
-
-        // remove duplicatas e ordena alfabeticamente (pt-BR)
-        const unique = Array.from(new Set(nomes))
-            .sort((a, b) => a.localeCompare(b, "pt-BR"));
-
-        return res.json(unique);
+        return res.json(listarEstacoes());
     } catch (err) {
         console.error("Erro ao ler estacoes.json:", err);
-        return res.status(500).json({ 
-            error: "Erro ao ler estações",
-            details: err instanceof Error ? err.message : String(err)
-        });
+        return res.status(500).json({ error: "Erro ao ler estações" });
+    }
+});
+
+/**
+ * GET /api/rota?origem=&destino=
+ * Trajeto entre duas estações: por quais linhas se passa, onde se baldeia e
+ * quantas paradas são. Substitui o /gera-mapa, que dependia de Python e desenhava
+ * as estações em coordenadas que ele mesmo inventava.
+ */
+server.get("/api/rota", limiteMapa, (req: Request, res: Response) => {
+    const origem = String(req.query.origem || "").trim();
+    const destino = String(req.query.destino || "").trim();
+
+    if (!origem || !destino) {
+        return res.status(400).json({ mensagem: "origem e destino são obrigatórios" });
+    }
+
+    try {
+        const rota = calcularRota(origem, destino);
+        if (!rota) {
+            return res.status(404).json({ mensagem: "Não há trajeto entre essas estações" });
+        }
+        return res.json(rota);
+    } catch (err) {
+        console.error("[GET /api/rota] Erro:", err);
+        return res.status(500).json({ mensagem: "Erro interno do servidor" });
     }
 });
 
