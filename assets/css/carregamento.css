@@ -14,20 +14,22 @@ body {
   max-width: 480px;
   height: 100%;
 
-  /* Duas vias de trilho, cada uma com os seus dormentes entre os dois trilhos.
-     Está num SVG porque degradê repetido não recorta: ele pinta faixas de ponta
-     a ponta, e o dormente precisa existir só no vão de dentro de cada par — sem
-     isso vira grade, que foi onde as primeiras tentativas pararam.
+  /* Trilhos, o mesmo motivo que o cabeçalho usa: pares de linhas paralelas
+     correndo numa direção só. Duas tentativas antes desta erraram por excesso —
+     faixas cruzando em duas direções viram xadrez, e travessas cruzando os pares
+     ainda formam xis. Trilho é o par; o resto é ruído.
 
-     O ângulo é o mesmo dos trilhos do cabeçalho (-41,95°). */
+     O ângulo é o mesmo dos trilhos do cabeçalho: lá uma barra vertical é girada
+     -41,95°, o que equivale a 48deg aqui. Estavam a 90° um do outro, correndo em
+     sentidos opostos entre uma tela e a seguinte. */
   background-color: #1B4680;
-  background-image: url(../imagem/trilhos.svg);
-  /* tamanho natural, não "cover": esticar o desenho para caber muda a espessura
-     dos trilhos e a distância entre dormentes, e a via vira textura fina. O SVG
-     já nasce maior que qualquer tela de celular. */
-  background-size: auto;
-  background-position: center;
-  background-repeat: repeat;
+  background-image:
+    repeating-linear-gradient(48deg,
+      transparent 0 96px,
+      rgba(255, 255, 255, 0.075) 96px 104px,
+      transparent 104px 120px,
+      rgba(255, 255, 255, 0.075) 120px 128px,
+      transparent 128px 224px);
 }
 
 .div-logo {
