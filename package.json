@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/projeto-inegrador-2025-2/projeto-cptm-paraiso-feudal.git"
+    "url": "git+https://github.com/dantas6773/cptm-sos.git"
   },
   "keywords": [],
   "author": "Grupo Paraíso Feudal",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/projeto-inegrador-2025-2/projeto-cptm-paraiso-feudal/issues"
+    "url": "https://github.com/dantas6773/cptm-sos/issues"
   },
-  "homepage": "https://github.com/projeto-inegrador-2025-2/projeto-cptm-paraiso-feudal#readme",
+  "homepage": "https://github.com/dantas6773/cptm-sos#readme",
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
