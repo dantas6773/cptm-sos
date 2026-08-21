@@ -15,6 +15,20 @@ design.
 
 ---
 
+## Testar sem instalar nada
+
+Há uma instância pública para experimentar pelo celular. A hospedagem é gratuita
+e hiberna quando ninguém acessa, então a primeira visita depois de um tempo pode
+levar quase um minuto para responder — da segunda em diante é imediato.
+
+> **É uma demonstração, e os dados são compartilhados.** Todo mundo entra na
+> mesma conta e enxerga o mesmo saldo; o que uma pessoa faz aparece para as
+> outras. O botão de emergência registra a localização real de quem o aciona, e
+> ela é apagada ao desligar o alarme ou depois de 6 horas. Não use para nada que
+> não possa ser público.
+
+---
+
 ## Como rodar
 
 Só é preciso Node. Não há banco para instalar, nem serviço externo.
