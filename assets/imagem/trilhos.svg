@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="4200" viewBox="0 0 1600 4200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <!--
+    Fundo de trilhos da tela de abertura.
+
+    Duas vias, cada uma com seus dois trilhos e os dormentes entre eles. O
+    dormente liga os trilhos de uma mesma via — nunca vias diferentes —, então o
+    vão largo entre uma via e a outra fica limpo. É o que separa "duas vias" de
+    "uma grade".
+
+    Desenhado com os trilhos na vertical e girado depois: o ângulo é o mesmo dos
+    trilhos do cabeçalho, onde uma barra vertical leva rotate(-41.95deg).
+
+    Um degradê repetido não daria conta: ele pinta faixas de ponta a ponta, e o
+    dormente precisa existir só no vão de dentro de cada par.
+
+    A tela é grande de propósito. O desenho é girado, então as bordas não
+    encaixam ao repetir: numa janela mais alta que ele aparecia a emenda, com os
+    trilhos cortados e recomeçando deslocados. Como isto é uma definição de
+    padrão e não pixels, crescer não custa quase nada em bytes.
+  -->
+  <defs>
+    <pattern id="via" width="224" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(-41.95)">
+      <!-- os dois trilhos da via -->
+      <rect x="96" y="0" width="8" height="34" fill="#FFFFFF" fill-opacity="0.075"/>
+      <rect x="120" y="0" width="8" height="34" fill="#FFFFFF" fill-opacity="0.075"/>
+      <!-- o dormente, só no vão entre eles -->
+      <rect x="104" y="14" width="16" height="5" fill="#FFFFFF" fill-opacity="0.055"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="4200" fill="url(#via)"/>
+</svg>
