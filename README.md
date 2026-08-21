@@ -1,4 +1,4 @@
-# CPTM — Paraíso Feudal
+# CPTM SOS
 
 Redesenho do aplicativo da CPTM com um acréscimo que não existe no app real: um
 fluxo de emergência pensado para quem se sente inseguro dentro do trem ou na
@@ -192,4 +192,5 @@ em lugar nenhum.
 
 ## Autoria
 
-Trabalho coletivo de **Benjamin, João Pedro, Paulo, Thales, Thomas e Waldir**.
+Trabalho coletivo do grupo **Paraíso Feudal** — Benjamin, João Pedro, Paulo,
+Thales, Thomas e Waldir.
