@@ -69,3 +69,25 @@ test("a folha de ajuda aberta não tem violação de acessibilidade", async ({ p
 
     expect(resultado.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
 });
+
+// O <dialog> nativo prende o foco: tabular dentro da camada nunca alcança um
+// controle da página atrás. É o que justifica não ter escrito trava própria.
+test("o foco não escapa da folha de ajuda para a página atrás", async ({ page }) => {
+    await page.goto("/pagamento.html");
+    await page.click("#Ajuda");
+    await expect(page.locator(".dialogo-ajuda")).toBeVisible();
+
+    const escapou: string[] = [];
+    for (let i = 0; i < 10; i++) {
+        await page.keyboard.press("Tab");
+        const fora = await page.evaluate(() => {
+            const ativo = document.activeElement as HTMLElement | null;
+            if (!ativo || ativo === document.body) return null; // volta do ciclo
+            if (ativo.closest(".dialogo-ajuda")) return null;
+            return ativo.id || ativo.className || ativo.tagName;
+        });
+        if (fora) escapou.push(String(fora));
+    }
+
+    expect(escapou, "foco alcançou controle fora da camada").toEqual([]);
+});

@@ -17,6 +17,7 @@ const TELAS = [
     "pagamento.html",
     "pagamento-pós.html",
     "pré-denucia.html",
+    "denuncia.html",
     "formularioDenuncia.html",
 ];
 

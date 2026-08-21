@@ -122,8 +122,11 @@ corrigidos, `lang="en"` em página portuguesa, campo sem rótulo e `div` clicáv
 inalcançável pelo teclado.
 
 Além do que a ferramenta pega, há testes para o que ela não pega: alvo de toque
-mínimo de 24×24 (os indicadores do carrossel tinham 8×8), teclado alcançando cada
-fluxo, foco preso dentro das camadas modais e a pinça de ampliar preservada.
+mínimo de 24×24 (os indicadores do carrossel tinham 8×8), o foco que não escapa
+das camadas modais para a página atrás, a pinça de ampliar preservada em todas as
+telas, e o teclado alcançando os fluxos que dependiam de controles improvisados —
+as categorias da denúncia, os seletores do mapa e a folha de ajuda eram `div`
+clicáveis, inalcançáveis sem mouse.
 
 **Uma exceção, consciente.** O vermelho institucional da CPTM (`#ED1C24`) com
 texto branco dá 4,38:1, abaixo dos 4,5:1 que a WCAG AA pede. Vale para cinco
