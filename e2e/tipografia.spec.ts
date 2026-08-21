@@ -92,13 +92,13 @@ test("a fonte continua correta com a internet indisponível", async ({ page, con
     expect(m.inter).not.toBe(m.sistema);
 });
 
-// Cinco folhas usam font-style: italic, entre elas a marca "CPTM" a 48px na
-// abertura. Sem o arquivo próprio o navegador inclina a versão reta por conta.
+// Quatro folhas usam font-style: italic, entre elas a marca "CPTM" da tela de
+// login. Sem o arquivo próprio o navegador inclina a versão reta por conta.
 test("o itálico é o da fonte, não uma inclinação inventada pelo navegador", async ({ page }) => {
-    await page.goto("/carregamento.html");
+    await page.goto("/login.html");
     const temItalico = await page.evaluate(async () => {
         await document.fonts.ready;
-        return document.fonts.check("italic 700 48px Inter");
+        return document.fonts.check("italic 700 32px Inter");
     });
     expect(temItalico).toBe(true);
 });

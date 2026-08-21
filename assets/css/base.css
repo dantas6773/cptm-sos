@@ -41,9 +41,9 @@
         U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-/* Itálico de verdade. Cinco telas usam font-style: italic — entre elas a marca
-   "CPTM" a 48px na abertura. Sem o arquivo próprio o navegador inclina a versão
-   reta por conta, e a 48px a falsificação aparece. */
+/* Itálico de verdade. Quatro telas usam font-style: italic — entre elas a marca
+   "CPTM" da tela de login. Sem o arquivo próprio o navegador inclina a versão
+   reta por conta, e em tamanho grande a falsificação aparece. */
 @font-face {
     font-family: "Inter";
     font-style: italic;

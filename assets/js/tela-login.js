@@ -44,7 +44,9 @@ form.addEventListener("submit", async function (event) {
 
       if (response.status === 200) {
         salvarSessao({ token: data.token, usuario: data.usuario });
-        window.location.href = "home.html";
+        // Passa pela tela de carregamento, como o cadastro já fazia: a animação
+        // da marca marca a entrada no app, e não só a criação da conta.
+        window.location.href = "carregamento.html";
         return;
       }
 
