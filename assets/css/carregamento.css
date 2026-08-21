@@ -14,20 +14,22 @@ body {
   max-width: 480px;
   height: 100%;
 
-  /* Trama diagonal do projeto visual. Medida na exportação do Figma: inclinação
-     de ~53 graus, tom #254D84 sobre o #1B4680, e larguras irregulares — 30, 32 e
-     86px. As faixas se cruzam em duas direções perpendiculares, o que dá o
-     aspecto de trama; só na diagonal única ficava listrado. */
+  /* Trilhos, o mesmo motivo que o cabeçalho usa: pares de linhas paralelas
+     correndo numa direção só. Duas tentativas antes desta erraram por excesso —
+     faixas cruzando em duas direções viram xadrez, e travessas cruzando os pares
+     ainda formam xis. Trilho é o par; o resto é ruído.
+
+     O ângulo é o mesmo dos trilhos do cabeçalho: lá uma barra vertical é girada
+     -41,95°, o que equivale a 48deg aqui. Estavam a 90° um do outro, correndo em
+     sentidos opostos entre uma tela e a seguinte. */
   background-color: #1B4680;
   background-image:
-    repeating-linear-gradient(53deg,
-      transparent 0 94px,
-      #22497F 94px 124px,
-      transparent 124px 216px),
-    repeating-linear-gradient(143deg,
-      transparent 0 128px,
-      #22497F 128px 158px,
-      transparent 158px 286px);
+    repeating-linear-gradient(48deg,
+      transparent 0 96px,
+      rgba(255, 255, 255, 0.075) 96px 104px,
+      transparent 104px 120px,
+      rgba(255, 255, 255, 0.075) 120px 128px,
+      transparent 128px 224px);
 }
 
 .div-logo {
