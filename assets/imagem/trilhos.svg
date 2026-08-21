@@ -2,10 +2,14 @@
   <!--
     Fundo de trilhos da tela de abertura.
 
-    Duas vias, cada uma com seus dois trilhos e os dormentes entre eles. O
-    dormente liga os trilhos de uma mesma via — nunca vias diferentes —, então o
-    vão largo entre uma via e a outra fica limpo. É o que separa "duas vias" de
-    "uma grade".
+    Duas vias, cada uma com seus dois trilhos e os dormentes atravessando de um
+    ao outro. O dormente liga os trilhos de uma mesma via — nunca vias diferentes
+    —, então o vão largo entre uma via e a outra fica limpo. É essa ausência que
+    faz ler como duas vias, e não como uma grade.
+
+    A bitola é larga de propósito: na primeira versão os dois trilhos ficavam a
+    16px um do outro, o par lia como uma faixa única e o dormente sumia dentro
+    dela. Afastados, aparece a escada que se reconhece como via férrea.
 
     Desenhado com os trilhos na vertical e girado depois: o ângulo é o mesmo dos
     trilhos do cabeçalho, onde uma barra vertical leva rotate(-41.95deg).
@@ -19,12 +23,12 @@
     padrão e não pixels, crescer não custa quase nada em bytes.
   -->
   <defs>
-    <pattern id="via" width="224" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(-41.95)">
-      <!-- os dois trilhos da via -->
-      <rect x="96" y="0" width="8" height="34" fill="#FFFFFF" fill-opacity="0.075"/>
-      <rect x="120" y="0" width="8" height="34" fill="#FFFFFF" fill-opacity="0.075"/>
-      <!-- o dormente, só no vão entre eles -->
-      <rect x="104" y="14" width="16" height="5" fill="#FFFFFF" fill-opacity="0.055"/>
+    <pattern id="via" width="400" height="62" patternUnits="userSpaceOnUse" patternTransform="rotate(-41.95)">
+      <!-- os dois trilhos da via, afastados pela bitola -->
+      <rect x="0" y="0" width="8" height="62" fill="#FFFFFF" fill-opacity="0.075"/>
+      <rect x="96" y="0" width="8" height="62" fill="#FFFFFF" fill-opacity="0.075"/>
+      <!-- os dormentes, atravessando de um trilho ao outro -->
+      <rect x="0" y="28" width="104" height="6" fill="#FFFFFF" fill-opacity="0.05"/>
     </pattern>
   </defs>
   <rect width="1600" height="4200" fill="url(#via)"/>
