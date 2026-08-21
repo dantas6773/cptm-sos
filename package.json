@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/dantas6773/cptm-sos/issues"
   },
-  "homepage": "https://github.com/dantas6773/cptm-sos#readme",
+  "homepage": "https://cptm-sos.onrender.com",
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",

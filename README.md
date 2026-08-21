@@ -17,9 +17,10 @@ design.
 
 ## Testar sem instalar nada
 
-Há uma instância pública para experimentar pelo celular. A hospedagem é gratuita
-e hiberna quando ninguém acessa, então a primeira visita depois de um tempo pode
-levar quase um minuto para responder — da segunda em diante é imediato.
+**https://cptm-sos.onrender.com** — entre pelo botão "Entrar como demonstração",
+sem cadastro. A hospedagem é gratuita e hiberna quando ninguém acessa, então a
+primeira visita depois de um tempo pode levar quase um minuto para responder —
+da segunda em diante é imediato.
 
 > **É uma demonstração, e os dados são compartilhados.** Todo mundo entra na
 > mesma conta e enxerga o mesmo saldo; o que uma pessoa faz aparece para as
@@ -49,7 +50,7 @@ Para abrir no celular, use o IP da máquina na mesma rede — `http://192.168.x.
 
 ```bash
 npm test        # 93 testes de API
-npm run test:e2e    # 118 testes de ponta a ponta, com axe-core
+npm run test:e2e    # 120 testes de ponta a ponta, com axe-core
 npm run test:all
 ```
 
@@ -154,7 +155,7 @@ só esses cinco elementos são aceitos pelo nome. Um sexto reprova a suíte.
 
 ## Testes
 
-93 testes de API (`node:test`) e 118 de ponta a ponta (Playwright).
+93 testes de API (`node:test`) e 120 de ponta a ponta (Playwright).
 
 Mais do que a contagem, importa que eles peguem regressão. Ao longo do trabalho
 cada correção foi verificada por mutação — quebrar de propósito o que acabou de
