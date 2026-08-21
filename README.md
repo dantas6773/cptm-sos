@@ -127,7 +127,8 @@ fluxo, foco preso dentro das camadas modais e a pinça de ampliar preservada.
 
 **Uma exceção, consciente.** O vermelho institucional da CPTM (`#ED1C24`) com
 texto branco dá 4,38:1, abaixo dos 4,5:1 que a WCAG AA pede. Vale para cinco
-elementos: "Entrar", "Cadastrar", "Recarga" e "Usar QR Code". Manter foi decisão
+elementos: o "Entrar" do login e o do apelido, o "Cadastrar", e o "Recarga" e o
+"Usar QR Code" do cartão de saldo. Manter foi decisão
 de marca do grupo, com o número na mesa — a alternativa medida, `#D3141A`, dá
 5,41:1 e muda o tom. A regra **não** foi desligada por causa disso: ela roda, e
 só esses cinco elementos são aceitos pelo nome. Um sexto reprova a suíte.
@@ -160,7 +161,7 @@ data/           banco local em JSON; o seed é versionado, o banco não
 tests/          testes de API
 e2e/            testes de ponta a ponta
 docs/figma/     telas do projeto visual, para comparar com o que foi construído
-docs/baseline/  capturas do antes e depois de cada ajuste
+docs/telas/     capturas do app como ele está
 ```
 
 ---
