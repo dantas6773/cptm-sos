@@ -9,6 +9,10 @@ services:
     name: cptm-sos
     runtime: node
     plan: free
+    # Oregon é o padrão do Render e fica na costa oeste dos EUA. Ohio corta perto
+    # de 70ms por requisição para quem acessa do Brasil. A região não pode ser
+    # trocada depois: só recriando o serviço.
+    region: ohio
     buildCommand: npm install
     startCommand: npm start
     # O plano gratuito hiberna após um tempo sem acesso. A primeira visita
